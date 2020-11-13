@@ -1,0 +1,38 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:CrossArcAvaloniaConcept.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CrossArcAvaloniaConcept.UserControls.FileTreeView"
+             Name="thisControl">
+  <UserControl.Resources>
+    <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+  </UserControl.Resources>
+  <TreeView Items="{Binding Items}" SelectedItem="{Binding SelectedItem}" DataContext="{Binding ElementName=thisControl}">
+    <TreeView.Styles>
+      <Style Selector="TreeViewItem">
+        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"></Setter>
+      </Style>
+    </TreeView.Styles>
+    <TreeView.DataTemplates>
+      <TreeDataTemplate ItemsSource="{Binding Children}">
+        <Grid>
+          <StackPanel Orientation="Horizontal">
+            <StackPanel.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="Extract File(s)"></MenuItem>
+                <MenuItem Header="Extract File(s) to Folder"></MenuItem>
+              </ContextMenu>
+            </StackPanel.ContextMenu>
+            <DrawingPresenter Margin="5,0" Width="16" Height="16"
+                              Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+            <TextBlock Name="fileText" Text="{Binding Name}"></TextBlock>
+            <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+            <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+          </StackPanel>
+        </Grid>
+      </TreeDataTemplate>
+    </TreeView.DataTemplates>
+  </TreeView>
+</UserControl>

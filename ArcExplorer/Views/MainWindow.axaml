@@ -1,0 +1,50 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CrossArcAvaloniaConcept.ViewModels;assembly=CrossArcAvaloniaConcept"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:usercontrols="clr-namespace:CrossArcAvaloniaConcept.UserControls"
+        xmlns:converters="clr-namespace:CrossArcAvaloniaConcept.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        x:Class="CrossArcAvaloniaConcept.Views.MainWindow"
+        Icon="/Assets/arc.ico"
+        Title="ARC Explorer"
+        Name="thisWindow">
+  <Window.Resources>
+    <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+  </Window.Resources>
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+  <DockPanel LastChildFill="True">
+    <Menu DockPanel.Dock="Top" DataContext="{Binding ElementName=thisWindow}">
+      <MenuItem Header="File">
+        <MenuItem Name="openArcMenuItem" HotKey="Ctrl+O" Command="{Binding OpenArc}" Width="180">
+          <MenuItem.Header>
+            <Grid ColumnDefinitions="*,*">
+              <TextBlock Grid.Column="0" TextAlignment="Left">Open Arc</TextBlock>
+              <TextBlock Grid.Column="1" TextAlignment="Right">Ctrl+O</TextBlock>
+            </Grid>
+          </MenuItem.Header>
+          <MenuItem.Icon>
+            <DrawingPresenter Drawing="{StaticResource openFileIcon}"></DrawingPresenter>
+          </MenuItem.Icon>
+        </MenuItem>
+      </MenuItem>
+      <MenuItem Header="Settings">
+        <MenuItem Name="preferencesMenuItem" Header="Preferences">
+          <MenuItem.Icon>
+            <DrawingPresenter Drawing="{StaticResource settingsIcon}"></DrawingPresenter>
+          </MenuItem.Icon>
+        </MenuItem>
+      </MenuItem>
+    </Menu>
+    <Grid ColumnDefinitions="*,10,300">
+      <usercontrols:FileTreeView Name="fileTreeView" Margin="10" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
+      <GridSplitter Grid.Column="1"></GridSplitter>
+      <usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedFile}"></usercontrols:FileDetailsView>
+    </Grid>
+  </DockPanel>
+</Window>

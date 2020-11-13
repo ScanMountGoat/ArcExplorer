@@ -1,0 +1,30 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:CrossArcAvaloniaConcept.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CrossArcAvaloniaConcept.UserControls.FileDetailsView"
+             Name="thisControl">
+  <UserControl.Resources>
+    <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+  </UserControl.Resources>
+  <StackPanel DataContext="{Binding ElementName=thisControl}">
+    <TextBlock FontSize="16" Margin="5" Text="{Binding File.Name}"></TextBlock>
+    <Grid ColumnDefinitions="*,*">
+      <DrawingPresenter Grid.Column="0" Margin="5" Width="32" Height="32" HorizontalAlignment="Left"
+                  Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+      <TextBlock Grid.Column="1" Text="{Binding File.Description}" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
+    </Grid>
+    <ItemsControl Items="{Binding File.ObjectProperties}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="*,*">
+            <TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
+            <TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="Bold"></TextBlock>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>
