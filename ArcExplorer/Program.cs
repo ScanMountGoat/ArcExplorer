@@ -2,7 +2,7 @@
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 
-namespace CrossArcAvaloniaConcept
+namespace ArcExplorer
 {
     class Program
     {

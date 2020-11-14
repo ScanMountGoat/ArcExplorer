@@ -1,12 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CrossArcAvaloniaConcept.Models;
-using CrossArcAvaloniaConcept.ViewModels;
+using ArcExplorer.Models;
+using ArcExplorer.ViewModels;
 using Newtonsoft.Json;
 using System;
 
-namespace CrossArcAvaloniaConcept.Views
+namespace ArcExplorer.Views
 {
     public class PreferencesWindow : Window
     {

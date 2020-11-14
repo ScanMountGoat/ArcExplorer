@@ -1,9 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CrossArcAvaloniaConcept.ViewModels;
+using ArcExplorer.ViewModels;
 
-namespace CrossArcAvaloniaConcept.UserControls
+namespace ArcExplorer.UserControls
 {
     public class FileDetailsView : UserControl
     {

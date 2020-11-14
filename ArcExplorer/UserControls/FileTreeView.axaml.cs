@@ -2,10 +2,10 @@
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CrossArcAvaloniaConcept.ViewModels;
+using ArcExplorer.ViewModels;
 using System.Collections;
 
-namespace CrossArcAvaloniaConcept.UserControls
+namespace ArcExplorer.UserControls
 {
     public class FileTreeView : UserControl
     {

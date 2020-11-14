@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace CrossArcAvaloniaConcept.Models
+namespace ArcExplorer.Models
 {
     public sealed class ApplicationSettings
     {

@@ -1,10 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Data.Converters;
-using CrossArcAvaloniaConcept.Models;
+using ArcExplorer.Models;
 using System;
 using System.Globalization;
 
-namespace CrossArcAvaloniaConcept.Converters
+namespace ArcExplorer.Converters
 {
     public class IconKeyDrawingConverter : IValueConverter
     {

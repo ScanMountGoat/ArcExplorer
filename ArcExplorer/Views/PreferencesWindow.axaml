@@ -5,7 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
         Width="500" Height="400"
         Icon="/Assets/arc.ico"
-        x:Class="CrossArcAvaloniaConcept.Views.PreferencesWindow"
+        x:Class="ArcExplorer.Views.PreferencesWindow"
         Title="Preferences">
   <StackPanel Margin="10">
     <Grid RowDefinitions="*" ColumnDefinitions="1*,1*">

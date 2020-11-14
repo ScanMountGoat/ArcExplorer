@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CrossArcAvaloniaConcept
+namespace ArcExplorer
 {
     public static class FileFormatInfo
     {

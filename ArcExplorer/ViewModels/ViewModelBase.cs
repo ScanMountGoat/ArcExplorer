@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace CrossArcAvaloniaConcept.ViewModels
+namespace ArcExplorer.ViewModels
 {
     public abstract class ViewModelBase : ReactiveObject
     {

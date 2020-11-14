@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace CrossArcAvaloniaConcept.ViewModels
+namespace ArcExplorer.ViewModels
 {
     public class FileNode : ViewModelBase
     {

@@ -2,12 +2,12 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml.Styling;
-using CrossArcAvaloniaConcept.Models;
-using CrossArcAvaloniaConcept.ViewModels;
-using CrossArcAvaloniaConcept.Views;
+using ArcExplorer.Models;
+using ArcExplorer.ViewModels;
+using ArcExplorer.Views;
 using System;
 
-namespace CrossArcAvaloniaConcept
+namespace ArcExplorer
 {
     public static class ApplicationStyles
     {

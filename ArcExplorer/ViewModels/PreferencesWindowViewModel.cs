@@ -1,8 +1,8 @@
-﻿using CrossArcAvaloniaConcept.Models;
+﻿using ArcExplorer.Models;
 using ReactiveUI;
 using System;
 
-namespace CrossArcAvaloniaConcept.ViewModels
+namespace ArcExplorer.ViewModels
 {
     public class PreferencesWindowViewModel : ViewModelBase
     {

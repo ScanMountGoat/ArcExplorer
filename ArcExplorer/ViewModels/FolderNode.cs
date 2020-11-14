@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CrossArcAvaloniaConcept.ViewModels
+namespace ArcExplorer.ViewModels
 {
     public class FolderNode : FileNode
     {

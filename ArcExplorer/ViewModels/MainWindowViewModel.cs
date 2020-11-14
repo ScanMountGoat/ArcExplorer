@@ -6,7 +6,7 @@ using ReactiveUI;
 
 using System.IO;
 
-namespace CrossArcAvaloniaConcept.ViewModels
+namespace ArcExplorer.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {

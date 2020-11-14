@@ -1,12 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CrossArcAvaloniaConcept.ViewModels;
+using ArcExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
 
-namespace CrossArcAvaloniaConcept.Views
+namespace ArcExplorer.Views
 {
     public class MainWindow : Window
     {

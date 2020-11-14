@@ -1,7 +1,7 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CrossArcAvaloniaConcept"
-             x:Class="CrossArcAvaloniaConcept.App">
+             xmlns:local="clr-namespace:ArcExplorer"
+             x:Class="ArcExplorer.App">
   <Application.Resources>
     <DrawingGroup x:Key="folderClosedIcon">
       <DrawingGroup.Children>

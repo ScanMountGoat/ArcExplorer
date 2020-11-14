@@ -1,11 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using CrossArcAvaloniaConcept.ViewModels;
-using CrossArcAvaloniaConcept.Views;
+using ArcExplorer.ViewModels;
+using ArcExplorer.Views;
 using Serilog;
 
-namespace CrossArcAvaloniaConcept
+namespace ArcExplorer
 {
     public class App : Application
     {
