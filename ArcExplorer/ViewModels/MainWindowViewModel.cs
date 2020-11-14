@@ -22,7 +22,7 @@ namespace CrossArcAvaloniaConcept.ViewModels
 
         public MainWindowViewModel()
         {
-            HashLabels.Initialize("Hashes_all.txt");
+            HashLabels.Initialize("Hashes.txt");
         }
 
         public void OpenArc(string path)

@@ -76,6 +76,56 @@
             The absolute path of the directory or file.
             </summary>
         </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.Offset">
+            <summary>
+            The file data's offset in bytes
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.CompSize">
+            <summary>
+            The size of the file data in bytes.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.DecompSize">
+            <summary>
+            The size of the file data in bytes after being decompressed.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsStream">
+            <summary>
+            <c>true</c> if the file is a stream file
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsShared">
+            <summary>
+            <c>true</c> if the file data is shared with other files.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsRedirect">
+            <summary>
+            <c>true</c> if the file is redirected.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsRegional">
+            <summary>
+            <c>true</c> if the file regional.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsLocalized">
+            <summary>
+            <c>true</c> if the file is localized.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.IsCompressed">
+            <summary>
+            <c>true</c> if the file is compressed.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.ArcFileTreeNode.UsesZstd">
+            <summary>
+            <c>true</c> if the file uses zstd compression.
+            </summary>
+        </member>
         <member name="M:SmashArcNet.ArcFileTreeNode.ToString">
             <summary>
             The string representation of this <see cref="T:SmashArcNet.ArcFileTreeNode"/>

@@ -23,7 +23,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Hashes_all.txt">
+    <None Update="Hashes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="libsmash_arc.so">
