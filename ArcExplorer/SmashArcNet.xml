@@ -9,6 +9,11 @@
             A safe wrapper for the ARC format.
             </summary>
         </member>
+        <member name="P:SmashArcNet.ArcFile.FileCount">
+            <summary>
+            The total number of file entries in the arc.
+            </summary>
+        </member>
         <member name="M:SmashArcNet.ArcFile.Finalize">
             <summary>
             Frees the resources associated with this ARC
@@ -29,6 +34,14 @@
             <param name="ip">IP address of console</param>
             <param name="arcFile">The resulting ARC</param>
             <returns><c>true</c> if the ARC file was opened successfully</returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.TryExtractFile(SmashArcNet.ArcFileTreeNode,System.String)">
+            <summary>
+            Tries to extract the uncompressed contents of <paramref name="file"/> to <paramref name="outputPath"/>.
+            </summary>
+            <param name="file">The file node to extract</param>
+            <param name="outputPath">The destination file for the extracted contents</param>
+            <returns><c>true</c> if the file was extracted succesfully</returns>
         </member>
         <member name="M:SmashArcNet.ArcFile.GetRootNodes">
             <summary>

@@ -42,7 +42,18 @@
       </MenuItem>
     </Menu>
     <Grid ColumnDefinitions="*,10,300">
-      <usercontrols:FileTreeView Name="fileTreeView" Margin="10" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
+      <DockPanel LastChildFill="True">
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,auto,auto,auto,auto">
+          <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" Text="{Binding ArcPath}"></TextBlock>
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
+          <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
+          <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
+          <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
+          <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Status:</TextBlock>
+          <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ConnectionStatus}"></TextBlock>
+        </Grid>
+        <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
+      </DockPanel>
       <GridSplitter Grid.Column="1"></GridSplitter>
       <usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedFile}"></usercontrols:FileDetailsView>
     </Grid>

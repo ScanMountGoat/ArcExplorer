@@ -10,7 +10,6 @@ namespace ArcExplorer.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private FileNode? selectedFile;
 
         public AvaloniaList<FileNode> Files { get; } = new AvaloniaList<FileNode>();
 
@@ -19,19 +18,42 @@ namespace ArcExplorer.ViewModels
             get => selectedFile;
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }
+        private FileNode? selectedFile;
 
-        public MainWindowViewModel()
+        public string ArcVersion
         {
-            HashLabels.Initialize("Hashes.txt");
+            get => arcVersion;
+            set => this.RaiseAndSetIfChanged(ref arcVersion, value);
         }
+        private string arcVersion = "";
+
+        public string FileCount
+        {
+            get => fileCount;
+            set => this.RaiseAndSetIfChanged(ref fileCount, value);
+        }
+        private string fileCount = "";
+
+        public string ArcPath
+        {
+            get => arcPath;
+            set => this.RaiseAndSetIfChanged(ref arcPath, value);
+        }
+        private string arcPath = "";
 
         public void OpenArc(string path)
         {
+            // TODO: This is expensive and should be handled separately.
+            HashLabels.Initialize("Hashes.txt");
+
             if (!ArcFile.TryOpenArc(path, out ArcFile? arcFile))
             {
                 Serilog.Log.Logger.Information("Failed to open ARC file {@path}", path);
                 return;
             }
+
+            FileCount = arcFile.FileCount.ToString();
+            ArcPath = path;
 
             PopulateFileTree(arcFile);
         }
