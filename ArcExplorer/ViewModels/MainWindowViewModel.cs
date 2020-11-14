@@ -1,9 +1,7 @@
 ﻿using Avalonia.Collections;
+using ReactiveUI;
 using SmashArcNet;
 using System;
-using System.Linq;
-using ReactiveUI;
-
 using System.IO;
 
 namespace ArcExplorer.ViewModels

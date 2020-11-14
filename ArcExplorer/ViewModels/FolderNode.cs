@@ -24,13 +24,14 @@ namespace ArcExplorer.ViewModels
         public FolderNode(string name, bool isShared, bool isRegional) : base(name, isShared, isRegional)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
+            DetailsIconKey = ApplicationStyles.Icon.FolderClosed;
         }
 
         protected override Dictionary<string, string> GetPropertyInfo()
         {
             return new Dictionary<string, string>()
             {
-                { "File Count", Children.Count.ToString() }
+                { "Child Count", Children.Count.ToString() }
             };
         }
     }

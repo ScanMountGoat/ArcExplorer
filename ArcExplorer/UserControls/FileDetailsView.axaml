@@ -12,9 +12,8 @@
   <StackPanel DataContext="{Binding ElementName=thisControl}">
     <TextBlock FontSize="16" Margin="5" Text="{Binding File.Name}"></TextBlock>
     <Grid ColumnDefinitions="*,*">
-      <DrawingPresenter Grid.Column="0" Margin="5" Width="32" Height="32" HorizontalAlignment="Left"
-                  Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-      <TextBlock Grid.Column="1" Text="{Binding File.Description}" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
+      <DrawingPresenter Margin="5" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+      <TextBlock Margin="5" Grid.Column="1" Text="{Binding File.Description}" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
     </Grid>
     <ItemsControl Items="{Binding File.ObjectProperties}">
       <ItemsControl.ItemTemplate>
@@ -26,5 +25,13 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
+    <Grid ColumnDefinitions="*,*" IsVisible="{Binding File.IsShared, FallbackValue=False}">
+      <DrawingPresenter Margin="5,0" Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left" Drawing="{Binding File.SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+      <TextBlock  Margin="5,0" Grid.Column="1" Text="Shared" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+    </Grid>
+    <Grid ColumnDefinitions="*,*" IsVisible="{Binding File.IsRegional, FallbackValue=False}">
+      <DrawingPresenter Margin="5,0" Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left" Drawing="{Binding File.RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+      <TextBlock Margin="5,0" Grid.Column="1" Text="Regional" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+    </Grid>
   </StackPanel>
 </UserControl>

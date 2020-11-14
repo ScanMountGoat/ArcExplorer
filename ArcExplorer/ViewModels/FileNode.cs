@@ -9,7 +9,12 @@ namespace ArcExplorer.ViewModels
     {
         public string Name { get; } = "";
 
-        public ApplicationStyles.Icon DetailsIconKey { get; } = ApplicationStyles.Icon.Document;
+        public ApplicationStyles.Icon DetailsIconKey
+        {
+            get => detailsIconKey;
+            protected set => this.RaiseAndSetIfChanged(ref detailsIconKey, value);
+        }
+        private ApplicationStyles.Icon detailsIconKey = ApplicationStyles.Icon.Document;
 
         public ApplicationStyles.Icon TreeViewIconKey 
         { 
