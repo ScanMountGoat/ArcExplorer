@@ -46,6 +46,13 @@ namespace ArcExplorer.Views
             }
         }
 
+        private async void OpenArcNetworked()
+        {
+            var window = new OpenArcConnectionWindow();
+            window.Show();
+            // TODO: Pass the IP Address to the mainwindow viewmodel to open the ARC.
+        }
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);

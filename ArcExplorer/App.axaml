@@ -154,6 +154,14 @@
         <GeometryDrawing Brush="#00EFEFF0" Geometry="F1M9.3838,13.5752C9.9298,12.4292 10.3508,11.3602 10.6218,10.3822 11.5158,10.2662 12.4668,10.0392 13.5078,9.6472 12.9298,11.5842 11.3578,13.0872 9.3838,13.5752" />
       </DrawingGroup.Children>
     </DrawingGroup>
+    <DrawingGroup x:Key="connectIcon">
+      <DrawingGroup.Children>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M13,3L13,8C13,10.199,11.546,12.107,9.5,12.75L9.5,16 6.5,16 6.5,12.75C4.454,12.107,3,10.199,3,8L3,3 5,3 5,0 11,0 11,3z" />
+        <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M11,5L11,8C11,9.654 9.654,11 8,11 6.346,11 5,9.654 5,8L5,5z" />
+        <GeometryDrawing Brush="#FF388934" Geometry="F1M8,11C6.346,11,5,9.654,5,8L5,5 11,5 11,8C11,9.654,9.654,11,8,11 M10,4L10,1 9,1 9,4 7,4 7,1 6,1 6,4 4,4 4,8C4,10.035,5.532,11.7,7.5,11.949L7.5,15 8.5,15 8.5,11.949C10.468,11.7,12,10.035,12,8L12,4z" />
+      </DrawingGroup.Children>
+    </DrawingGroup>
   </Application.Resources>
   <Application.Styles>
     <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>

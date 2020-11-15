@@ -1,4 +1,5 @@
-﻿using Avalonia.Collections;
+﻿using ArcExplorer.Views;
+using Avalonia.Collections;
 using ReactiveUI;
 using SmashArcNet;
 using System;

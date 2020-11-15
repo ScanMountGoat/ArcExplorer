@@ -19,9 +19,9 @@
     <vm:MainWindowViewModel/>
   </Design.DataContext>
   <DockPanel LastChildFill="True">
-    <Menu DockPanel.Dock="Top" DataContext="{Binding ElementName=thisWindow}">
+    <Menu DockPanel.Dock="Top" >
       <MenuItem Header="File">
-        <MenuItem Name="openArcMenuItem" HotKey="Ctrl+O" Command="{Binding OpenArc}" Width="180">
+        <MenuItem Name="openArcMenuItem" HotKey="Ctrl+O" Command="{Binding OpenArc}" Width="180" DataContext="{Binding ElementName=thisWindow}">
           <MenuItem.Header>
             <Grid ColumnDefinitions="*,*">
               <TextBlock Grid.Column="0" TextAlignment="Left">Open Arc</TextBlock>
@@ -30,6 +30,11 @@
           </MenuItem.Header>
           <MenuItem.Icon>
             <DrawingPresenter Drawing="{StaticResource openFileIcon}"></DrawingPresenter>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="Connect to Arc" Name="openArcNetworkedMenuItem" Command="{Binding OpenArcNetworked}" Width="180" DataContext="{Binding ElementName=thisWindow}">
+          <MenuItem.Icon>
+            <DrawingPresenter Drawing="{StaticResource connectIcon}"></DrawingPresenter>
           </MenuItem.Icon>
         </MenuItem>
       </MenuItem>
@@ -43,14 +48,27 @@
     </Menu>
     <Grid ColumnDefinitions="*,10,300">
       <DockPanel LastChildFill="True">
-        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,auto,auto,auto,auto">
-          <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" Text="{Binding ArcPath}"></TextBlock>
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
-          <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
-          <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
-          <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
-          <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Status:</TextBlock>
-          <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ConnectionStatus}"></TextBlock>
+        <Grid DockPanel.Dock="Top" HorizontalAlignment="Right" ColumnDefinitions="*,200">
+          <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">Search</TextBlock>
+          <TextBox Grid.Column="1" Margin="5" VerticalAlignment="Center"></TextBox>
+        </Grid>
+        <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,auto">
+          <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
+          </StackPanel>
+          <StackPanel Grid.Column="3" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Connection Status:</TextBlock>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ConnectionStatus}"></TextBlock>
+          </StackPanel>
         </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
       </DockPanel>

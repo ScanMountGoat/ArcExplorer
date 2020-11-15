@@ -22,7 +22,6 @@
             <StackPanel.ContextMenu>
               <ContextMenu>
                 <MenuItem Header="Extract File(s)"></MenuItem>
-                <MenuItem Header="Extract File(s) to Folder"></MenuItem>
               </ContextMenu>
             </StackPanel.ContextMenu>
             <DrawingPresenter Margin="5,0" Width="16" Height="16"

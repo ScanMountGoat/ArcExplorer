@@ -1,0 +1,21 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="100"
+        Width="400" Height="100"
+        x:Class="ArcExplorer.Views.OpenArcConnectionWindow"
+        WindowStartupLocation="CenterScreen"
+        Icon="avares://ArcExplorer/Assets/arc.ico"
+        Title="Connect to ARC">
+  <StackPanel>
+    <Grid ColumnDefinitions="*,*">
+      <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">IP Address</TextBlock>
+      <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center">000.000.000.000</TextBox>
+    </Grid>
+    <Grid ColumnDefinitions="*,*">
+      <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Cancel</Button>
+      <Button Grid.Column="1" Margin="5" Command="{Binding ConnectClick}">Connect</Button>
+    </Grid>
+  </StackPanel>
+</Window>
