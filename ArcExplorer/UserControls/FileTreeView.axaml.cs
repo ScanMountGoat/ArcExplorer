@@ -20,21 +20,21 @@ namespace ArcExplorer.UserControls
             get => items;
             set => SetAndRaise(ItemsProperty, ref items, value);
         }
-        private IEnumerable items = new AvaloniaList<FileNode>();
+        private IEnumerable items = new AvaloniaList<FileNodeBase>();
 
-        public static readonly DirectProperty<FileTreeView, FileNode?> SelectedItemProperty =
-            AvaloniaProperty.RegisterDirect<FileTreeView, FileNode?>(
+        public static readonly DirectProperty<FileTreeView, FileNodeBase?> SelectedItemProperty =
+            AvaloniaProperty.RegisterDirect<FileTreeView, FileNodeBase?>(
             nameof(SelectedItem),
             o => o.SelectedItem,
             (o, v) => o.SelectedItem = v, 
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
-        public FileNode? SelectedItem
+        public FileNodeBase? SelectedItem
         {
             get => selectedItem;
             set => SetAndRaise(SelectedItemProperty, ref selectedItem, value);
         }
-        private FileNode? selectedItem;
+        private FileNodeBase? selectedItem;
 
         public FileTreeView()
         {
@@ -43,7 +43,8 @@ namespace ArcExplorer.UserControls
 
         public void ExtractFile()
         {
-            SelectedItem?.OnFileExtracting();
+            if (SelectedItem is FileNode file)
+                file.OnFileExtracting();
         }
 
         private void InitializeComponent()

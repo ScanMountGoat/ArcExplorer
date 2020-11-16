@@ -11,14 +11,14 @@ namespace ArcExplorer.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
 
-        public AvaloniaList<FileNode> Files { get; } = new AvaloniaList<FileNode>();
+        public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
-        public FileNode? SelectedFile 
+        public FileNodeBase? SelectedFile 
         { 
             get => selectedFile;
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }
-        private FileNode? selectedFile;
+        private FileNodeBase? selectedFile;
 
         public string ArcVersion
         {
@@ -67,7 +67,7 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNode LoadNodeAddToParent(ArcFile arcFile, FileNode? parent, ArcFileTreeNode arcNode)
+        private static FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, ArcFileTreeNode arcNode)
         {
             switch (arcNode.Type)
             {
@@ -119,7 +119,7 @@ namespace ArcExplorer.ViewModels
 
             foreach (var child in arcFile.GetChildren(arcNode))
             {
-                var childNode = child.Type switch
+                FileNodeBase childNode = child.Type switch
                 {
                     ArcFileTreeNode.FileType.Directory => CreateFolderNode(child),
                     ArcFileTreeNode.FileType.File => CreateFileNode(arcFile, child),
@@ -140,7 +140,7 @@ namespace ArcExplorer.ViewModels
             return new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
         }
 
-        private static void LoadChildrenAddToParent(ArcFile arcFile, ArcFileTreeNode arcNode, FileNode parent)
+        private static void LoadChildrenAddToParent(ArcFile arcFile, ArcFileTreeNode arcNode, FileNodeBase parent)
         {
             foreach (var child in arcFile.GetChildren(arcNode))
             {

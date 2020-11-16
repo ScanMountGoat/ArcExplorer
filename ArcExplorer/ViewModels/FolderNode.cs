@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
 {
-    public class FolderNode : FileNode
+    public class FolderNode : FileNodeBase
     {
         public bool IsExpanded
         {
@@ -19,20 +19,17 @@ namespace ArcExplorer.ViewModels
         }
         private bool isExpanded;
 
+        public override Dictionary<string, string> ObjectProperties => new Dictionary<string, string>()
+        {
+            { "Child Count", Children.Count.ToString() }
+        };
+
         public event EventHandler? Expanded;
 
         public FolderNode(string name, bool isShared, bool isRegional) : base(name, isShared, isRegional)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
             DetailsIconKey = ApplicationStyles.Icon.FolderClosed;
-        }
-
-        protected override Dictionary<string, string> GetPropertyInfo()
-        {
-            return new Dictionary<string, string>()
-            {
-                { "Child Count", Children.Count.ToString() }
-            };
         }
     }
 }
