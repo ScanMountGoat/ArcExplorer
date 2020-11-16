@@ -4,6 +4,7 @@ using ReactiveUI;
 using SmashArcNet;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace ArcExplorer.ViewModels
 {
@@ -75,7 +76,7 @@ namespace ArcExplorer.ViewModels
                     parent?.Children.Add(folder);
                     return folder;
                 case ArcFileTreeNode.FileType.File:
-                    var file = CreateFileNode(arcNode);
+                    var file = CreateFileNode(arcFile, arcNode);
                     parent?.Children.Add(file);
                     return file;
                 default:
@@ -83,16 +84,36 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNode CreateFileNode(ArcFileTreeNode arcNode)
+        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileTreeNode arcNode)
         {
-            // TODO: Get regional, shared, etc info for files.
             // Assume no children for file nodes.
-            return new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
+            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
+            fileNode.FileExtracting += (s, e) => ExtractFile(arcFile, arcNode);
+
+            return fileNode;
+        }
+
+        private static void ExtractFile(ArcFile arcFile, ArcFileTreeNode arcNode)
+        {
+            // TODO: Combine the paths with the export directory specified in preferences.
+            // TODO: Will this always produce a correct path?
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var paths = new string[] { currentDirectory, "export" };
+            var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
+
+            // Extraction will fail if the directory doesn't exist.
+            var exportFileDirectory = Path.GetDirectoryName(exportPath);
+            if (!Directory.Exists(exportFileDirectory))
+                Directory.CreateDirectory(exportFileDirectory);
+
+            // Extraction may fail.
+            // TODO: Update the C# bindings to store more detailed error info?
+            if (!arcFile.TryExtractFile(arcNode, exportPath))
+                Serilog.Log.Logger.Information("Failed to extract to {@path}", exportPath);
         }
 
         private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcFileTreeNode arcNode)
         {
-            // TODO: Get regional, shared, etc info for folders.
             // Use DirectoryInfo to account for trailing slashes.
             var folder = CreateFolderNode(arcNode);
 
@@ -101,7 +122,7 @@ namespace ArcExplorer.ViewModels
                 var childNode = child.Type switch
                 {
                     ArcFileTreeNode.FileType.Directory => CreateFolderNode(child),
-                    ArcFileTreeNode.FileType.File => CreateFileNode(child),
+                    ArcFileTreeNode.FileType.File => CreateFileNode(arcFile, child),
                     _ => throw new NotImplementedException($"Unsupported type {child.Type}")
                 };
 

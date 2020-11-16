@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System;
 
 namespace ArcExplorer.ViewModels
 {
+    // TODO: Make this an abstract class or Interface.
     public class FileNode : ViewModelBase
     {
         public string Name { get; } = "";
@@ -39,7 +41,18 @@ namespace ArcExplorer.ViewModels
 
         public Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 
+
         public ObservableCollection<FileNode> Children { get; } = new ObservableCollection<FileNode>();
+
+        /// <summary>
+        /// Occurs when an extract operation is started. 
+        /// </summary>
+        public event EventHandler? FileExtracting;
+
+        public void OnFileExtracting()
+        {
+            FileExtracting?.Invoke(this, EventArgs.Empty);
+        }
 
         public FileNode(string name, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize)
         {

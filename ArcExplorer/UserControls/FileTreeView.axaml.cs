@@ -41,6 +41,11 @@ namespace ArcExplorer.UserControls
             InitializeComponent();
         }
 
+        public void ExtractFile()
+        {
+            SelectedItem?.OnFileExtracting();
+        }
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
