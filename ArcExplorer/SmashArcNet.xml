@@ -6,7 +6,7 @@
     <members>
         <member name="T:SmashArcNet.ArcFile">
             <summary>
-            A safe wrapper for the ARC format.
+            A safe wrapper for the ARC format. 
             </summary>
         </member>
         <member name="P:SmashArcNet.ArcFile.FileCount">
@@ -22,6 +22,7 @@
         <member name="M:SmashArcNet.ArcFile.TryOpenArc(System.String,SmashArcNet.ArcFile@)">
             <summary>
             Tries to create <paramref name="arcFile"/> from <paramref name="path"/>.
+            Make sure to call <see cref="M:SmashArcNet.HashLabels.TryLoadHashes(System.String)"/> before trying to load an ARC.
             </summary>
             <param name="path">The data.arc file path</param>
             <param name="arcFile">The resulting ARC</param>
@@ -30,12 +31,13 @@
         <member name="M:SmashArcNet.ArcFile.TryOpenArcNetworked(System.String,SmashArcNet.ArcFile@)">
             <summary>
             Tries to create <paramref name="arcFile"/> from <paramref name="ip"/>.
+            Make sure to call <see cref="M:SmashArcNet.HashLabels.TryLoadHashes(System.String)"/> before trying to load an ARC.
             </summary>
             <param name="ip">IP address of console</param>
             <param name="arcFile">The resulting ARC</param>
             <returns><c>true</c> if the ARC file was opened successfully</returns>
         </member>
-        <member name="M:SmashArcNet.ArcFile.TryExtractFile(SmashArcNet.ArcFileTreeNode,System.String)">
+        <member name="M:SmashArcNet.ArcFile.TryExtractFile(SmashArcNet.Nodes.ArcFileNode,System.String)">
             <summary>
             Tries to extract the uncompressed contents of <paramref name="file"/> to <paramref name="outputPath"/>.
             </summary>
@@ -46,117 +48,127 @@
         <member name="M:SmashArcNet.ArcFile.GetRootNodes">
             <summary>
             Gets the child nodes of the ARC sorted in ascending alphabetical order.
-            These will mostly likely be <see cref="F:SmashArcNet.ArcFileTreeNode.FileType.Directory"/> (ex: "fighter/").
+            These will mostly likely be <see cref="T:SmashArcNet.Nodes.ArcDirectoryNode"/> (ex: "fighter/").
             </summary>
             <returns>the child nodes of ARC root</returns>
         </member>
-        <member name="M:SmashArcNet.ArcFile.GetChildren(SmashArcNet.ArcFileTreeNode)">
+        <member name="M:SmashArcNet.ArcFile.GetChildren(SmashArcNet.Nodes.ArcDirectoryNode)">
             <summary>
             Gets the children of <paramref name="parent"/> sorted in ascending alphabetical order,
-            which may be <see cref="F:SmashArcNet.ArcFileTreeNode.FileType.Directory"/> or <see cref="F:SmashArcNet.ArcFileTreeNode.FileType.File"/>.
             The resulting list will be empty if there are no children.
             </summary>
             <param name="parent">The parent node</param>
             <returns>the child nodes of <paramref name="parent"/></returns>
-        </member>
-        <member name="T:SmashArcNet.ArcFileTreeNode">
-            <summary>
-            A directory or file listing in the ARC.
-            </summary>
-        </member>
-        <member name="T:SmashArcNet.ArcFileTreeNode.FileType">
-            <summary>
-            Indicates whether the node is a directory or file.
-            </summary>
-        </member>
-        <member name="F:SmashArcNet.ArcFileTreeNode.FileType.Directory">
-            <summary>
-            A directory that will likely contain child nodes.
-            </summary>
-        </member>
-        <member name="F:SmashArcNet.ArcFileTreeNode.FileType.File">
-            <summary>
-            A file node that will likely have exportable contents and have no children.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.Type">
-            <summary>
-            The type of file.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.Path">
-            <summary>
-            The absolute path of the directory or file.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.Offset">
-            <summary>
-            The file data's offset in bytes
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.CompSize">
-            <summary>
-            The size of the file data in bytes.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.DecompSize">
-            <summary>
-            The size of the file data in bytes after being decompressed.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsStream">
-            <summary>
-            <c>true</c> if the file is a stream file
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsShared">
-            <summary>
-            <c>true</c> if the file data is shared with other files.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsRedirect">
-            <summary>
-            <c>true</c> if the file is redirected.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsRegional">
-            <summary>
-            <c>true</c> if the file regional.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsLocalized">
-            <summary>
-            <c>true</c> if the file is localized.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.IsCompressed">
-            <summary>
-            <c>true</c> if the file is compressed.
-            </summary>
-        </member>
-        <member name="P:SmashArcNet.ArcFileTreeNode.UsesZstd">
-            <summary>
-            <c>true</c> if the file uses zstd compression.
-            </summary>
-        </member>
-        <member name="M:SmashArcNet.ArcFileTreeNode.ToString">
-            <summary>
-            The string representation of this <see cref="T:SmashArcNet.ArcFileTreeNode"/>
-            <para></para>
-            examples: "F file.txt", "D dir/dir2"
-            </summary>
-            <returns>the type and path as a string</returns>
         </member>
         <member name="T:SmashArcNet.HashLabels">
             <summary>
             Contains methods for dealing with path hashes.
             </summary>
         </member>
-        <member name="M:SmashArcNet.HashLabels.Initialize(System.String)">
+        <member name="P:SmashArcNet.HashLabels.IsInitialized">
+            <summary>
+            <c>true</c> if hashes were loaded successfully by the last call to <see cref="M:SmashArcNet.HashLabels.TryLoadHashes(System.String)"/>.
+            </summary>
+        </member>
+        <member name="M:SmashArcNet.HashLabels.TryLoadHashes(System.String)">
             <summary>
             Initializes the hash dictionary from a path pointing to a line separated list of strings to hash.
             </summary>
             <param name="path">the text file path containing the strings to hash</param>
+            <returns><c>true</c> if the hash labels were loaded successfully</returns>
+        </member>
+        <member name="T:SmashArcNet.Nodes.ArcDirectoryNode">
+            <summary>
+            A directory listing in the ARC.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcDirectoryNode.Path">
+            <summary>
+            The absolute path of the directory. This may contain a trailing slash.
+            Examples: "a/b/c/", "a/b/"
+            </summary>
+        </member>
+        <member name="M:SmashArcNet.Nodes.ArcDirectoryNode.ToString">
+            <summary>
+            example: "a/b/c/"
+            </summary>
+            <returns>The string representation of this <see cref="T:SmashArcNet.Nodes.ArcDirectoryNode"/></returns>
+        </member>
+        <member name="T:SmashArcNet.Nodes.ArcFileNode">
+            <summary>
+            A file listing in the ARC.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.Path">
+            <summary>
+            The absolute path of the directory or file.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.Offset">
+            <summary>
+            The file data's offset in bytes
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.CompSize">
+            <summary>
+            The size of the file data in bytes.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.DecompSize">
+            <summary>
+            The size of the file data in bytes after being decompressed.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsStream">
+            <summary>
+            <c>true</c> if the file is a stream file
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsShared">
+            <summary>
+            <c>true</c> if the file data is shared with other files.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsRedirect">
+            <summary>
+            <c>true</c> if the file is redirected.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsRegional">
+            <summary>
+            <c>true</c> if the file regional.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsLocalized">
+            <summary>
+            <c>true</c> if the file is localized.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.IsCompressed">
+            <summary>
+            <c>true</c> if the file is compressed.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.ArcFileNode.UsesZstd">
+            <summary>
+            <c>true</c> if the file uses zstd compression.
+            </summary>
+        </member>
+        <member name="M:SmashArcNet.Nodes.ArcFileNode.ToString">
+            <summary>
+            example: "a/b/c/file.txt"
+            </summary>
+            <returns>The string representation of this <see cref="T:SmashArcNet.Nodes.ArcFileNode"/></returns>
+        </member>
+        <member name="T:SmashArcNet.Nodes.IArcNode">
+            <summary>
+            A file or directory listing in the ARC.
+            </summary>
+        </member>
+        <member name="P:SmashArcNet.Nodes.IArcNode.Path">
+            <summary>
+            The absolute path of the directory or file.
+            </summary>
         </member>
         <member name="T:SmashArcNet.RustTypes.Hash40">
             <summary>

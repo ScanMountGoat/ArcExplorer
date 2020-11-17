@@ -1,7 +1,7 @@
-﻿using ArcExplorer.Views;
-using Avalonia.Collections;
+﻿using Avalonia.Collections;
 using ReactiveUI;
 using SmashArcNet;
+using SmashArcNet.Nodes;
 using System;
 using System.IO;
 using System.Linq;
@@ -44,7 +44,12 @@ namespace ArcExplorer.ViewModels
         public void OpenArc(string path)
         {
             // TODO: This is expensive and should be handled separately.
-            HashLabels.Initialize("Hashes.txt");
+            var hashesFile = "Hashes.txt";
+            if (!HashLabels.TryLoadHashes(hashesFile))
+            {
+                Serilog.Log.Logger.Information("Failed to open Hashes file {@path}", hashesFile);
+                return;
+            }
 
             if (!ArcFile.TryOpenArc(path, out ArcFile? arcFile))
             {
@@ -67,24 +72,24 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, ArcFileTreeNode arcNode)
+        private static FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode)
         {
-            switch (arcNode.Type)
+            switch (arcNode)
             {
-                case ArcFileTreeNode.FileType.Directory:
-                    var folder = CreateFolderLoadChildren(arcFile, arcNode);
+                case ArcDirectoryNode directoryNode:
+                    var folder = CreateFolderLoadChildren(arcFile, directoryNode);
                     parent?.Children.Add(folder);
                     return folder;
-                case ArcFileTreeNode.FileType.File:
-                    var file = CreateFileNode(arcFile, arcNode);
+                case ArcFileNode fileNode:
+                    var file = CreateFileNode(arcFile, fileNode);
                     parent?.Children.Add(file);
                     return file;
                 default:
-                    throw new NotImplementedException($"Unable to create node from {arcNode.Type}");
+                    throw new NotImplementedException($"Unable to create node from {arcNode}");
             }
         }
 
-        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileTreeNode arcNode)
+        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
         {
             // Assume no children for file nodes.
             var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
@@ -93,7 +98,7 @@ namespace ArcExplorer.ViewModels
             return fileNode;
         }
 
-        private static void ExtractFile(ArcFile arcFile, ArcFileTreeNode arcNode)
+        private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
         {
             // TODO: Combine the paths with the export directory specified in preferences.
             // TODO: Will this always produce a correct path?
@@ -112,18 +117,18 @@ namespace ArcExplorer.ViewModels
                 Serilog.Log.Logger.Information("Failed to extract to {@path}", exportPath);
         }
 
-        private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcFileTreeNode arcNode)
+        private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             // Use DirectoryInfo to account for trailing slashes.
             var folder = CreateFolderNode(arcNode);
 
             foreach (var child in arcFile.GetChildren(arcNode))
             {
-                FileNodeBase childNode = child.Type switch
+                FileNodeBase childNode = child switch
                 {
-                    ArcFileTreeNode.FileType.Directory => CreateFolderNode(child),
-                    ArcFileTreeNode.FileType.File => CreateFileNode(arcFile, child),
-                    _ => throw new NotImplementedException($"Unsupported type {child.Type}")
+                    ArcDirectoryNode directory => CreateFolderNode(directory),
+                    ArcFileNode file => CreateFileNode(arcFile, file),
+                    _ => throw new NotImplementedException($"Unable to create node from {child}")
                 };
 
                 // When the parent is expanded, load the grandchildren to support expanding the children.
@@ -135,16 +140,19 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
-        private static FolderNode CreateFolderNode(ArcFileTreeNode arcNode)
+        private static FolderNode CreateFolderNode(ArcDirectoryNode arcNode)
         {
             return new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
         }
 
-        private static void LoadChildrenAddToParent(ArcFile arcFile, ArcFileTreeNode arcNode, FileNodeBase parent)
+        private static void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent)
         {
-            foreach (var child in arcFile.GetChildren(arcNode))
+            if (arcNode is ArcDirectoryNode directoryNode)
             {
-                LoadNodeAddToParent(arcFile, parent, child);
+                foreach (var child in arcFile.GetChildren(directoryNode))
+                {
+                    LoadNodeAddToParent(arcFile, parent, child);
+                }
             }
         }
 
