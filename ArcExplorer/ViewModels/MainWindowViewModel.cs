@@ -41,6 +41,8 @@ namespace ArcExplorer.ViewModels
         }
         private string arcPath = "";
 
+        private ArcFile? arcFile;
+
         public void OpenArc(string path)
         {
             // TODO: This is expensive and should be handled separately.
@@ -51,7 +53,7 @@ namespace ArcExplorer.ViewModels
                 return;
             }
 
-            if (!ArcFile.TryOpenArc(path, out ArcFile? arcFile))
+            if (!ArcFile.TryOpenArc(path, out arcFile))
             {
                 Serilog.Log.Logger.Information("Failed to open ARC file {@path}", path);
                 return;
@@ -179,9 +181,14 @@ namespace ArcExplorer.ViewModels
 
         public void RebuildFileTree()
         {
-            // TODO: Update icons without rebuilding the tree?
-            //Files.Clear();
-            //PopulateFileTree();
+            // TODO: Preserve the existing directory structure.
+            if (arcFile != null)
+            {
+                // Clear everything to ensure the proper icons get loaded when changing themes.
+                SelectedFile = null;
+                Files.Clear();
+                PopulateFileTree(arcFile);
+            }
         }
     }
 }
