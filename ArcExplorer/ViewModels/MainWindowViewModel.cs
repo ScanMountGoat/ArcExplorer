@@ -104,13 +104,15 @@ namespace ArcExplorer.ViewModels
 
         private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Make this async.
             // TODO: Synchronize ARC access?
             // TODO: Better logging if extract fails?
-            using (Operation.Time("Extracting {path}", arcNode.Path))
+            await Task.Run(() =>
             {
-                ExtractFile(arcFile, arcNode);
-            }
+                using (Operation.Time("Extracting {path}", arcNode.Path))
+                {
+                    ExtractFile(arcFile, arcNode);
+                }
+            });
         }
 
         private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
@@ -164,13 +166,15 @@ namespace ArcExplorer.ViewModels
 
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
-            // TODO: Make this async.
             // TODO: Synchronize ARC access?
             // TODO: Better logging if extract fails?
-            using (Operation.Time("Extracting files from {path}", arcNode.Path))
+            await Task.Run(() =>
             {
-                ExtractFilesRecursive(arcFile, arcNode);
-            }
+                using (Operation.Time("Extracting files from {path}", arcNode.Path))
+                {
+                    ExtractFilesRecursive(arcFile, arcNode);
+                }
+            });
         }
 
         private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
