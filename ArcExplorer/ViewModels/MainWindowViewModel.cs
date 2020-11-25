@@ -120,13 +120,13 @@ namespace ArcExplorer.ViewModels
         private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             // Use DirectoryInfo to account for trailing slashes.
-            var folder = CreateFolderNode(arcNode);
+            var folder = CreateFolderNode(arcFile, arcNode);
 
             foreach (var child in arcFile.GetChildren(arcNode))
             {
                 FileNodeBase childNode = child switch
                 {
-                    ArcDirectoryNode directory => CreateFolderNode(directory),
+                    ArcDirectoryNode directory => CreateFolderNode(arcFile, directory),
                     ArcFileNode file => CreateFileNode(arcFile, file),
                     _ => throw new NotImplementedException($"Unable to create node from {child}")
                 };
@@ -140,9 +140,30 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
-        private static FolderNode CreateFolderNode(ArcDirectoryNode arcNode)
+        private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
-            return new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
+            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
+            folder.FileExtracting += (s, e) => ExtractFilesRecursive(arcFile, arcNode);
+            return folder;
+        }
+
+        private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
+        {
+            foreach (var child in arcFile.GetChildren(arcNode))
+            {
+                // Assume files have no children, so only recurse for directories.
+                switch (child)
+                {
+                    case ArcFileNode file:
+                        ExtractFile(arcFile, file);
+                        break;
+                    case ArcDirectoryNode directory:
+                        ExtractFilesRecursive(arcFile, directory);
+                       break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private static void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent)

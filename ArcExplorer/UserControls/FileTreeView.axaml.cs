@@ -43,8 +43,7 @@ namespace ArcExplorer.UserControls
 
         public void ExtractFile()
         {
-            if (SelectedItem is FileNode file)
-                file.OnFileExtracting();
+            SelectedItem?.OnFileExtracting();
         }
 
         private void InitializeComponent()

@@ -11,18 +11,7 @@ namespace ArcExplorer.ViewModels
         public ulong DecompressedSize { get; }
         public string Description { get; }
 
-
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
-
-        /// <summary>
-        /// Occurs when an extract operation is started. 
-        /// </summary>
-        public event EventHandler? FileExtracting;
-
-        public void OnFileExtracting()
-        {
-            FileExtracting?.Invoke(this, EventArgs.Empty);
-        }
 
         public FileNode(string name, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize) : base(name, isShared, isRegional)
         {

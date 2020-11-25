@@ -23,6 +23,8 @@ namespace ArcExplorer.ViewModels
         }
         private ApplicationStyles.Icon treeViewIconKey = ApplicationStyles.Icon.Document;
 
+        public event EventHandler? FileExtracting;
+
         public ApplicationStyles.Icon SharedIconKey => IsShared ? ApplicationStyles.Icon.Link : ApplicationStyles.Icon.None;
 
         public ApplicationStyles.Icon RegionalIconKey => IsRegional ? ApplicationStyles.Icon.Web : ApplicationStyles.Icon.None;
@@ -40,6 +42,11 @@ namespace ArcExplorer.ViewModels
             Name = name;
             IsShared = isShared;
             IsRegional = isRegional;
+        }
+
+        public void OnFileExtracting()
+        {
+            FileExtracting?.Invoke(this, EventArgs.Empty);
         }
     }
 }
