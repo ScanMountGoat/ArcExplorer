@@ -9,7 +9,6 @@ namespace ArcExplorer.ViewModels
         public ulong Offset { get; }
         public ulong CompressedSize { get; }
         public ulong DecompressedSize { get; }
-        public string Description { get; }
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 

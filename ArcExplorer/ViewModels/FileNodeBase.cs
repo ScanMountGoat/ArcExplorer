@@ -37,6 +37,8 @@ namespace ArcExplorer.ViewModels
 
         public abstract Dictionary<string, string> ObjectProperties { get; }
 
+        public string Description { get; protected set; } = "";
+
         public FileNodeBase(string name, bool isShared, bool isRegional)
         {
             Name = name;
