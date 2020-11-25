@@ -5,6 +5,8 @@ using SmashArcNet.Nodes;
 using System;
 using System.IO;
 using System.Linq;
+using SerilogTimings;
+using System.Threading.Tasks;
 
 namespace ArcExplorer.ViewModels
 {
@@ -95,9 +97,20 @@ namespace ArcExplorer.ViewModels
         {
             // Assume no children for file nodes.
             var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
-            fileNode.FileExtracting += (s, e) => ExtractFile(arcFile, arcNode);
+            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode);
 
             return fileNode;
+        }
+
+        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
+        {
+            // TODO: Make this async.
+            // TODO: Synchronize ARC access?
+            // TODO: Better logging if extract fails?
+            using (Operation.Time("Extracting {path}", arcNode.Path))
+            {
+                ExtractFile(arcFile, arcNode);
+            }
         }
 
         private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
@@ -145,8 +158,19 @@ namespace ArcExplorer.ViewModels
         private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
-            folder.FileExtracting += (s, e) => ExtractFilesRecursive(arcFile, arcNode);
+            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode);
             return folder;
+        }
+
+        private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
+        {
+            // TODO: Make this async.
+            // TODO: Synchronize ARC access?
+            // TODO: Better logging if extract fails?
+            using (Operation.Time("Extracting files from {path}", arcNode.Path))
+            {
+                ExtractFilesRecursive(arcFile, arcNode);
+            }
         }
 
         private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)

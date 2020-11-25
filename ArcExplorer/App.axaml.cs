@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using ArcExplorer.ViewModels;
 using ArcExplorer.Views;
 using Serilog;
+using ArcExplorer.Logging;
 
 namespace ArcExplorer
 {
@@ -34,6 +35,7 @@ namespace ArcExplorer
             // TODO: Log to file.
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File("log.txt")
+                .WriteTo.ApplicationSink()
                 .CreateLogger();
         }
     }
