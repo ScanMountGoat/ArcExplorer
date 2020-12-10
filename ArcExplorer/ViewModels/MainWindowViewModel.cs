@@ -84,6 +84,9 @@ namespace ArcExplorer.ViewModels
 
         private void PopulateFileTree(ArcFile arcFile)
         {
+            // Replace existing files with the new ARC.
+            // TODO: Is memory being correctly freed?
+            Files.Clear();
             foreach (var node in arcFile.GetRootNodes())
             {
                 var treeNode = LoadNodeAddToParent(arcFile, null, node);
