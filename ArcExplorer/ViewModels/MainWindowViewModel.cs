@@ -43,7 +43,22 @@ namespace ArcExplorer.ViewModels
         }
         private string arcPath = "";
 
+        public bool IsLoading
+        {
+            get => isLoading;
+            set => this.RaiseAndSetIfChanged(ref isLoading, value);
+        }
+        private bool isLoading = false;
+
+        public string LoadingDescription
+        {
+            get => loadingDescription;
+            set => this.RaiseAndSetIfChanged(ref loadingDescription, value);
+        }
+        private string loadingDescription = "";
+
         private ArcFile? arcFile;
+
 
         public void OpenArc(string path)
         {
@@ -76,7 +91,7 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode)
+        private FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode)
         {
             switch (arcNode)
             {
@@ -93,7 +108,7 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
+        private FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
         {
             // Assume no children for file nodes.
             var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
@@ -102,10 +117,13 @@ namespace ArcExplorer.ViewModels
             return fileNode;
         }
 
-        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
+        private async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Synchronize ARC access?
+            // TODO: Simplify starting background tasks.
+            // TODO: Correctly handle multiple background tasks.
             // TODO: Better logging if extract fails?
+            IsLoading = true;
+            LoadingDescription = $"Extracting {arcNode.Path}";
             await Task.Run(() =>
             {
                 using (Operation.Time("Extracting {path}", arcNode.Path))
@@ -113,6 +131,8 @@ namespace ArcExplorer.ViewModels
                     ExtractFile(arcFile, arcNode);
                 }
             });
+            LoadingDescription = "";
+            IsLoading = false;
         }
 
         private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
@@ -134,7 +154,7 @@ namespace ArcExplorer.ViewModels
                 Serilog.Log.Logger.Information("Failed to extract to {@path}", exportPath);
         }
 
-        private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)
+        private FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             // Use DirectoryInfo to account for trailing slashes.
             var folder = CreateFolderNode(arcFile, arcNode);
@@ -157,17 +177,20 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
-        private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode)
+        private FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode);
             return folder;
         }
 
-        private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
+        private async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
-            // TODO: Synchronize ARC access?
+            // TODO: Correctly handle multiple background tasks.
+            // TODO: Simplify starting background tasks.
             // TODO: Better logging if extract fails?
+            IsLoading = true;
+            LoadingDescription = $"Extracting files from {arcNode.Path}";
             await Task.Run(() =>
             {
                 using (Operation.Time("Extracting files from {path}", arcNode.Path))
@@ -175,6 +198,8 @@ namespace ArcExplorer.ViewModels
                     ExtractFilesRecursive(arcFile, arcNode);
                 }
             });
+            LoadingDescription = "";
+            IsLoading = false;
         }
 
         private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
@@ -196,7 +221,7 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent)
+        private void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent)
         {
             if (arcNode is ArcDirectoryNode directoryNode)
             {

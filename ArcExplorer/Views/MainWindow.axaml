@@ -52,7 +52,7 @@
           <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">Search</TextBlock>
           <TextBox Grid.Column="1" Margin="5" VerticalAlignment="Center"></TextBox>
         </Grid>
-        <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,auto">
+        <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,*">
           <StackPanel Grid.Column="0" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
@@ -65,9 +65,9 @@
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
           </StackPanel>
-          <StackPanel Grid.Column="3" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Connection Status:</TextBlock>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ConnectionStatus}"></TextBlock>
+          <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
+            <ProgressBar IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Height="16" IsVisible="{Binding IsLoading}"></ProgressBar>
           </StackPanel>
         </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
