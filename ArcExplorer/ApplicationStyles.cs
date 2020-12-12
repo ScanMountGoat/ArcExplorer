@@ -24,7 +24,8 @@ namespace ArcExplorer
             Settings,
             OpenFile,
             Lvd,
-            Web
+            Web,
+            Warning
         }
 
         public static void SetThemeFromSettings()

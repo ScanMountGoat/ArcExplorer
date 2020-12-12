@@ -7,12 +7,12 @@ using System.IO;
 using System.Linq;
 using SerilogTimings;
 using System.Threading.Tasks;
+using ArcExplorer.Logging;
 
 namespace ArcExplorer.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-
         public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
         public FileNodeBase? SelectedFile 
@@ -57,8 +57,32 @@ namespace ArcExplorer.ViewModels
         }
         private string loadingDescription = "";
 
+        public bool HasErrors
+        {
+            get => hasErrors;
+            set => this.RaiseAndSetIfChanged(ref hasErrors, value);
+        }
+        private bool hasErrors = false;
+
+        public string ErrorDescription
+        {
+            get => errorDescription;
+            set => this.RaiseAndSetIfChanged(ref errorDescription, value);
+        }
+        private string errorDescription = "";
+
         private ArcFile? arcFile;
 
+        public MainWindowViewModel()
+        {
+            ApplicationSink.Instance.Value.LogEventHandled += LogEventHandled;
+        }
+
+        private void LogEventHandled(object? sender, EventArgs e)
+        {
+            HasErrors = ApplicationSink.Instance.Value.ErrorCount > 0;
+            ErrorDescription = $"{ApplicationSink.Instance.Value.ErrorCount} Errors";
+        }
 
         public void OpenArc(string path)
         {
@@ -154,7 +178,7 @@ namespace ArcExplorer.ViewModels
             // Extraction may fail.
             // TODO: Update the C# bindings to store more detailed error info?
             if (!arcFile.TryExtractFile(arcNode, exportPath))
-                Serilog.Log.Logger.Information("Failed to extract to {@path}", exportPath);
+                Serilog.Log.Logger.Error("Failed to extract to {@path}", exportPath);
         }
 
         private FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)

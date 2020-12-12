@@ -4,11 +4,30 @@ using System;
 
 namespace ArcExplorer.Logging
 {
-    internal class ApplicationSink : ILogEventSink
+    internal sealed class ApplicationSink : ILogEventSink
     {
+        public static Lazy<ApplicationSink> Instance { get; } = new Lazy<ApplicationSink>(new ApplicationSink());
+
+        /// <summary>
+        /// The number of log events with <see cref="LogEventLevel.Error"/> that have occurred.
+        /// </summary>
+        public int ErrorCount { get; private set; } = 0;
+
+        /// <summary>
+        /// Occurs whenever a log event is handled regardless of severity.
+        /// </summary>
+        public event EventHandler? LogEventHandled;
+
+        private ApplicationSink()
+        {
+
+        }
+
         public void Emit(LogEvent logEvent)
         {
-            // TODO: Update the GUI based on the log level.
+            // Trigger an event whenever a log event occurs.
+            // Just maintain a count for now.
+            // TODO: Store the actual messages in memory to be displayed in the UI somehow.
             switch (logEvent.Level)
             {
                 case LogEventLevel.Verbose:
@@ -20,6 +39,8 @@ namespace ArcExplorer.Logging
                 case LogEventLevel.Warning:
                     break;
                 case LogEventLevel.Error:
+                    ErrorCount++;
+                    LogEventHandled?.Invoke(this, EventArgs.Empty);
                     break;
                 case LogEventLevel.Fatal:
                     break;

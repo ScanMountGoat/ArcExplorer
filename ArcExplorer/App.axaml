@@ -162,6 +162,22 @@
         <GeometryDrawing Brush="#FF388934" Geometry="F1M8,11C6.346,11,5,9.654,5,8L5,5 11,5 11,8C11,9.654,9.654,11,8,11 M10,4L10,1 9,1 9,4 7,4 7,1 6,1 6,4 4,4 4,8C4,10.035,5.532,11.7,7.5,11.949L7.5,15 8.5,15 8.5,11.949C10.468,11.7,12,10.035,12,8L12,4z" />
       </DrawingGroup.Children>
     </DrawingGroup>
+    <DrawingGroup x:Key="warningIcon">
+      <DrawingGroup.Children>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M7.0002,-0.000199999999999534L0.000200000000000422,13.9998 2.0002,15.9998 14.0002,15.9998 16.0002,13.9998 9.0002,-0.000199999999999534z" />
+        <GeometryDrawing Brush="#FFFFCC00" Geometry="F1M9,10L7,10 7,5 9,5z M9,13L7,13 7,11 9,11z M8.382,1L7.618,1 1.217,13.803 2.5,15 13.5,15 14.783,13.803z" />
+        <GeometryDrawing Brush="#FF000000" Geometry="F1M9,11L7,11 7,13 9,13z M9,10L7,10 7,5 9,5z" />
+      </DrawingGroup.Children>
+    </DrawingGroup>
+    <DrawingGroup x:Key="errorIcon">
+      <DrawingGroup.Children>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M16,8C16,12.418 12.418,16 8,16 3.582,16 0,12.418 0,8 0,3.582 3.582,0 8,0 12.418,0 16,3.582 16,8" />
+        <GeometryDrawing Brush="#FFE41400" Geometry="F1M12.4141,11L11.0001,12.414 8.0001,9.414 5.0001,12.414 3.5871,11 6.5861,8 3.5871,5 5.0001,3.586 8.0001,6.586 11.0001,3.586 12.4141,5 9.4141,8z M8.0001,1C4.1351,1 1.0001,4.135 1.0001,8 1.0001,11.865 4.1351,15 8.0001,15 11.8651,15 15.0001,11.865 15.0001,8 15.0001,4.135 11.8651,1 8.0001,1" />
+        <GeometryDrawing Brush="#FFFFFFFF" Geometry="F1M9.4141,8L12.4141,11 11.0001,12.414 8.0001,9.414 5.0001,12.414 3.5861,11 6.5861,8 3.5861,5 5.0001,3.586 8.0001,6.586 11.0001,3.586 12.4141,5z" />
+      </DrawingGroup.Children>
+    </DrawingGroup>
   </Application.Resources>
   <Application.Styles>
     <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>

@@ -25,7 +25,8 @@ namespace ArcExplorer.Converters
                 ApplicationStyles.Icon.OpenFile => Application.Current.Resources["openFileIcon"],
                 ApplicationStyles.Icon.Lvd => isDarkTheme ? Application.Current.Resources["lvdWhiteIcon"] : Application.Current.Resources["lvdIcon"],
                 ApplicationStyles.Icon.Web => isDarkTheme ? Application.Current.Resources["webWhiteIcon"] : Application.Current.Resources["webIcon"],
-                _ => null,// Null will just render as blank.
+                ApplicationStyles.Icon.Warning => Application.Current.Resources["warningIcon"],
+                _ => null, // Null will just render as blank.
             };
         }
 

@@ -5,9 +5,9 @@ namespace ArcExplorer.Logging
 {
     internal static class ApplicationSinkExtensions
     {
-        public static LoggerConfiguration ApplicationSink(this LoggerSinkConfiguration loggerConfiguration)
+        public static LoggerConfiguration ApplicationLog(this LoggerSinkConfiguration loggerConfiguration)
         {
-            return loggerConfiguration.Sink(new ApplicationSink());
+            return loggerConfiguration.Sink(ApplicationSink.Instance.Value);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ArcExplorer
             // TODO: Log to file.
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File("log.txt")
-                .WriteTo.ApplicationSink()
+                .WriteTo.ApplicationLog()
                 .CreateLogger();
         }
     }
