@@ -146,18 +146,24 @@ namespace ArcExplorer.ViewModels
 
         private async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Simplify starting background tasks.
-            // TODO: Correctly handle multiple background tasks.
-            // TODO: Better logging if extract fails?
+            await RunBackgroundTask($"Extracting {arcNode.Path}", () => ExtractFile(arcFile, arcNode));
+        }
+
+        private async Task RunBackgroundTask(string taskDescription, Action taskToRun)
+        {
+            // TODO: Correctly update the description for multiple background tasks.
+            // The code currently only shows a description for the most recent task.
             IsLoading = true;
-            LoadingDescription = $"Extracting {arcNode.Path}";
+            LoadingDescription = taskDescription;
+
             await Task.Run(() =>
             {
-                using (Operation.Time("Extracting {path}", arcNode.Path))
+                using (Operation.Time(taskDescription))
                 {
-                    ExtractFile(arcFile, arcNode);
+                    taskToRun();
                 }
             });
+
             LoadingDescription = "";
             IsLoading = false;
         }
@@ -213,20 +219,7 @@ namespace ArcExplorer.ViewModels
 
         private async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
-            // TODO: Correctly handle multiple background tasks.
-            // TODO: Simplify starting background tasks.
-            // TODO: Better logging if extract fails?
-            IsLoading = true;
-            LoadingDescription = $"Extracting files from {arcNode.Path}";
-            await Task.Run(() =>
-            {
-                using (Operation.Time("Extracting files from {path}", arcNode.Path))
-                {
-                    ExtractFilesRecursive(arcFile, arcNode);
-                }
-            });
-            LoadingDescription = "";
-            IsLoading = false;
+            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => ExtractFilesRecursive(arcFile, arcNode));
         }
 
         private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
