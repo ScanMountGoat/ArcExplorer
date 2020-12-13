@@ -90,13 +90,13 @@ namespace ArcExplorer.ViewModels
             var hashesFile = "Hashes.txt";
             if (!HashLabels.TryLoadHashes(hashesFile))
             {
-                Serilog.Log.Logger.Information("Failed to open Hashes file {@path}", hashesFile);
+                Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
                 return;
             }
 
             if (!ArcFile.TryOpenArc(path, out arcFile))
             {
-                Serilog.Log.Logger.Information("Failed to open ARC file {@path}", path);
+                Serilog.Log.Logger.Error("Failed to open ARC file {@path}", path);
                 return;
             }
 
@@ -133,6 +133,12 @@ namespace ArcExplorer.ViewModels
                 default:
                     throw new NotImplementedException($"Unable to create node from {arcNode}");
             }
+        }
+
+        public void ErrorClick()
+        {
+            var window = new Views.LogWindow() { Items = ApplicationSink.Instance.Value.LogMessages };
+            window.Show();
         }
 
         private FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)

@@ -1,6 +1,7 @@
 ﻿using Serilog.Core;
 using Serilog.Events;
 using System;
+using System.Collections.Generic;
 
 namespace ArcExplorer.Logging
 {
@@ -12,6 +13,8 @@ namespace ArcExplorer.Logging
         /// The number of log events with <see cref="LogEventLevel.Error"/> that have occurred.
         /// </summary>
         public int ErrorCount { get; private set; } = 0;
+
+        public List<string> LogMessages { get; } = new List<string>();
 
         /// <summary>
         /// Occurs whenever a log event is handled regardless of severity.
@@ -25,9 +28,7 @@ namespace ArcExplorer.Logging
 
         public void Emit(LogEvent logEvent)
         {
-            // Trigger an event whenever a log event occurs.
-            // Just maintain a count for now.
-            // TODO: Store the actual messages in memory to be displayed in the UI somehow.
+            // TODO: Handle other log levels.
             switch (logEvent.Level)
             {
                 case LogEventLevel.Verbose:
@@ -40,13 +41,16 @@ namespace ArcExplorer.Logging
                     break;
                 case LogEventLevel.Error:
                     ErrorCount++;
-                    LogEventHandled?.Invoke(this, EventArgs.Empty);
                     break;
                 case LogEventLevel.Fatal:
                     break;
                 default:
                     break;
             }
+
+            // Trigger an event whenever a log event occurs.
+            LogMessages.Add(logEvent.RenderMessage());
+            LogEventHandled?.Invoke(this, EventArgs.Empty);
         }
     }
 }
