@@ -1,8 +1,8 @@
 ﻿using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System.Collections;
-using System.Collections.ObjectModel;
 
 namespace ArcExplorer.Views
 {
@@ -19,7 +19,7 @@ namespace ArcExplorer.Views
             get => items;
             set => SetAndRaise(ItemsProperty, ref items, value);
         }
-        private IEnumerable items = new ObservableCollection<string>();
+        private IEnumerable items = new AvaloniaList<string>();
 
         public LogWindow()
         {

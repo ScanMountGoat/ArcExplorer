@@ -1,7 +1,7 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Collections;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace ArcExplorer.ViewModels
 {
@@ -33,7 +33,7 @@ namespace ArcExplorer.ViewModels
 
         public bool IsRegional { get; }
 
-        public ObservableCollection<FileNodeBase> Children { get; } = new ObservableCollection<FileNodeBase>();
+        public AvaloniaList<FileNodeBase> Children { get; } = new AvaloniaList<FileNodeBase>();
 
         public abstract Dictionary<string, string> ObjectProperties { get; }
 

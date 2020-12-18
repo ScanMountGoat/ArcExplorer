@@ -1,13 +1,8 @@
-﻿using Avalonia.Collections;
+﻿using ArcExplorer.Logging;
+using Avalonia.Collections;
 using ReactiveUI;
 using SmashArcNet;
-using SmashArcNet.Nodes;
 using System;
-using System.IO;
-using System.Linq;
-using SerilogTimings;
-using System.Threading.Tasks;
-using ArcExplorer.Logging;
 
 namespace ArcExplorer.ViewModels
 {
@@ -103,36 +98,7 @@ namespace ArcExplorer.ViewModels
             FileCount = arcFile.FileCount.ToString();
             ArcPath = path;
 
-            PopulateFileTree(arcFile);
-        }
-
-        private void PopulateFileTree(ArcFile arcFile)
-        {
-            // Replace existing files with the new ARC.
-            // TODO: Is memory being correctly freed?
-            Files.Clear();
-            foreach (var node in arcFile.GetRootNodes())
-            {
-                var treeNode = LoadNodeAddToParent(arcFile, null, node);
-                Files.Add(treeNode);
-            }
-        }
-
-        private FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode)
-        {
-            switch (arcNode)
-            {
-                case ArcDirectoryNode directoryNode:
-                    var folder = CreateFolderLoadChildren(arcFile, directoryNode);
-                    parent?.Children.Add(folder);
-                    return folder;
-                case ArcFileNode fileNode:
-                    var file = CreateFileNode(arcFile, fileNode);
-                    parent?.Children.Add(file);
-                    return file;
-                default:
-                    throw new NotImplementedException($"Unable to create node from {arcNode}");
-            }
+            FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);
         }
 
         public void ErrorClick()
@@ -141,133 +107,31 @@ namespace ArcExplorer.ViewModels
             window.Show();
         }
 
-        private FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
+        public void RebuildFileTree()
         {
-            // Assume no children for file nodes.
-            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
-            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode);
+            // Clear everything to ensure the proper icons get loaded when changing themes.
+            SelectedFile = null;
 
-            return fileNode;
+            // TODO: Preserve the existing directory structure.
+            if (arcFile != null)
+            {
+                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);
+            }
         }
 
-        private async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
-        {
-            await RunBackgroundTask($"Extracting {arcNode.Path}", () => ExtractFile(arcFile, arcNode));
-        }
-
-        private async Task RunBackgroundTask(string taskDescription, Action taskToRun)
+        private void BackgroundTaskStart(string taskDescription)
         {
             // TODO: Correctly update the description for multiple background tasks.
             // The code currently only shows a description for the most recent task.
             IsLoading = true;
             LoadingDescription = taskDescription;
+        }
 
-            await Task.Run(() =>
-            {
-                using (Operation.Time(taskDescription))
-                {
-                    taskToRun();
-                }
-            });
 
+        private void BackgroundTaskEnd()
+        {
             LoadingDescription = "";
             IsLoading = false;
-        }
-
-        private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
-        {
-            // TODO: Combine the paths with the export directory specified in preferences.
-            // TODO: Will this always produce a correct path?
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var paths = new string[] { currentDirectory, "export" };
-            var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
-
-            // Extraction will fail if the directory doesn't exist.
-            var exportFileDirectory = Path.GetDirectoryName(exportPath);
-            if (!Directory.Exists(exportFileDirectory))
-                Directory.CreateDirectory(exportFileDirectory);
-
-            // Extraction may fail.
-            // TODO: Update the C# bindings to store more detailed error info?
-            if (!arcFile.TryExtractFile(arcNode, exportPath))
-                Serilog.Log.Logger.Error("Failed to extract to {@path}", exportPath);
-        }
-
-        private FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode)
-        {
-            // Use DirectoryInfo to account for trailing slashes.
-            var folder = CreateFolderNode(arcFile, arcNode);
-
-            foreach (var child in arcFile.GetChildren(arcNode))
-            {
-                FileNodeBase childNode = child switch
-                {
-                    ArcDirectoryNode directory => CreateFolderNode(arcFile, directory),
-                    ArcFileNode file => CreateFileNode(arcFile, file),
-                    _ => throw new NotImplementedException($"Unable to create node from {child}")
-                };
-
-                // When the parent is expanded, load the grandchildren to support expanding the children.
-                folder.Expanded += (s, e) => LoadChildrenAddToParent(arcFile, child, childNode);
-
-                folder.Children.Add(childNode);
-            }
-
-            return folder;
-        }
-
-        private FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode)
-        {
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
-            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode);
-            return folder;
-        }
-
-        private async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode)
-        {
-            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => ExtractFilesRecursive(arcFile, arcNode));
-        }
-
-        private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
-        {
-            foreach (var child in arcFile.GetChildren(arcNode))
-            {
-                // Assume files have no children, so only recurse for directories.
-                switch (child)
-                {
-                    case ArcFileNode file:
-                        ExtractFile(arcFile, file);
-                        break;
-                    case ArcDirectoryNode directory:
-                        ExtractFilesRecursive(arcFile, directory);
-                       break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent)
-        {
-            if (arcNode is ArcDirectoryNode directoryNode)
-            {
-                foreach (var child in arcFile.GetChildren(directoryNode))
-                {
-                    LoadNodeAddToParent(arcFile, parent, child);
-                }
-            }
-        }
-
-        public void RebuildFileTree()
-        {
-            // TODO: Preserve the existing directory structure.
-            if (arcFile != null)
-            {
-                // Clear everything to ensure the proper icons get loaded when changing themes.
-                SelectedFile = null;
-                Files.Clear();
-                PopulateFileTree(arcFile);
-            }
         }
     }
 }
