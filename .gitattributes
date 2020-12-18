@@ -1,0 +1,2 @@
+# The Rust lib expects '\n' when splitting the hashes.
+Hashes.txt text eol=lf
