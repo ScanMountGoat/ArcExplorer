@@ -1,5 +1,5 @@
 # ArcExplorer
-A file browser for Smash Ultimate's data.arc file. 
+A file browser for Smash Ultimate's data.arc file. Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. Only more recent versions of the data.arc are supported. Folders or individual files can be extracted by right clicking the folder or file and selecting extract.   
 
 # Installation - TODO
 
