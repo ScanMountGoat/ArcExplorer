@@ -32,7 +32,7 @@
             <DrawingPresenter Drawing="{StaticResource openFileIcon}"></DrawingPresenter>
           </MenuItem.Icon>
         </MenuItem>
-        <MenuItem Header="Connect to Arc" Name="openArcNetworkedMenuItem" Command="{Binding OpenArcNetworked}" Width="180" DataContext="{Binding ElementName=thisWindow}">
+        <MenuItem Header="Connect to Arc" Name="openArcNetworkedMenuItem" Command="{Binding OpenArcNetworked}" Width="180" DataContext="{Binding ElementName=thisWindow}" IsVisible="False">
           <MenuItem.Icon>
             <DrawingPresenter Drawing="{StaticResource connectIcon}"></DrawingPresenter>
           </MenuItem.Icon>
