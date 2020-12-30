@@ -11,7 +11,7 @@ namespace ArcExplorer.ViewModels
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 
-        public FileNode(string name, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize) : base(name, isShared, isRegional)
+        public FileNode(string name, string absolutePath, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize) : base(name, absolutePath, isShared, isRegional)
         {
             var extension = Path.GetExtension(name);
             Offset = offset;
@@ -27,6 +27,7 @@ namespace ArcExplorer.ViewModels
 
             return new Dictionary<string, string>()
             {
+                { "Description", Description },
                 { "Offset", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(Offset)} bytes" },
                 { "Compressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(CompressedSize)} bytes" },
                 { "Decompressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes" },

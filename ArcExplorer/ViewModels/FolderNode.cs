@@ -26,7 +26,7 @@ namespace ArcExplorer.ViewModels
 
         public event EventHandler? Expanded;
 
-        public FolderNode(string name, bool isShared, bool isRegional) : base(name, isShared, isRegional)
+        public FolderNode(string name, string absolutePath, bool isShared, bool isRegional) : base(name, absolutePath, isShared, isRegional)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
             DetailsIconKey = ApplicationStyles.Icon.FolderClosed;

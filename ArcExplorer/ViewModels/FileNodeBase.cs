@@ -9,6 +9,9 @@ namespace ArcExplorer.ViewModels
     {
         public string Name { get; } = "";
 
+        public string AbsolutePath { get; } = "";
+
+
         public ApplicationStyles.Icon DetailsIconKey
         {
             get => detailsIconKey;
@@ -39,9 +42,10 @@ namespace ArcExplorer.ViewModels
 
         public string Description { get; protected set; } = "";
 
-        public FileNodeBase(string name, bool isShared, bool isRegional)
+        public FileNodeBase(string name, string absolutePath, bool isShared, bool isRegional)
         {
             Name = name;
+            AbsolutePath = absolutePath;
             IsShared = isShared;
             IsRegional = isRegional;
         }

@@ -10,17 +10,18 @@
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
   <StackPanel DataContext="{Binding ElementName=thisControl}">
-    <TextBlock FontSize="16" Margin="5" Text="{Binding File.Name}"></TextBlock>
-    <Grid ColumnDefinitions="*,*">
-      <DrawingPresenter Margin="5" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-      <TextBlock Margin="5" Grid.Column="1" Text="{Binding File.Description}" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
+    
+    <Grid ColumnDefinitions="32,*">
+      <DrawingPresenter Margin="5" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" VerticalAlignment="Center" Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+      <TextBlock Margin="5" Grid.Column="1" Text="{Binding File.Name}" FontSize="16" VerticalAlignment="Center"></TextBlock>
     </Grid>
+    <TextBlock Margin="5" Text="{Binding File.AbsolutePath}" TextWrapping="Wrap"></TextBlock>
     <ItemsControl Items="{Binding File.ObjectProperties}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <Grid ColumnDefinitions="*,*">
+          <Grid ColumnDefinitions="*,*" Margin="0,2">
             <TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
-            <TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="Bold"></TextBlock>
+            <TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
           </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>

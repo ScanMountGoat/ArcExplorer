@@ -53,7 +53,7 @@ namespace ArcExplorer.ViewModels
         private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskStart, Action taskEnd)
         {
             // Assume no children for file nodes.
-            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
+            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.Path, arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
             fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskStart, taskEnd);
 
             return fileNode;
@@ -148,7 +148,7 @@ namespace ArcExplorer.ViewModels
 
         private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
         {
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, false, false);
+            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path, false, false);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, taskEnd);
             return folder;
         }
