@@ -1,4 +1,5 @@
-﻿using Avalonia.Collections;
+﻿using ArcExplorer.Models;
+using Avalonia.Collections;
 using SerilogTimings;
 using SmashArcNet;
 using SmashArcNet.Nodes;
@@ -60,10 +61,9 @@ namespace ArcExplorer.ViewModels
 
         private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Combine the paths with the export directory specified in preferences.
             // TODO: Will this always produce a correct path?
             var currentDirectory = Directory.GetCurrentDirectory();
-            var paths = new string[] { currentDirectory, "export" };
+            var paths = new string[] { currentDirectory, ApplicationSettings.Instance.ExtractLocation };
             var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
 
             // Extraction will fail if the directory doesn't exist.

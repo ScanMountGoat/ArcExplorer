@@ -35,6 +35,19 @@ namespace ArcExplorer.Views
             System.IO.File.WriteAllText("ApplicationPreferences.json", json);
         }
 
+        public async void OpenFolderClick()
+        {
+            // The dialog requires the window reference, so this can't be in the viewmodel.
+            var dialog = new OpenFolderDialog();
+            var result = await dialog.ShowAsync(this);
+            if (result != null && result.Length > 0)
+            {
+                var vm = (DataContext as PreferencesWindowViewModel);
+                if (vm != null)
+                    vm.ExtractLocation = result;
+            }
+        }
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);

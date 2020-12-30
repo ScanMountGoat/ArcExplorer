@@ -27,6 +27,8 @@ namespace ArcExplorer.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
 
+        public string ExtractLocation { get; set; } = "export";
+
         private ApplicationSettings()
         {
 

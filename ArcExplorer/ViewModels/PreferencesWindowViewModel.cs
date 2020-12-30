@@ -24,6 +24,12 @@ namespace ArcExplorer.ViewModels
         }
         private ApplicationSettings.IntegerDisplayFormat integerDisplayFormat = ApplicationSettings.Instance.DisplayFormat;
 
+        public string ExtractLocation
+        {
+            get => extractLocation;
+            set => this.RaiseAndSetIfChanged(ref extractLocation, value);
+        }
+        private string extractLocation = ApplicationSettings.Instance.ExtractLocation;
 
         public PreferencesWindowViewModel()
         {
@@ -40,6 +46,9 @@ namespace ArcExplorer.ViewModels
                     break;
                 case nameof(IntegerDisplayFormat):
                     ApplicationSettings.Instance.DisplayFormat = IntegerDisplayFormat;
+                    break;
+                case nameof(ExtractLocation):
+                    ApplicationSettings.Instance.ExtractLocation = ExtractLocation;
                     break;
                 default:
                     break;

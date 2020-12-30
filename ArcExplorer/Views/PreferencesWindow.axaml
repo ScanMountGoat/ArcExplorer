@@ -2,19 +2,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
-        Width="500" Height="400"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="400"
+        Width="600" Height="400"
         Icon="/Assets/arc.ico"
         x:Class="ArcExplorer.Views.PreferencesWindow"
+        Name="thisControl"
         Title="Preferences">
   <StackPanel Margin="10">
-    <Grid RowDefinitions="*" ColumnDefinitions="1*,1*">
+    <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center">Application Theme</TextBlock>
       <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" Items="{Binding Themes}" SelectedItem="{Binding CurrentTheme}" VerticalAlignment="Center"></ComboBox>
     </Grid>
-    <Grid RowDefinitions="*" ColumnDefinitions="1*,1*">
+    <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center">File Properties Display Format</TextBlock>
       <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" Items="{Binding IntegerDisplayFormats}" SelectedItem="{Binding IntegerDisplayFormat}" VerticalAlignment="Center"></ComboBox>
+    </Grid>
+    <Grid RowDefinitions="*" ColumnDefinitions="200,*">
+      <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center">Extract Location</TextBlock>
+      <Grid RowDefinitions="*" ColumnDefinitions="*,100" Grid.Column="1">
+        <TextBox Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Text="{Binding ExtractLocation}"></TextBox>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFolderClick}" DataContext="{Binding ElementName=thisControl}">Open Folder</Button>
+      </Grid>
     </Grid>
   </StackPanel>
 </Window>

@@ -31,7 +31,7 @@ namespace ArcExplorer.Views
             window.Show();
         }
 
-        private async void OpenArc()
+        public async void OpenArc()
         {
             // The dialog requires the window reference, so this can't be in the viewmodel.
             var dialog = new OpenFileDialog
@@ -39,10 +39,10 @@ namespace ArcExplorer.Views
                 AllowMultiple = false
             };
             dialog.Filters.Add(new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" });
-            var task = await dialog.ShowAsync(this);
-            if (task.Length > 0)
+            var result = await dialog.ShowAsync(this);
+            if (result != null && result.Length > 0)
             {
-                (DataContext as MainWindowViewModel)?.OpenArc(task[0]);
+                (DataContext as MainWindowViewModel)?.OpenArc(result[0]);
             }
         }
 
