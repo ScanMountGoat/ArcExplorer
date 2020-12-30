@@ -13,7 +13,11 @@ namespace ArcExplorer.ViewModels
         public FileNodeBase? SelectedFile 
         { 
             get => selectedFile;
-            set => this.RaiseAndSetIfChanged(ref selectedFile, value);
+            set
+            {
+                HasSelectedNode = value != null;
+                this.RaiseAndSetIfChanged(ref selectedFile, value);
+            }
         }
         private FileNodeBase? selectedFile;
 
@@ -66,6 +70,13 @@ namespace ArcExplorer.ViewModels
         }
         private string errorDescription = "";
 
+        public bool HasSelectedNode
+        {
+            get => hasSelectedNode;
+            set => this.RaiseAndSetIfChanged(ref hasSelectedNode, value);
+        }
+        private bool hasSelectedNode = false;
+
         private ArcFile? arcFile;
 
         public MainWindowViewModel()
@@ -105,6 +116,11 @@ namespace ArcExplorer.ViewModels
         {
             var window = new Views.LogWindow() { Items = ApplicationSink.Instance.Value.LogMessages };
             window.Show();
+        }
+
+        public void ExtractSelectedNode()
+        {
+            SelectedFile?.OnFileExtracting();
         }
 
         public void RebuildFileTree()

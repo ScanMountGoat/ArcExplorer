@@ -16,7 +16,6 @@ namespace ArcExplorer.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
-            this.Find<MenuItem>("preferencesMenuItem").Click += Preferences_Click;
             this.Closed += MainWindow_Closed;
         }
 
@@ -25,7 +24,7 @@ namespace ArcExplorer.Views
             Log.CloseAndFlush();
         }
 
-        private void Preferences_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void OpenPreferencesWindow()
         {
             var window = PreferencesWindow.Instance.Value;
             window.Show();
