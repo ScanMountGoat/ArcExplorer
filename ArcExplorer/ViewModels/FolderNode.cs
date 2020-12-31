@@ -13,11 +13,12 @@ namespace ArcExplorer.ViewModels
             {
                 this.RaiseAndSetIfChanged(ref isExpanded, value);
                 TreeViewIconKey = isExpanded ? ApplicationStyles.Icon.FolderOpened : ApplicationStyles.Icon.FolderClosed;
-                if (value)
-                    Expanded?.Invoke(this, EventArgs.Empty);
+                Expanded?.Invoke(this, EventArgs.Empty);
             }
         }
         private bool isExpanded;
+
+        public bool HasInitialized { get; set; }
 
         public override Dictionary<string, string> ObjectProperties => new Dictionary<string, string>()
         {

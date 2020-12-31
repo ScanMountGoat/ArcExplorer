@@ -83,9 +83,9 @@ namespace ArcExplorer.ViewModels
 
         private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
         {
-            // Use DirectoryInfo to account for trailing slashes.
             var folder = CreateFolderNode(arcFile, arcNode, taskStart, taskEnd);
 
+            var arcNodeTreeNode = new List<Tuple<IArcNode, FileNodeBase>>();
             foreach (var child in arcFile.GetChildren(arcNode))
             {
                 FileNodeBase childNode = child switch
@@ -95,11 +95,24 @@ namespace ArcExplorer.ViewModels
                     _ => throw new NotImplementedException($"Unable to create node from {child}")
                 };
 
-                // When the parent is expanded, load the grandchildren to support expanding the children.
-                folder.Expanded += (s, e) => LoadChildrenAddToParent(arcFile, child, childNode, taskStart, taskEnd);
-
                 folder.Children.Add(childNode);
+
+                arcNodeTreeNode.Add(new Tuple<IArcNode, FileNodeBase>(child, childNode));
             }
+
+            // When the parent is expanded, load the grandchildren to support expanding the children.
+            // TODO: There's probably a cleaner way to do this.
+            folder.Expanded += (s, e) =>
+            {
+                if (!folder.HasInitialized)
+                {
+                    foreach (var pair in arcNodeTreeNode)
+                    {
+                        LoadChildrenAddToParent(arcFile, pair.Item1, pair.Item2, taskStart, taskEnd);
+                    }
+                    folder.HasInitialized = true;
+                }
+            };
 
             return folder;
         }
