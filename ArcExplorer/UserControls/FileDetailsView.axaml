@@ -9,13 +9,13 @@
   <UserControl.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
-  <StackPanel DataContext="{Binding ElementName=thisControl}" >
-    <Grid ColumnDefinitions="32,*">
+  <DockPanel DataContext="{Binding ElementName=thisControl}" LastChildFill="True">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="32,*">
       <DrawingPresenter Margin="5" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" VerticalAlignment="Center" Drawing="{Binding File.DetailsIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
       <TextBlock Margin="5" Grid.Column="1" Text="{Binding File.Name}" FontSize="16" VerticalAlignment="Center"></TextBlock>
     </Grid>
-    <TextBlock Margin="5" Text="{Binding File.AbsolutePath}" TextWrapping="Wrap"></TextBlock>
-    <ItemsControl Items="{Binding File.ObjectProperties}">
+    <TextBlock DockPanel.Dock="Top" Margin="5" Text="{Binding File.AbsolutePath}" TextWrapping="Wrap"></TextBlock>
+    <ItemsControl DockPanel.Dock="Top" Items="{Binding File.ObjectProperties}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
           <Grid ColumnDefinitions="*,*" Margin="0,2">
@@ -25,20 +25,24 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
-    <Grid ColumnDefinitions="*,*" IsVisible="{Binding File.IsRegional, FallbackValue=False}">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,*" IsVisible="{Binding File.IsRegional, FallbackValue=False}">
       <DrawingPresenter Margin="5,0" Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left" Drawing="{Binding File.RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
       <TextBlock Margin="5,0" Grid.Column="1" Text="Regional" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
     </Grid>
-    <StackPanel Orientation="Horizontal" IsVisible="{Binding File.IsShared, FallbackValue=False}" Margin="0,10,0,0">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" IsVisible="{Binding File.IsShared, FallbackValue=False}" Margin="0,10,0,2">
       <DrawingPresenter Margin="5,0" Width="16" Height="16" HorizontalAlignment="Left" Drawing="{Binding File.SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
       <TextBlock  Margin="5,0" Text="{Binding File.SharedFileDescription}" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
     </StackPanel>
-    <ItemsControl Items="{Binding File.SharedFilePaths}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <TextBlock Margin="5,2" Text="{Binding}"></TextBlock>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl>
-  </StackPanel>
+    <Grid Name="parentGrid">
+      <ScrollViewer Height="{Binding ActualHeight, ElementName=parentGrid}">
+        <ItemsRepeater Items="{Binding File.SharedFilePaths}">
+          <ItemsRepeater.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Margin="5,2" Text="{Binding}"></TextBlock>
+            </DataTemplate>
+          </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
 </UserControl>
