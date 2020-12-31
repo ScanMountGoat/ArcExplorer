@@ -25,20 +25,22 @@ namespace ArcExplorer.ViewModels
         }
         private List<string>? sharedFilePaths;
 
+        public string Extension { get; }
+
         public string SharedFileDescription => $"Shared with the following {SharedFilePaths.Count} files:";
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 
         private readonly Func<List<string>> getSharedFiles;
 
-        public FileNode(string name, string absolutePath, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, Func<List<string>> getSharedFiles) : base(name, absolutePath, isShared, isRegional)
+        public FileNode(string name, string absolutePath, string extension, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, Func<List<string>> getSharedFiles) : base(name, absolutePath, isShared, isRegional)
         {
-            var extension = Path.GetExtension(name);
+            Extension = extension;  
             Offset = offset;
             CompressedSize = compressedSize;
             DecompressedSize = decompressedSize;
-            DetailsIconKey = FileFormatInfo.GetFileIconKey(extension);
-            Description = FileFormatInfo.GetDescription(extension);
+            DetailsIconKey = FileFormatInfo.GetFileIconKey(Extension);
+            Description = FileFormatInfo.GetDescription(Extension);
             this.getSharedFiles = getSharedFiles;
         }
 
