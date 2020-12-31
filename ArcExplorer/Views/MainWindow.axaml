@@ -39,7 +39,7 @@
         </MenuItem>
       </MenuItem>
       <MenuItem Header="Arc">
-        <MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding HasSelectedNode}"></MenuItem>
+        <MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
       </MenuItem>
       <MenuItem Header="Settings">
         <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding ElementName=thisWindow}">
