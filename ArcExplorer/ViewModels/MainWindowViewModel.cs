@@ -108,6 +108,7 @@ namespace ArcExplorer.ViewModels
 
             FileCount = arcFile.FileCount.ToString();
             ArcPath = path;
+            ArcVersion = arcFile.Version.ToString();
 
             FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);
         }

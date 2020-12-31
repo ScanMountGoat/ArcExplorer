@@ -14,6 +14,11 @@
             The total number of file entries in the arc.
             </summary>
         </member>
+        <member name="P:SmashArcNet.ArcFile.Version">
+            <summary>
+            The file version of the ARC.
+            </summary>
+        </member>
         <member name="M:SmashArcNet.ArcFile.Finalize">
             <summary>
             Frees the resources associated with this ARC
