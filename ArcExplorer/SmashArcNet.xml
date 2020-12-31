@@ -60,6 +60,13 @@
             <param name="parent">The parent node</param>
             <returns>the child nodes of <paramref name="parent"/></returns>
         </member>
+        <member name="M:SmashArcNet.ArcFile.GetSharedFilePaths(SmashArcNet.Nodes.ArcFileNode)">
+            <summary>
+            Finds the files that share their data with <paramref name="file"/>.
+            </summary>
+            <param name="file">The file node to search</param>
+            <returns>A list of file paths that share this file's data</returns>
+        </member>
         <member name="T:SmashArcNet.HashLabels">
             <summary>
             Contains methods for dealing with path hashes.

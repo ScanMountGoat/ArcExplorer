@@ -49,7 +49,7 @@
         </MenuItem>
       </MenuItem>
     </Menu>
-    <Grid ColumnDefinitions="*,10,300">
+    <Grid ColumnDefinitions="*,10,400">
       <DockPanel LastChildFill="True">
         <Grid DockPanel.Dock="Top" HorizontalAlignment="Right" ColumnDefinitions="*,200" IsEnabled="False">
           <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">Search</TextBlock>

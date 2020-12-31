@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
 {
@@ -52,8 +53,11 @@ namespace ArcExplorer.ViewModels
 
         private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskStart, Action taskEnd)
         {
-            // Assume no children for file nodes.
-            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.Path, arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize);
+            // Lazy initialize the shared file list for performance reasons.
+            List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode);
+
+            var fileNode = new FileNode(Path.GetFileName(arcNode.Path), arcNode.Path, arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, getSharedFiles);
+
             fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskStart, taskEnd);
 
             return fileNode;
