@@ -24,7 +24,7 @@ namespace ArcExplorer.Views
             Log.CloseAndFlush();
         }
 
-        private void OpenPreferencesWindow()
+        public void OpenPreferencesWindow()
         {
             var window = PreferencesWindow.Instance.Value;
             window.Show();
@@ -41,7 +41,7 @@ namespace ArcExplorer.Views
             var result = await dialog.ShowAsync(this);
             if (result != null && result.Length > 0)
             {
-                (DataContext as MainWindowViewModel)?.OpenArc(result[0]);
+                (DataContext as MainWindowViewModel)?.OpenArcFile(result[0]);
             }
         }
 
@@ -51,7 +51,9 @@ namespace ArcExplorer.Views
             dialog.Closed += (s, e) =>
             {
                 if (!dialog.WasCancelled)
+                {
                     (DataContext as MainWindowViewModel)?.OpenArcNetworked(dialog.IpAddress);
+                }
             };
             await dialog.ShowDialog(this);
         }

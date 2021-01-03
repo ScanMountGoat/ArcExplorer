@@ -26,7 +26,6 @@ namespace ArcExplorer.Views
 
         public void ConnectClick()
         {
-            // TODO: Try and establish a connection using the given IP Address.
             WasCancelled = false;
             Close();
         }

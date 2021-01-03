@@ -1,8 +1,10 @@
 ﻿using ArcExplorer.Logging;
 using Avalonia.Collections;
 using ReactiveUI;
+using SerilogTimings;
 using SmashArcNet;
 using System;
+using System.Threading.Tasks;
 
 namespace ArcExplorer.ViewModels
 {
@@ -88,24 +90,37 @@ namespace ArcExplorer.ViewModels
 
         public void OpenArcNetworked(string ipAddress)
         {
-            if (!ArcFile.TryOpenArcNetworked(ipAddress, out arcFile))
-            {
-                Serilog.Log.Logger.Error("Failed to connect to ARC file at address {@address}", ipAddress);
-                return;
-            }
-
-            InitializeArcFile(ipAddress);
+            OpenArcBackgroundTask($"Connecting to ARC file at address {ipAddress}", $"Failed to connect to ARC file at address {ipAddress}", 
+                () => ArcFile.TryOpenArcNetworked(ipAddress, out arcFile), 
+                () => InitializeArcFile(ipAddress));
         }
 
-        public void OpenArc(string path)
+        public void OpenArcFile(string path)
         {
-            if (!ArcFile.TryOpenArc(path, out arcFile))
+            OpenArcBackgroundTask($"Opening ARC file {path}", $"Failed to open ARC file {path}", 
+                () => ArcFile.TryOpenArc(path, out arcFile), 
+                () => InitializeArcFile(path));
+        }
+
+        private void OpenArcBackgroundTask(string taskDescription, string errorLogText, Func<bool> tryOpenArc, Action arcAfterOpen)
+        {
+            BackgroundTaskStart(taskDescription);
+
+            using (var operation = Operation.Begin(taskDescription))
             {
-                Serilog.Log.Logger.Error("Failed to open ARC file {@path}", path);
-                return;
+                if (!tryOpenArc())
+                {
+                    Serilog.Log.Logger.Error(errorLogText);
+                    operation.Abandon();
+                    BackgroundTaskEnd();
+                    return;
+                }
+
+                arcAfterOpen();
+                operation.Complete();
             }
 
-            InitializeArcFile(path);
+            BackgroundTaskEnd();
         }
 
         private void InitializeArcFile(string arcPathText)
