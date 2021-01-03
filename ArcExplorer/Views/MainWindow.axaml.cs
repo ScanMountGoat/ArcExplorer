@@ -45,11 +45,15 @@ namespace ArcExplorer.Views
             }
         }
 
-        private async void OpenArcNetworked()
+        public async void OpenArcNetworked()
         {
-            var window = new OpenArcConnectionWindow();
-            window.Show();
-            // TODO: Pass the IP Address to the mainwindow viewmodel to open the ARC.
+            var dialog = new OpenArcConnectionWindow();
+            dialog.Closed += (s, e) =>
+            {
+                if (!dialog.WasCancelled)
+                    (DataContext as MainWindowViewModel)?.OpenArcNetworked(dialog.IpAddress);
+            };
+            await dialog.ShowDialog(this);
         }
 
         private void InitializeComponent()

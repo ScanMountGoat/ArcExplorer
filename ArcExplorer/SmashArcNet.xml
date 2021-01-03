@@ -35,10 +35,10 @@
         </member>
         <member name="M:SmashArcNet.ArcFile.TryOpenArcNetworked(System.String,SmashArcNet.ArcFile@)">
             <summary>
-            Tries to create <paramref name="arcFile"/> from <paramref name="ip"/>.
+            Tries to create <paramref name="arcFile"/> from <paramref name="ipAddress"/>.
             Make sure to call <see cref="M:SmashArcNet.HashLabels.TryLoadHashes(System.String)"/> before trying to load an ARC.
             </summary>
-            <param name="ip">IP address of console</param>
+            <param name="ipAddress">IP address of the Switch console</param>
             <param name="arcFile">The resulting ARC</param>
             <returns><c>true</c> if the ARC file was opened successfully</returns>
         </member>

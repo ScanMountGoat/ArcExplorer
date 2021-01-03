@@ -71,6 +71,13 @@ namespace ArcExplorer.ViewModels
         public MainWindowViewModel()
         {
             ApplicationSink.Instance.Value.LogEventHandled += LogEventHandled;
+
+            // TODO: This is expensive and should be handled separately.
+            var hashesFile = "Hashes.txt";
+            if (!HashLabels.TryLoadHashes(hashesFile))
+            {
+                Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
+            }
         }
 
         private void LogEventHandled(object? sender, EventArgs e)
@@ -79,24 +86,35 @@ namespace ArcExplorer.ViewModels
             ErrorDescription = $"{ApplicationSink.Instance.Value.ErrorCount} Errors";
         }
 
-        public void OpenArc(string path)
+        public void OpenArcNetworked(string ipAddress)
         {
-            // TODO: This is expensive and should be handled separately.
-            var hashesFile = "Hashes.txt";
-            if (!HashLabels.TryLoadHashes(hashesFile))
+            if (!ArcFile.TryOpenArcNetworked(ipAddress, out arcFile))
             {
-                Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
+                Serilog.Log.Logger.Error("Failed to connect to ARC file at address {@address}", ipAddress);
                 return;
             }
 
+            InitializeArcFile(ipAddress);
+        }
+
+        public void OpenArc(string path)
+        {
             if (!ArcFile.TryOpenArc(path, out arcFile))
             {
                 Serilog.Log.Logger.Error("Failed to open ARC file {@path}", path);
                 return;
             }
 
+            InitializeArcFile(path);
+        }
+
+        private void InitializeArcFile(string arcPathText)
+        {
+            if (arcFile == null)
+                return;
+
             FileCount = arcFile.FileCount.ToString();
-            ArcPath = path;
+            ArcPath = arcPathText;
             ArcVersion = arcFile.Version.ToString();
 
             FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);

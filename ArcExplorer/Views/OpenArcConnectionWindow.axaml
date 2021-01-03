@@ -7,11 +7,12 @@
         x:Class="ArcExplorer.Views.OpenArcConnectionWindow"
         WindowStartupLocation="CenterScreen"
         Icon="avares://ArcExplorer/Assets/arc.ico"
+        Name="thisControl"
         Title="Connect to ARC">
   <StackPanel>
     <Grid ColumnDefinitions="*,*">
       <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">IP Address</TextBlock>
-      <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center">000.000.000.000</TextBox>
+      <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IpAddress}"></TextBox>
     </Grid>
     <Grid ColumnDefinitions="*,*">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Cancel</Button>
