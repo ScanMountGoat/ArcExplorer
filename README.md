@@ -22,6 +22,15 @@ The right panel contains details on the currently selected file or folder. If a 
 ## Extracting Files
 Folders or individual files can be extracted by right clicking the folder or file and selecting extract or by clicking extract under the Arc menu. The export directory can be customized under Settings > Preferences.
 
+## Opening Over The Network
+
+1. Install Skyline if you haven't already
+2. Download [the companion skyline plugin, arc-network](https://github.com/jam1garner/arc-network/releases/tag/master) and install it as you would any other skyline plugin
+3. Run Smash, keep it open
+4. Hit "File > Connect to ARC"
+5. Input your Switch's IP address
+6. Hit "Connect"
+
 ## User Preferences
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
 
