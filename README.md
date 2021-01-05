@@ -2,8 +2,8 @@
 A file browser for Smash Ultimate's data.arc file for Windows and Linux.
 
 ## Installation
-Download and install the Microsoft .NET Core 3.1 runtime if you haven't already. If you don't have .NET Core 3.1 installed and try to run the program, it should also prompt you to download it. Make sure to install the version to run desktop apps.
-https://dotnet.microsoft.com/download/dotnet-core/3.1/runtime/?utm_source=getdotnetcore&utm_medium=referral
+Download and install the Microsoft [.NET Core 3.1 desktop runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1/runtime/?utm_source=getdotnetcore&utm_medium=referral
+) if you haven't already. Make sure to install the version to run desktop apps.
 
 The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
