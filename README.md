@@ -5,7 +5,7 @@ A file browser for Smash Ultimate's data.arc file for Windows and Linux.
 Download and install the Microsoft [.NET Core 3.1 desktop runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1/runtime/?utm_source=getdotnetcore&utm_medium=referral
 ) if you haven't already. Make sure to install the version to run desktop apps.
 
-The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
+The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
 On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open a terminal in the executable directory and run `dotnet ArcExplorer.dll`. Mac OS support isn't planned at this time, but it should be possible to build ArcExplorer, SmashArcNet, and smash-arc for Mac OS from source. 
 
