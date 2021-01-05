@@ -63,22 +63,41 @@ namespace ArcExplorer.ViewModels
             return fileNode;
         }
 
-        private static void ExtractFile(ArcFile arcFile, ArcFileNode arcNode)
+        private static bool TryExtractFile(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Will this always produce a correct path?
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var paths = new string[] { currentDirectory, ApplicationSettings.Instance.ExtractLocation };
-            var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
+            var exportPath = GetExportPath(arcNode);
 
             // Extraction will fail if the directory doesn't exist.
             var exportFileDirectory = Path.GetDirectoryName(exportPath);
-            if (!Directory.Exists(exportFileDirectory))
-                Directory.CreateDirectory(exportFileDirectory);
+            try
+            {
+                if (!Directory.Exists(exportFileDirectory))
+                    Directory.CreateDirectory(exportFileDirectory);
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error(e, "Error creating directory {@exportFileDirectory}", exportFileDirectory);
+                return false;
+            }
+
 
             // Extraction may fail.
             // TODO: Update the C# bindings to store more detailed error info?
             if (!arcFile.TryExtractFile(arcNode, exportPath))
+            {
                 Serilog.Log.Logger.Error("Failed to extract to {@path}", exportPath);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static string GetExportPath(ArcFileNode arcNode)
+        {
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var paths = new string[] { currentDirectory, ApplicationSettings.Instance.ExtractLocation };
+            var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
+            return exportPath;
         }
 
         private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
@@ -117,23 +136,26 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
-        private static async Task RunBackgroundTask(string taskDescription, Action taskToRun, Action<string> taskStart, Action taskEnd)
+        private static async Task RunBackgroundTask(string taskDescription, Func<bool> taskToRun, Action<string> taskStart, Action taskEnd)
         {
 
             taskStart(taskDescription);
 
             await Task.Run(() =>
             {
-                using (Operation.Time(taskDescription))
+                using (var operation = Operation.Begin(taskDescription))
                 {
-                    taskToRun();
+                    if (taskToRun())
+                        operation.Complete();
+                    else
+                        operation.Cancel();
                 }
             });
 
             taskEnd();
         }
 
-        private static void ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
+        private static bool ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
             foreach (var child in arcFile.GetChildren(arcNode))
             {
@@ -141,7 +163,7 @@ namespace ArcExplorer.ViewModels
                 switch (child)
                 {
                     case ArcFileNode file:
-                        ExtractFile(arcFile, file);
+                        TryExtractFile(arcFile, file);
                         break;
                     case ArcDirectoryNode directory:
                         ExtractFilesRecursive(arcFile, directory);
@@ -150,6 +172,10 @@ namespace ArcExplorer.ViewModels
                         break;
                 }
             }
+
+            // Assume the operation succeeds for now.
+            // Individual file extractions may still fail.
+            return true;
         }
 
         private static void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent, Action<string> taskStart, Action taskEnd)
@@ -173,7 +199,7 @@ namespace ArcExplorer.ViewModels
         private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskStart, Action taskEnd)
         {
             // TODO: Files extract quickly, so there's no need to update the UI by calling taskStart.
-            await RunBackgroundTask($"Extracting {arcNode.Path}", () => ExtractFile(arcFile, arcNode), taskStart, taskEnd);
+            await RunBackgroundTask($"Extracting {arcNode.Path}", () => TryExtractFile(arcFile, arcNode), taskStart, taskEnd);
         }
 
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
