@@ -96,7 +96,11 @@ namespace ArcExplorer.ViewModels
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var paths = new string[] { currentDirectory, ApplicationSettings.Instance.ExtractLocation };
-            var exportPath = Path.Combine(paths.Concat(arcNode.Path.Split('/')).ToArray());
+
+            // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.
+            var filePath = arcNode.Path.Replace(":", "");
+
+            var exportPath = Path.Combine(paths.Concat(filePath.Split('/')).ToArray());
             return exportPath;
         }
 
