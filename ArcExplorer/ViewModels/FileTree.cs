@@ -99,6 +99,8 @@ namespace ArcExplorer.ViewModels
 
             // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.
             var filePath = arcNode.Path.Replace(":", "");
+            if (arcNode.FileName.StartsWith("0x"))
+                filePath += "." + arcNode.Extension;
 
             var exportPath = Path.Combine(paths.Concat(filePath.Split('/')).ToArray());
             return exportPath;
