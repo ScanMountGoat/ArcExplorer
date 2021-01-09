@@ -17,9 +17,9 @@ namespace ArcExplorer.Logging
         public List<string> LogMessages { get; } = new List<string>();
 
         /// <summary>
-        /// Occurs whenever a log event is handled regardless of severity.
+        /// Occurs whenever a log event with severity <see cref="LogEventLevel.Error"/> is generated.
         /// </summary>
-        public event EventHandler? LogEventHandled;
+        public event EventHandler? ErrorEventRaised;
 
         private ApplicationSink()
         {
@@ -28,29 +28,16 @@ namespace ArcExplorer.Logging
 
         public void Emit(LogEvent logEvent)
         {
-            // TODO: Handle other log levels.
             switch (logEvent.Level)
             {
-                case LogEventLevel.Verbose:
-                    break;
-                case LogEventLevel.Debug:
-                    break;
-                case LogEventLevel.Information:
-                    break;
-                case LogEventLevel.Warning:
-                    break;
                 case LogEventLevel.Error:
                     ErrorCount++;
-                    break;
-                case LogEventLevel.Fatal:
+                    LogMessages.Add(logEvent.RenderMessage());
+                    ErrorEventRaised?.Invoke(this, EventArgs.Empty);
                     break;
                 default:
                     break;
             }
-
-            // Trigger an event whenever a log event occurs.
-            LogMessages.Add(logEvent.RenderMessage());
-            LogEventHandled?.Invoke(this, EventArgs.Empty);
         }
     }
 }

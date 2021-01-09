@@ -71,7 +71,7 @@ namespace ArcExplorer.ViewModels
 
         public MainWindowViewModel()
         {
-            ApplicationSink.Instance.Value.LogEventHandled += LogEventHandled;
+            ApplicationSink.Instance.Value.ErrorEventRaised += LogEventHandled;
 
             // TODO: This is expensive and should be handled separately.
             var hashesFile = "Hashes.txt";

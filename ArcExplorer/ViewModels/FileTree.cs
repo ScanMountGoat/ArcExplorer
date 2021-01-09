@@ -43,7 +43,7 @@ namespace ArcExplorer.ViewModels
                     parent?.Children.Add(folder);
                     return folder;
                 case ArcFileNode fileNode:
-                    var file = CreateFileNode(arcFile, fileNode, taskStart, taskEnd);
+                    var file = CreateFileNode(arcFile, fileNode);
                     parent?.Children.Add(file);
                     return file;
                 default:
@@ -51,14 +51,14 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskStart, Action taskEnd)
+        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
         {
             // Lazy initialize the shared file list for performance reasons.
             List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode);
 
             var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension, arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, getSharedFiles);
 
-            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskStart, taskEnd);
+            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode);
 
             return fileNode;
         }
@@ -116,7 +116,7 @@ namespace ArcExplorer.ViewModels
                 FileNodeBase childNode = child switch
                 {
                     ArcDirectoryNode directory => CreateFolderNode(arcFile, directory, taskStart, taskEnd),
-                    ArcFileNode file => CreateFileNode(arcFile, file, taskStart, taskEnd),
+                    ArcFileNode file => CreateFileNode(arcFile, file),
                     _ => throw new NotImplementedException($"Unable to create node from {child}")
                 };
 
@@ -202,10 +202,10 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
-        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskStart, Action taskEnd)
+        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
         {
-            // TODO: Files extract quickly, so there's no need to update the UI by calling taskStart.
-            await RunBackgroundTask($"Extracting {arcNode.Path}", () => TryExtractFile(arcFile, arcNode), taskStart, taskEnd);
+            // Files extract quickly, so there's no need to update the UI by calling taskStart.
+            await RunBackgroundTask($"Extracting {arcNode.Path}", () => TryExtractFile(arcFile, arcNode), (_) => { }, () => { });
         }
 
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
