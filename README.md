@@ -8,7 +8,8 @@ Download and install the Microsoft [.NET Core 3.1 desktop runtime](https://dotne
 
 The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
-On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open a terminal in the executable directory and run `dotnet ArcExplorer.dll`. Mac OS support isn't planned at this time, but it should be possible to build ArcExplorer, SmashArcNet, and smash-arc for Mac OS from source. 
+## Running the Program
+On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open a terminal in the executable directory and run `./ArcExplorer`. Mac OS support isn't planned at this time, but it should be possible to build ArcExplorer, SmashArcNet, and smash-arc for Mac OS from source. 
 
 ## Opening the data.arc
 Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. The program also supports opening an ARC file over the network by connecting to the Switch console using the Switch's IP address. All program features work normally when connecting to the ARC file over the network but expect program performance to be slower. Use ArcCross (Windows only) for opening very old ARC versions. 
@@ -23,13 +24,12 @@ The right panel contains details on the currently selected file or folder. If a 
 Folders or individual files can be extracted by right clicking the folder or file and selecting extract or by clicking extract under the Arc menu. The export directory can be customized under Settings > Preferences.
 
 ## Opening Over The Network
-
 1. Install Skyline if you haven't already
 2. Download [the companion skyline plugin, arc-network](https://github.com/jam1garner/arc-network/releases/tag/master) and install it as you would any other skyline plugin
-3. Run Smash, keep it open
-4. Hit "File > Connect to ARC"
+3. Run Smash and keep it open
+4. Click File > Connect to ARC
 5. Input your Switch's IP address
-6. Hit "Connect"
+6. Click Connect
 
 ## User Preferences
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
