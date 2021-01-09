@@ -25,7 +25,7 @@ namespace ArcExplorer.ViewModels
         public static void PopulateFileTree(ArcFile arcFile, AvaloniaList<FileNodeBase> files, Action<string> extractStartCallBack, Action extractEndCallBack)
         {
             // Replace existing files with the new ARC.
-            // TODO: Is memory being correctly freed?
+            // Clearing the files will free the old ARC eventually.
             files.Clear();
             foreach (var node in arcFile.GetRootNodes())
             {
