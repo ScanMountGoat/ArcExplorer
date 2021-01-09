@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 
 namespace ArcExplorer.Models
 {
     public sealed class ApplicationSettings
     {
-        public static ApplicationSettings Instance { get; } = FromJson("ApplicationPreferences.json");
+        private const string preferencesFilePath = "ApplicationPreferences.json";
+        public static ApplicationSettings Instance { get; } = FromJson(preferencesFilePath);
 
         public enum VisualTheme
         {
@@ -22,7 +24,6 @@ namespace ArcExplorer.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         public VisualTheme Theme { get; set; } = VisualTheme.Dark;
-
 
         [JsonConverter(typeof(StringEnumConverter))]
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
@@ -42,6 +43,12 @@ namespace ArcExplorer.Models
             }
 
             return JsonConvert.DeserializeObject<ApplicationSettings>(System.IO.File.ReadAllText(path));
+        }
+
+        internal void SaveToFile()
+        {
+            var json = JsonConvert.SerializeObject(this);
+            System.IO.File.WriteAllText(preferencesFilePath, json);
         }
     }
 }

@@ -30,9 +30,7 @@ namespace ArcExplorer.Views
             e.Cancel = true;
             Hide();
 
-            // TODO: This is probably not the best place for this.
-            var json = JsonConvert.SerializeObject(ApplicationSettings.Instance);
-            System.IO.File.WriteAllText("ApplicationPreferences.json", json);
+            ApplicationSettings.Instance.SaveToFile();
         }
 
         public async void OpenFolderClick()
