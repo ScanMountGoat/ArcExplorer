@@ -6,7 +6,7 @@ namespace ArcExplorer.ViewModels
 {
     public class FolderNode : FileNodeBase
     {
-        public bool IsExpanded
+        public override bool IsExpanded
         {
             get => isExpanded;
             set

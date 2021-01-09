@@ -36,6 +36,8 @@ namespace ArcExplorer.ViewModels
 
         public bool IsRegional { get; }
 
+        public abstract bool IsExpanded { get; set; }
+
         public AvaloniaList<FileNodeBase> Children { get; } = new AvaloniaList<FileNodeBase>();
 
         public abstract Dictionary<string, string> ObjectProperties { get; }
