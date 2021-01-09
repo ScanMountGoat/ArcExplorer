@@ -6,6 +6,13 @@ namespace ArcExplorer.ViewModels
 {
     public class FolderNode : FileNodeBase
     {
+        public ApplicationStyles.Icon DetailsIconKey
+        {
+            get => detailsIconKey;
+            set => this.RaiseAndSetIfChanged(ref detailsIconKey, value);
+        }
+        private ApplicationStyles.Icon detailsIconKey = ApplicationStyles.Icon.Document;
+
         public override bool IsExpanded
         {
             get => isExpanded;
@@ -27,7 +34,7 @@ namespace ArcExplorer.ViewModels
 
         public event EventHandler? Expanded;
 
-        public FolderNode(string name, string absolutePath, bool isShared, bool isRegional) : base(name, absolutePath, isShared, isRegional)
+        public FolderNode(string name, string absolutePath) : base(name, absolutePath)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
             DetailsIconKey = ApplicationStyles.Icon.FolderClosed;

@@ -4,7 +4,6 @@ using ReactiveUI;
 using SerilogTimings;
 using SmashArcNet;
 using System;
-using System.Threading.Tasks;
 
 namespace ArcExplorer.ViewModels
 {

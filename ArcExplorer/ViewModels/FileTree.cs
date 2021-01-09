@@ -197,7 +197,7 @@ namespace ArcExplorer.ViewModels
 
         private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
         {
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path, false, false);
+            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, taskEnd);
             return folder;
         }
