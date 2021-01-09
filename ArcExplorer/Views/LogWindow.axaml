@@ -8,12 +8,13 @@
         Icon="/Assets/arc.ico"
         Name="thisControl"
         Title="Application Log">
-  <ItemsControl Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}">
+  <ItemsControl Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" Margin="5">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Grid>
-          <TextBlock Margin="5,0" Text="{Binding}"></TextBlock>
-        </Grid>
+        <StackPanel Orientation="Horizontal">
+          <DrawingPresenter Margin="5,2" Drawing="{StaticResource errorIcon}" Width="16" Height="16"></DrawingPresenter>
+          <TextBlock Margin="5,2" Text="{Binding}"></TextBlock>
+        </StackPanel>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
   </ItemsControl>
