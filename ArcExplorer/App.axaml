@@ -3,6 +3,11 @@
              xmlns:local="clr-namespace:ArcExplorer"
              x:Class="ArcExplorer.App">
   <Application.Resources>
+    <DrawingGroup x:Key="noneIcon">
+      <DrawingGroup.Children>
+        <GeometryDrawing Brush="Transparent"></GeometryDrawing>
+      </DrawingGroup.Children>
+    </DrawingGroup>
     <DrawingGroup x:Key="folderClosedIcon">
       <DrawingGroup.Children>
         <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M0,0L16,0 16,16 0,16z" />
