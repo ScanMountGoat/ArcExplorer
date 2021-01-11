@@ -4,6 +4,7 @@ using ReactiveUI;
 using SerilogTimings;
 using SmashArcNet;
 using System;
+using ArcExplorer.Tools;
 
 namespace ArcExplorer.ViewModels
 {
@@ -74,7 +75,16 @@ namespace ArcExplorer.ViewModels
             ApplicationSink.Instance.Value.ErrorEventRaised += LogEventHandled;
 
             // TODO: This is expensive and should be handled separately.
+            // Run a background task and continue with something to enable opening an ARC?
             var hashesFile = "Hashes.txt";
+
+            var canUpdate = HashLabelUpdater.Instance.CanUpdateHashes(hashesFile);
+            if (canUpdate)
+            {
+                // TODO: Prompt the user instead of doing this automatically.
+                HashLabelUpdater.Instance.UpdateHashes(hashesFile);
+            }
+
             if (!HashLabels.TryLoadHashes(hashesFile))
             {
                 Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
