@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:converters="clr-namespace:ArcExplorer.Converters"
+             xmlns:vms="clr-namespace:ArcExplorer.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ArcExplorer.UserControls.FileTreeView"
              Name="thisControl">
@@ -16,18 +17,28 @@
       </Style>
     </TreeView.Styles>
     <TreeView.DataTemplates>
-      <TreeDataTemplate ItemsSource="{Binding Children}">
+      <TreeDataTemplate DataType="{x:Type vms:FileNode}">
         <StackPanel Orientation="Horizontal">
           <StackPanel.ContextMenu>
             <ContextMenu>
-              <MenuItem Header="Extract File(s)" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+              <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
             </ContextMenu>
           </StackPanel.ContextMenu>
-          <DrawingPresenter Margin="5,0" Width="16" Height="16"
-                            Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-          <TextBlock Name="fileText" Text="{Binding Name}"></TextBlock>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+          <TextBlock Text="{Binding Name}"></TextBlock>
+          <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsShared}"></DrawingPresenter>
+          <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsRegional}"></DrawingPresenter>
+        </StackPanel>
+      </TreeDataTemplate>
+      <TreeDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type vms:FolderNode}">
+        <StackPanel Orientation="Horizontal">
+          <StackPanel.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+            </ContextMenu>
+          </StackPanel.ContextMenu>
+          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+          <TextBlock Text="{Binding Name}"></TextBlock>
         </StackPanel>
       </TreeDataTemplate>
     </TreeView.DataTemplates>
