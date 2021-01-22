@@ -49,8 +49,8 @@
         </MenuItem>
       </MenuItem>
     </Menu>
-    <Grid ColumnDefinitions="*,10,400">
-      <DockPanel LastChildFill="True">
+    <Grid ColumnDefinitions="*,1,400">
+      <DockPanel Grid.Column="0" LastChildFill="True">
         <Grid DockPanel.Dock="Top" HorizontalAlignment="Right" ColumnDefinitions="*,200" IsVisible="False">
           <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">Search</TextBlock>
           <TextBox Grid.Column="1" Margin="5" VerticalAlignment="Center"></TextBox>
