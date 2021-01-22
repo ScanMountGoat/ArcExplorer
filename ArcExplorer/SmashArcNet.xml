@@ -45,31 +45,73 @@
         <member name="M:SmashArcNet.ArcFile.TryExtractFile(SmashArcNet.Nodes.ArcFileNode,System.String)">
             <summary>
             Tries to extract the uncompressed contents of <paramref name="file"/> to <paramref name="outputPath"/>.
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
             </summary>
             <param name="file">The file node to extract</param>
             <param name="outputPath">The destination file for the extracted contents</param>
+            <returns><c>true</c> if the file was extracted succesfully</returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.TryExtractFile(SmashArcNet.Nodes.ArcFileNode,System.String,SmashArcNet.RustTypes.Region)">
+            <summary>
+            Tries to extract the uncompressed contents of <paramref name="file"/> to <paramref name="outputPath"/> for the specified <paramref name="region"/>.
+            </summary>
+            <param name="file">The file node to extract</param>
+            <param name="outputPath">The destination file for the extracted contents</param>
+            <param name="region">The regional variant of each file to use</param>
             <returns><c>true</c> if the file was extracted succesfully</returns>
         </member>
         <member name="M:SmashArcNet.ArcFile.GetRootNodes">
             <summary>
             Gets the child nodes of the ARC sorted in ascending alphabetical order.
             These will mostly likely be <see cref="T:SmashArcNet.Nodes.ArcDirectoryNode"/> (ex: "fighter/").
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
             </summary>
+            <returns>the child nodes of ARC root</returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.GetRootNodes(SmashArcNet.RustTypes.Region)">
+            <summary>
+            Gets the child nodes of the ARC sorted in ascending alphabetical order for the specified <paramref name="region"/>.
+            These will mostly likely be <see cref="T:SmashArcNet.Nodes.ArcDirectoryNode"/> (ex: "fighter/").
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
+            </summary>
+            <param name="region">The regional variant of each file to use</param>
             <returns>the child nodes of ARC root</returns>
         </member>
         <member name="M:SmashArcNet.ArcFile.GetChildren(SmashArcNet.Nodes.ArcDirectoryNode)">
             <summary>
-            Gets the children of <paramref name="parent"/> sorted in ascending alphabetical order,
+            Gets the children of <paramref name="parent"/> sorted in ascending alphabetical order.
             The resulting list will be empty if there are no children.
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
             </summary>
             <param name="parent">The parent node</param>
+            <returns>the child nodes of <paramref name="parent"/></returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.GetChildren(SmashArcNet.Nodes.ArcDirectoryNode,SmashArcNet.RustTypes.Region)">
+            <summary>
+            Gets the children of <paramref name="parent"/> sorted in ascending alphabetical order
+            for the specified <paramref name="region"/>.
+            The resulting list will be empty if there are no children.
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
+            </summary>
+            <param name="parent">The parent node</param>
+            <param name="region">The regional variant of each file to use</param>
             <returns>the child nodes of <paramref name="parent"/></returns>
         </member>
         <member name="M:SmashArcNet.ArcFile.GetSharedFilePaths(SmashArcNet.Nodes.ArcFileNode)">
             <summary>
             Finds the files that share their data with <paramref name="file"/>.
+            The region is set to <see cref="F:SmashArcNet.RustTypes.Region.UsEnglish"/>.
             </summary>
             <param name="file">The file node to search</param>
+            <returns>A list of file paths that share this file's data</returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.GetSharedFilePaths(SmashArcNet.Nodes.ArcFileNode,SmashArcNet.RustTypes.Region)">
+            <summary>
+            Finds the files that share their data with <paramref name="file"/> 
+            for the speciied <paramref name="region"/>.
+            </summary>
+            <param name="file">The file node to search</param>
+            <param name="region"></param>
             <returns>A list of file paths that share this file's data</returns>
         </member>
         <member name="T:SmashArcNet.HashLabels">
@@ -198,6 +240,11 @@
         <member name="T:SmashArcNet.RustTypes.Hash40">
             <summary>
             A CRC32 hash with a specified length.
+            </summary>
+        </member>
+        <member name="T:SmashArcNet.RustTypes.Region">
+            <summary>
+            The language region to use for operations that involve regional files.
             </summary>
         </member>
     </members>

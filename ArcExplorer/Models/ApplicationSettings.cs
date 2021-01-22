@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
+using SmashArcNet.RustTypes;
 
 namespace ArcExplorer.Models
 {
@@ -29,6 +29,9 @@ namespace ArcExplorer.Models
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
 
         public string ExtractLocation { get; set; } = "export";
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Region ArcRegion { get; set; } = Region.UsEnglish;
 
         private ApplicationSettings()
         {

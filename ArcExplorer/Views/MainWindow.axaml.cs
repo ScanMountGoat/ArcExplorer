@@ -5,6 +5,7 @@ using ArcExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using ArcExplorer.Models;
 
 namespace ArcExplorer.Views
 {
@@ -18,6 +19,7 @@ namespace ArcExplorer.Views
 
         private void MainWindow_Closed(object? sender, EventArgs e)
         {
+            ApplicationSettings.Instance.SaveToFile();
             Log.CloseAndFlush();
         }
 

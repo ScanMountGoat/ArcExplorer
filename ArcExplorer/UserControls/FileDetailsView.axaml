@@ -28,7 +28,7 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,*" IsVisible="{Binding IsRegional}">
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="130,*" IsVisible="{Binding IsRegional}">
           <DrawingPresenter Margin="5,0" Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
           <TextBlock Margin="5,0" Grid.Column="1" Text="Regional" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
         </Grid>
