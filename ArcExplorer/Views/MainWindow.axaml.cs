@@ -13,9 +13,6 @@ namespace ArcExplorer.Views
         public MainWindow()
         {
             InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
             this.Closed += MainWindow_Closed;
         }
 

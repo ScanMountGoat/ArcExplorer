@@ -1,9 +1,7 @@
-﻿using Avalonia;
+﻿using ArcExplorer.Models;
+using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ArcExplorer.Models;
-using ArcExplorer.ViewModels;
-using Newtonsoft.Json;
 using System;
 
 namespace ArcExplorer.Views
@@ -15,9 +13,6 @@ namespace ArcExplorer.Views
         public PreferencesWindow()
         {
             this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
             DataContext = new PreferencesWindowViewModel();
 
             Closing += PreferencesWindow_Closing;

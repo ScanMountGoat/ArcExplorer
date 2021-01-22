@@ -9,9 +9,6 @@ namespace ArcExplorer.Views
         public OpenArcConnectionWindow()
         {
             this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
             DataContext = this;
         }
 
