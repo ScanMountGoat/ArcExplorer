@@ -24,7 +24,7 @@ namespace ArcExplorer.ViewModels
         public ulong CompressedSize { get; }
         public ulong DecompressedSize { get; }
         public List<string> SharedFilePaths
-        { 
+        {
             get
             {
                 // Lazy load for performance reasons.
@@ -43,6 +43,8 @@ namespace ArcExplorer.ViewModels
 
         public string Description { get; }
 
+        public bool IsCompressed { get; }
+
         public string SharedFileDescription => $"Shared with the following {SharedFilePaths.Count} files:";
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
@@ -51,11 +53,14 @@ namespace ArcExplorer.ViewModels
 
         private readonly Func<List<string>> getSharedFiles;
 
-        public FileNode(string name, string absolutePath, string extension, bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, Func<List<string>> getSharedFiles) : base(name, absolutePath)
+        public FileNode(string name, string absolutePath, string extension,
+            bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, bool isCompressed,
+            Func<List<string>> getSharedFiles) : base(name, absolutePath)
         {
-            Extension = extension;  
+            Extension = extension;
             Offset = offset;
             IsShared = isShared;
+            IsCompressed = isCompressed;
             IsRegional = isRegional;
             CompressedSize = compressedSize;
             DecompressedSize = decompressedSize;
@@ -66,13 +71,25 @@ namespace ArcExplorer.ViewModels
 
         private Dictionary<string, string> GetPropertyInfo()
         {
-            return new Dictionary<string, string>()
+            var info = new Dictionary<string, string>()
             {
                 { "Description", Description },
                 { "Offset", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(Offset)} bytes" },
-                { "Compressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(CompressedSize)} bytes" },
-                { "Decompressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes" },
+                { "Compressed", $"{IsCompressed}" },
             };
+
+            // It's redundant to show the compressed size for uncompressed files.
+            if (IsCompressed)
+            {
+                info.Add("Compressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(CompressedSize)} bytes");
+                info.Add("Decompressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes");
+            }
+            else
+            {
+                info.Add("Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes");
+            }
+
+            return info;
         }
     }
 }

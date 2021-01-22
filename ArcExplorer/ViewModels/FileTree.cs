@@ -56,7 +56,9 @@ namespace ArcExplorer.ViewModels
             // Lazy initialize the shared file list for performance reasons.
             List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode);
 
-            var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension, arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, getSharedFiles);
+            var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension, 
+                arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed, 
+                getSharedFiles);
 
             fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode);
 
