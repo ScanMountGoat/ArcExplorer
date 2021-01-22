@@ -34,7 +34,7 @@
         <StackPanel Orientation="Horizontal">
           <StackPanel.ContextMenu>
             <ContextMenu>
-              <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+              <MenuItem Header="Extract Files" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
             </ContextMenu>
           </StackPanel.ContextMenu>
           <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
