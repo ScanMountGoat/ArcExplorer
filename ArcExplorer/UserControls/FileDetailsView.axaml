@@ -21,7 +21,7 @@
         <ItemsControl DockPanel.Dock="Top" Items="{Binding ObjectProperties}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Grid ColumnDefinitions="*,*" Margin="0,2">
+              <Grid ColumnDefinitions="130,*" Margin="0,2">
                 <TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
                 <TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
               </Grid>
@@ -59,7 +59,7 @@
         <ItemsControl DockPanel.Dock="Top" Items="{Binding ObjectProperties}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Grid ColumnDefinitions="*,*" Margin="0,2">
+              <Grid ColumnDefinitions="130,*" Margin="0,2">
                 <TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
                 <TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
               </Grid>
