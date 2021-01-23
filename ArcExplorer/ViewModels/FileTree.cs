@@ -27,7 +27,7 @@ namespace ArcExplorer.ViewModels
             // Replace existing files with the new ARC.
             // Clearing the files will free the old ARC eventually.
             files.Clear();
-            foreach (var node in arcFile.GetRootNodes())
+            foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
             {
                 var treeNode = LoadNodeAddToParent(arcFile, null, node, extractStartCallBack, extractEndCallBack);
                 files.Add(treeNode);
@@ -54,7 +54,7 @@ namespace ArcExplorer.ViewModels
         private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode)
         {
             // Lazy initialize the shared file list for performance reasons.
-            List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode);
+            List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode, ApplicationSettings.Instance.ArcRegion);
 
             var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension, 
                 arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed, 
@@ -85,7 +85,7 @@ namespace ArcExplorer.ViewModels
 
             // Extraction may fail.
             // TODO: Update the C# bindings to store more detailed error info?
-            if (!arcFile.TryExtractFile(arcNode, exportPath))
+            if (!arcFile.TryExtractFile(arcNode, exportPath, ApplicationSettings.Instance.ArcRegion))
             {
                 Serilog.Log.Logger.Error("Failed to extract to {@path}", exportPath);
                 return false;
@@ -113,7 +113,7 @@ namespace ArcExplorer.ViewModels
             var folder = CreateFolderNode(arcFile, arcNode, taskStart, taskEnd);
 
             var arcNodeTreeNode = new List<Tuple<IArcNode, FileNodeBase>>();
-            foreach (var child in arcFile.GetChildren(arcNode))
+            foreach (var child in arcFile.GetChildren(arcNode, ApplicationSettings.Instance.ArcRegion))
             {
                 FileNodeBase childNode = child switch
                 {
@@ -165,7 +165,7 @@ namespace ArcExplorer.ViewModels
 
         private static bool ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode)
         {
-            foreach (var child in arcFile.GetChildren(arcNode))
+            foreach (var child in arcFile.GetChildren(arcNode, ApplicationSettings.Instance.ArcRegion))
             {
                 // Assume files have no children, so only recurse for directories.
                 switch (child)
@@ -190,7 +190,7 @@ namespace ArcExplorer.ViewModels
         {
             if (arcNode is ArcDirectoryNode directoryNode)
             {
-                foreach (var child in arcFile.GetChildren(directoryNode))
+                foreach (var child in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
                 {
                     LoadNodeAddToParent(arcFile, parent, child, taskStart, taskEnd);
                 }
