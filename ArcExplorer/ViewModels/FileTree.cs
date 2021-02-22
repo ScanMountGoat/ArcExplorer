@@ -110,33 +110,36 @@ namespace ArcExplorer.ViewModels
 
         private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
         {
-            var folder = CreateFolderNode(arcFile, arcNode, taskStart, taskEnd);
+            // Create the folder.
+            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path);
+            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, taskEnd);
 
-            var arcNodeTreeNode = new List<Tuple<IArcNode, FileNodeBase>>();
-            foreach (var child in arcFile.GetChildren(arcNode, ApplicationSettings.Instance.ArcRegion))
-            {
-                FileNodeBase childNode = child switch
-                {
-                    ArcDirectoryNode directory => CreateFolderNode(arcFile, directory, taskStart, taskEnd),
-                    ArcFileNode file => CreateFileNode(arcFile, file),
-                    _ => throw new NotImplementedException($"Unable to create node from {child}")
-                };
+            // Add a temporary node to enable expanding.
+            folder.Children.Add(new FolderNode("Loading...", "Loading..."));
 
-                folder.Children.Add(childNode);
-
-                arcNodeTreeNode.Add(new Tuple<IArcNode, FileNodeBase>(child, childNode));
-            }
-
-            // When the parent is expanded, load the grandchildren to support expanding the children.
-            // TODO: There's probably a cleaner way to do this.
             folder.Expanded += (s, e) =>
             {
+                // Only initialize the nodes once.
+                // TODO: Unload nodes to save on memory?
                 if (!folder.HasInitialized)
                 {
-                    foreach (var pair in arcNodeTreeNode)
+                    // Remove the temporary node.
+                    // This should prevent the temp node from being visible.
+                    folder.Children.Clear();
+
+                    // Load the actual children from the ARC.
+                    foreach (var child in arcFile.GetChildren(arcNode, ApplicationSettings.Instance.ArcRegion))
                     {
-                        LoadChildrenAddToParent(arcFile, pair.Item1, pair.Item2, taskStart, taskEnd);
+                        FileNodeBase childNode = child switch
+                        {
+                            ArcDirectoryNode directory => CreateFolderLoadChildren(arcFile, directory, taskStart, taskEnd),
+                            ArcFileNode file => CreateFileNode(arcFile, file),
+                            _ => throw new NotImplementedException($"Unable to create node from {child}")
+                        };
+
+                        folder.Children.Add(childNode);
                     }
+
                     folder.HasInitialized = true;
                 }
             };
@@ -146,7 +149,6 @@ namespace ArcExplorer.ViewModels
 
         private static async Task RunBackgroundTask(string taskDescription, Func<bool> taskToRun, Action<string> taskStart, Action taskEnd)
         {
-
             taskStart(taskDescription);
 
             await Task.Run(() =>
@@ -184,24 +186,6 @@ namespace ArcExplorer.ViewModels
             // Assume the operation succeeds for now.
             // Individual file extractions may still fail.
             return true;
-        }
-
-        private static void LoadChildrenAddToParent(ArcFile arcFile, IArcNode arcNode, FileNodeBase parent, Action<string> taskStart, Action taskEnd)
-        {
-            if (arcNode is ArcDirectoryNode directoryNode)
-            {
-                foreach (var child in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
-                {
-                    LoadNodeAddToParent(arcFile, parent, child, taskStart, taskEnd);
-                }
-            }
-        }
-
-        private static FolderNode CreateFolderNode(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string> taskStart, Action taskEnd)
-        {
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path);
-            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, taskEnd);
-            return folder;
         }
 
         private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode)
