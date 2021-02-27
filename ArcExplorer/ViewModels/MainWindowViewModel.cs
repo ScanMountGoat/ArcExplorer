@@ -5,6 +5,7 @@ using SerilogTimings;
 using SmashArcNet;
 using System;
 using ArcExplorer.Tools;
+using ArcExplorer.Views;
 
 namespace ArcExplorer.ViewModels
 {
@@ -12,8 +13,8 @@ namespace ArcExplorer.ViewModels
     {
         public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
-        public FileNodeBase? SelectedFile 
-        { 
+        public FileNodeBase? SelectedFile
+        {
             get => selectedFile;
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }
@@ -78,13 +79,6 @@ namespace ArcExplorer.ViewModels
             // Run a background task and continue with something to enable opening an ARC?
             var hashesFile = "Hashes.txt";
 
-            var canUpdate = HashLabelUpdater.Instance.CanUpdateHashes(hashesFile);
-            if (canUpdate)
-            {
-                // TODO: Prompt the user instead of doing this automatically.
-                HashLabelUpdater.Instance.UpdateHashes(hashesFile);
-            }
-
             if (!HashLabels.TryLoadHashes(hashesFile))
             {
                 Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
@@ -99,15 +93,15 @@ namespace ArcExplorer.ViewModels
 
         public void OpenArcNetworked(string ipAddress)
         {
-            OpenArcBackgroundTask($"Connecting to ARC file at address {ipAddress}", $"Failed to connect to ARC file at address {ipAddress}", 
-                () => ArcFile.TryOpenArcNetworked(ipAddress, out arcFile), 
+            OpenArcBackgroundTask($"Connecting to ARC file at address {ipAddress}", $"Failed to connect to ARC file at address {ipAddress}",
+                () => ArcFile.TryOpenArcNetworked(ipAddress, out arcFile),
                 () => InitializeArcFile(ipAddress));
         }
 
         public void OpenArcFile(string path)
         {
-            OpenArcBackgroundTask($"Opening ARC file {path}", $"Failed to open ARC file {path}", 
-                () => ArcFile.TryOpenArc(path, out arcFile), 
+            OpenArcBackgroundTask($"Opening ARC file {path}", $"Failed to open ARC file {path}",
+                () => ArcFile.TryOpenArc(path, out arcFile),
                 () => InitializeArcFile(path));
         }
 

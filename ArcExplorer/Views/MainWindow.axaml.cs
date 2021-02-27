@@ -5,6 +5,7 @@ using ArcExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using ArcExplorer.Tools;
 
 namespace ArcExplorer.Views
 {

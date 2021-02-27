@@ -13,7 +13,7 @@ namespace ArcExplorer.Tools
         // 1. check if hashes can be updated
         // 2. prompt user to update 
         // 3. download hashes file (block opening ARC until done)
-        private Commit? latestHashesCommit = null;
+        public Commit? LatestHashesCommit { get; private set; } = null;
 
         private HashLabelUpdater()
         {
@@ -25,9 +25,9 @@ namespace ArcExplorer.Tools
         {
             try
             {
-                latestHashesCommit = GetLatestArchiveHashesCommit();
+                LatestHashesCommit = GetLatestArchiveHashesCommit();
 
-                var githubCommitTime = latestHashesCommit.Author.Date.UtcDateTime;
+                var githubCommitTime = LatestHashesCommit.Author.Date.UtcDateTime;
                 var localUpdateTime = System.IO.File.GetLastWriteTimeUtc(pathToCurrentLabels);
 
                 return githubCommitTime > localUpdateTime;

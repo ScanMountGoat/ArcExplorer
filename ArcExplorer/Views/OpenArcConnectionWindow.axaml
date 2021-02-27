@@ -9,7 +9,7 @@
         Icon="avares://ArcExplorer/Assets/arc.ico"
         Name="thisControl"
         Title="Connect to ARC">
-  <StackPanel>
+  <StackPanel Margin="10">
     <Grid ColumnDefinitions="*,*">
       <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">IP Address</TextBlock>
       <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IpAddress}"></TextBox>
