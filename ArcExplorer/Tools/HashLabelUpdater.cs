@@ -21,13 +21,13 @@ namespace ArcExplorer.Tools
         }
 
         // TODO: This can be async.
-        public bool CanUpdateHashes(string pathToCurrentLabels)
+        public async Task<bool> CanUpdateHashes(string pathToCurrentLabels)
         {
             try
             {
-                LatestHashesCommit = GetLatestArchiveHashesCommit();
+                LatestHashesCommit = await GetLatestArchiveHashesCommit();
 
-                var githubCommitTime = LatestHashesCommit.Author.Date.UtcDateTime;
+                var githubCommitTime = LatestHashesCommit?.Author.Date.UtcDateTime;
                 var localUpdateTime = System.IO.File.GetLastWriteTimeUtc(pathToCurrentLabels);
 
                 return githubCommitTime > localUpdateTime;
@@ -39,8 +39,7 @@ namespace ArcExplorer.Tools
             }
         }
 
-        // TODO: This can be async.
-        public void UpdateHashes(string pathToCurrentLabels)
+        public async Task DownloadHashes(string pathToCurrentLabels)
         {
             // TODO: Log information about what commit is being used.
             using (var operation = Operation.Begin("Updating hashes"))
@@ -50,7 +49,7 @@ namespace ArcExplorer.Tools
                     // Replace the existing file using the latest file from Github.
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile("https://github.com/ultimate-research/archive-hashes/raw/master/Hashes", pathToCurrentLabels);
+                        await client.DownloadFileTaskAsync("https://github.com/ultimate-research/archive-hashes/raw/master/Hashes", pathToCurrentLabels);
                     }
                     operation.Complete();
                 }
@@ -61,11 +60,11 @@ namespace ArcExplorer.Tools
             }
         }
 
-        private static Commit GetLatestArchiveHashesCommit()
+        private static async Task<Commit?> GetLatestArchiveHashesCommit()
         {
             var client = new GitHubClient(new ProductHeaderValue("arc-explorer"));
-            var task = client.Repository.Commit.Get("ultimate-research", "archive-hashes", "master");
-            return task.Result.Commit;
+            var commit = await client.Repository.Commit.Get("ultimate-research", "archive-hashes", "master");
+            return commit?.Commit;
         }
     }
 }

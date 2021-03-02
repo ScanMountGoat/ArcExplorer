@@ -6,6 +6,8 @@ using ArcExplorer.Views;
 using Serilog;
 using ArcExplorer.Logging;
 using ArcExplorer.Tools;
+using SmashArcNet;
+using System.Threading.Tasks;
 
 namespace ArcExplorer
 {
@@ -28,27 +30,34 @@ namespace ArcExplorer
                     DataContext = new MainWindowViewModel()
                 };
 
-                // TODO: Wrap this code in a method.
-                // TODO: Don't hardcode the hashes path.
-                var canUpdate = HashLabelUpdater.Instance.CanUpdateHashes("Hashes.txt");
-                //if (canUpdate)
-                {
-                    // TODO: Show a dialog?
-                    var latestCommit = HashLabelUpdater.Instance.LatestHashesCommit;
-                    var dialog = new HashUpdateDialog(latestCommit?.Message ?? "", latestCommit?.Author.Name ?? "", latestCommit?.Author.Date.ToString() ?? "");
-                    dialog.Closed += (s, e) =>
-                    {
-                        if (!dialog.WasCancelled)
-                        {
-                            // TODO: Make this async?
-                            HashLabelUpdater.Instance.UpdateHashes("Hashes.txt");
-                            // TODO: Actually update the hashes.
-                        }
-                    };
-                    await dialog.ShowDialog(desktop.MainWindow);
-                }
+                await UpdateHashesFromGithub(desktop);
             }
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private static async Task UpdateHashesFromGithub(IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            // TODO: Don't hardcode the hashes path.
+            var canUpdate = await HashLabelUpdater.Instance.CanUpdateHashes("Hashes.txt");
+
+            if (canUpdate)
+            {
+                var latestCommit = HashLabelUpdater.Instance.LatestHashesCommit;
+                var dialog = new HashUpdateDialog(latestCommit?.Message ?? "", latestCommit?.Author.Name ?? "", latestCommit?.Author.Date.ToString() ?? "");
+                dialog.Closed += async (s, e) =>
+                {
+                    if (!dialog.WasCancelled)
+                    {
+                        await HashLabelUpdater.Instance.DownloadHashes("Hashes.txt");
+                        if (!HashLabels.TryLoadHashes("Hashes.txt"))
+                        {
+                            Log.Logger.Error("Failed to open Hashes file {@path}", "Hashes.txt");
+                        }
+                    }
+                };
+
+                await dialog.ShowDialog(desktop.MainWindow);
+            }
         }
 
         private static void ConfigureAndStartLogging()
