@@ -8,6 +8,7 @@ using ArcExplorer.Logging;
 using ArcExplorer.Tools;
 using SmashArcNet;
 using System.Threading.Tasks;
+using SerilogTimings;
 
 namespace ArcExplorer
 {
@@ -43,16 +44,28 @@ namespace ArcExplorer
             if (canUpdate)
             {
                 var latestCommit = HashLabelUpdater.Instance.LatestHashesCommit;
-                var dialog = new HashUpdateDialog(latestCommit?.Message ?? "", latestCommit?.Author.Name ?? "", latestCommit?.Author.Date.ToString() ?? "");
+                if (latestCommit == null)
+                    return;
+
+                Log.Logger.Information("Found a hashes update. Author: {@author}, Date: {@date}, Message: {@message}", latestCommit.Author.Name, 
+                    latestCommit.Author.Date.ToString(), latestCommit.Message);
+
+                var dialog = new HashUpdateDialog(latestCommit.Message, latestCommit.Author.Name, latestCommit.Author.Date.ToString());
                 dialog.Closed += async (s, e) =>
                 {
                     if (!dialog.WasCancelled)
                     {
+                        using var downloadHashes = Operation.Begin("Downloading latest hashes");
                         await HashLabelUpdater.Instance.DownloadHashes("Hashes.txt");
+                        downloadHashes.Complete();
+
+                        using var updateHashes = Operation.Begin("Updating hashes");
                         if (!HashLabels.TryLoadHashes("Hashes.txt"))
                         {
                             Log.Logger.Error("Failed to open Hashes file {@path}", "Hashes.txt");
+                            updateHashes.Cancel();
                         }
+                        updateHashes.Complete();
                     }
                 };
 
