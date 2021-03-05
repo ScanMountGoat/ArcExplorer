@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using ArcExplorer.Models;
 
 namespace ArcExplorer.Views
 {
@@ -13,15 +14,12 @@ namespace ArcExplorer.Views
         public MainWindow()
         {
             InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
             this.Closed += MainWindow_Closed;
         }
 
         private void MainWindow_Closed(object? sender, EventArgs e)
         {
-            Models.ApplicationSettings.Instance.SaveToFile();
+            ApplicationSettings.Instance.SaveToFile();
             Log.CloseAndFlush();
         }
 

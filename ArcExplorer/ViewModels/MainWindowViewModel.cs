@@ -1,11 +1,14 @@
 ﻿using ArcExplorer.Logging;
+using ArcExplorer.Models;
 using Avalonia.Collections;
 using ReactiveUI;
 using SerilogTimings;
 using SmashArcNet;
+using SmashArcNet.RustTypes;
 using System;
 using ArcExplorer.Tools;
 using ArcExplorer.Views;
+using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
 {
@@ -13,8 +16,36 @@ namespace ArcExplorer.ViewModels
     {
         public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
-        public FileNodeBase? SelectedFile
+        public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
         {
+            { Region.Japanese, "Japanese" },
+            { Region.UsEnglish, "English (US)" },
+            { Region.UsFrench, "French (US)" },
+            { Region.UsSpanish, "Spanish (US)" },
+            { Region.EuEnglish, "English (EU)" },
+            { Region.EuFrench, "French (EU)" },
+            { Region.EuSpanish, "Spanish (EU)" },
+            { Region.EuGerman, "German (EU)" },
+            { Region.EuDutch, "Dutch (EU)" },
+            { Region.EuItalian, "Italian (EU)" },
+            { Region.EuRussian, "Russian (EU)" },
+            { Region.Korean, "Korean" },
+            { Region.ChinaChinese, "Chinese (China)" },
+            { Region.TaiwanChinese, "Chinese (Taiwan)" },
+        };
+
+        public KeyValuePair<Region, string> SelectedRegion
+        {
+            get => new KeyValuePair<Region, string>(ApplicationSettings.Instance.ArcRegion, DescriptionByRegion[ApplicationSettings.Instance.ArcRegion]);
+            set
+            {
+                ApplicationSettings.Instance.ArcRegion = value.Key;
+                this.RaisePropertyChanged(nameof(SelectedRegion));
+            }
+        }
+
+        public FileNodeBase? SelectedFile 
+        { 
             get => selectedFile;
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }

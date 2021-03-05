@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
+using SmashArcNet.RustTypes;
 
 namespace ArcExplorer.Models
 {
@@ -31,6 +31,9 @@ namespace ArcExplorer.Models
         public string CurrentHashesCommitSha { get; set; } = "1b2da43a6e4cbeb0809acc2d5f325314a3ea2f72";
 
         public string ExtractLocation { get; set; } = "export";
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Region ArcRegion { get; set; } = Region.UsEnglish;
 
         private ApplicationSettings()
         {
