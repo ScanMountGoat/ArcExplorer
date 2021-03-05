@@ -39,18 +39,16 @@ namespace ArcExplorer
         private static async Task UpdateHashesFromGithub(IClassicDesktopStyleApplicationLifetime desktop)
         {
             // TODO: Don't hardcode the hashes path.
-            var canUpdate = await HashLabelUpdater.Instance.CanUpdateHashes("Hashes.txt");
+            var latestCommit = await HashLabelUpdater.Instance.TryFindNewerHashesCommit();
 
-            if (canUpdate)
+            if (latestCommit != null)
             {
-                var latestCommit = HashLabelUpdater.Instance.LatestHashesCommit;
-                if (latestCommit == null)
-                    return;
+                var author = latestCommit.Commit.Author.Name;
+                var date = latestCommit.Commit.Author.Date.ToString();
+                var message = latestCommit.Commit.Message;
+                Log.Logger.Information("Found a hashes update. Author: {@author}, Date: {@date}, Message: {@message}", author, date, message);
 
-                Log.Logger.Information("Found a hashes update. Author: {@author}, Date: {@date}, Message: {@message}", latestCommit.Author.Name, 
-                    latestCommit.Author.Date.ToString(), latestCommit.Message);
-
-                var dialog = new HashUpdateDialog(latestCommit.Message, latestCommit.Author.Name, latestCommit.Author.Date.ToString());
+                var dialog = new HashUpdateDialog(message, author, date);
                 dialog.Closed += async (s, e) =>
                 {
                     if (!dialog.WasCancelled)
@@ -65,6 +63,7 @@ namespace ArcExplorer
                             Log.Logger.Error("Failed to open Hashes file {@path}", "Hashes.txt");
                             updateHashes.Cancel();
                         }
+                        // TODO: Set the current commit hash to the new one.
                         updateHashes.Complete();
                     }
                 };
