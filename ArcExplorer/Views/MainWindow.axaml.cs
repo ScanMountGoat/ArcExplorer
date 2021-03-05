@@ -1,7 +1,7 @@
-﻿using Avalonia;
+﻿using ArcExplorer.ViewModels;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ArcExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
