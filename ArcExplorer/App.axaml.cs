@@ -38,7 +38,6 @@ namespace ArcExplorer
 
         private static async Task UpdateHashesFromGithub(IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // TODO: Don't hardcode the hashes path.
             var latestCommit = await HashLabelUpdater.Instance.TryFindNewerHashesCommit();
 
             if (latestCommit != null)
@@ -53,18 +52,23 @@ namespace ArcExplorer
                 {
                     if (!dialog.WasCancelled)
                     {
-                        using var downloadHashes = Operation.Begin("Downloading latest hashes");
-                        await HashLabelUpdater.Instance.DownloadHashes("Hashes.txt");
-                        downloadHashes.Complete();
-
-                        using var updateHashes = Operation.Begin("Updating hashes");
-                        if (!HashLabels.TryLoadHashes("Hashes.txt"))
+                        using (var downloadHashes = Operation.Begin("Downloading latest hashes"))
                         {
-                            Log.Logger.Error("Failed to open Hashes file {@path}", "Hashes.txt");
-                            updateHashes.Cancel();
+                            await HashLabelUpdater.Instance.DownloadHashes(HashLabelUpdater.HashesPath);
+                            downloadHashes.Complete();
                         }
-                        // TODO: Set the current commit hash to the new one.
-                        updateHashes.Complete();
+
+                        using (var updateHashes = Operation.Begin("Updating hashes"))
+                        {
+                            if (!HashLabels.TryLoadHashes(HashLabelUpdater.HashesPath))
+                            {
+                                Log.Logger.Error("Failed to open hashes file {@path}", HashLabelUpdater.HashesPath);
+                                updateHashes.Cancel();
+                            }
+
+                            Models.ApplicationSettings.Instance.CurrentHashesCommitSha = latestCommit.Sha;
+                            updateHashes.Complete();
+                        }
                     }
                 };
 

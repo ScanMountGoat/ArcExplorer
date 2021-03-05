@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" Width="475" Height="150"
         Icon="avares://ArcExplorer/Assets/arc.ico"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         x:Class="ArcExplorer.Views.HashUpdateDialog"
         Title="Hash labels update available">
   <DockPanel LastChildFill="True" Margin="10">

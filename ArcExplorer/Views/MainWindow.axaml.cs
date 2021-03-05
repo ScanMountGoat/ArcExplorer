@@ -1,11 +1,10 @@
-﻿using Avalonia;
+﻿using ArcExplorer.ViewModels;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ArcExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using ArcExplorer.Tools;
 
 namespace ArcExplorer.Views
 {
@@ -22,6 +21,7 @@ namespace ArcExplorer.Views
 
         private void MainWindow_Closed(object? sender, EventArgs e)
         {
+            Models.ApplicationSettings.Instance.SaveToFile();
             Log.CloseAndFlush();
         }
 

@@ -11,6 +11,8 @@ namespace ArcExplorer.Tools
     {
         public static HashLabelUpdater Instance { get; } = new HashLabelUpdater();
 
+        public static readonly string HashesPath = "Hashes.txt";
+
 
         private HashLabelUpdater()
         {
@@ -23,33 +25,19 @@ namespace ArcExplorer.Tools
         /// <returns></returns>
         public async Task<GitHubCommit?> TryFindNewerHashesCommit()
         {
-            try
-            {
-                // Github doesn't store creation/modified times for files and the newly downloaded file will have the current time as its created date.
-                // In order to accurately determine whether an update is available, compare the dates for the current and latest commit.
-                // This may result in a redundant update if the user decides to update the file locally.
-                var latestHashesCommit = await GetLatestArchiveHashesCommit();
-                var currentHashesCommit = await GetCurrentCommit();
+            // Github doesn't store creation/modified times for files and the newly downloaded file will have the current time as its created date.
+            // In order to accurately determine whether an update is available, compare the dates for the current and latest commit.
+            // This may result in a redundant update if the user decides to update the file locally.
+            var latestHashesCommit = await GetLatestArchiveHashesCommit();
+            var currentHashesCommit = await GetCurrentCommit();
 
-                if (latestHashesCommit?.Commit == null || currentHashesCommit?.Commit == null)
-                {
-                    return null;
-                }
-
-                if (latestHashesCommit.Commit.Author.Date.UtcDateTime > currentHashesCommit.Commit.Author.Date.UtcDateTime)
-                {
-                    return latestHashesCommit;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception e)
+            // If the current hashes can't be found for some reason, try and update to fix the potentially invalid commit SHA.
+            if ((latestHashesCommit?.Commit.Author.Date.UtcDateTime > currentHashesCommit?.Commit.Author.Date.UtcDateTime) || currentHashesCommit == null)
             {
-                Serilog.Log.Logger.Error(e, "Error checking for latest hashes");
-                return null;
+                return latestHashesCommit;
             }
+
+            return null;
         }
 
         public async Task DownloadHashes(string pathToCurrentLabels)
@@ -75,18 +63,35 @@ namespace ArcExplorer.Tools
         private static async Task<GitHubCommit?> GetCurrentCommit()
         {
             // TODO: This assumes the commit modified the archive hashes file.
-            var client = new GitHubClient(new ProductHeaderValue("arc-explorer"));
-            // TODO: Get the current SHA from user preferences.
-            var commit = await client.Repository.Commit.GetAll("ultimate-research", "archive-hashes", new CommitRequest { Sha = "1b2da43a6e4cbeb0809acc2d5f325314a3ea2f72" });
-            return commit?.FirstOrDefault();
+            try
+            {
+                var client = new GitHubClient(new ProductHeaderValue("arc-explorer"));
+                var commit = await client.Repository.Commit.GetAll("ultimate-research", "archive-hashes",
+                    new CommitRequest { Sha = Models.ApplicationSettings.Instance.CurrentHashesCommitSha });
+                return commit?.FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Logger.Error(e, "Error checking for current hashes commit");
+                return null;
+            }
+
         }
 
         private static async Task<GitHubCommit?> GetLatestArchiveHashesCommit()
         {
-            // TODO: This assumes the commit modified the archive hashes file.
-            var client = new GitHubClient(new ProductHeaderValue("arc-explorer"));
-            var commit = await client.Repository.Commit.Get("ultimate-research", "archive-hashes", "master");
-            return commit;
+            try
+            {
+                // TODO: This assumes the commit modified the archive hashes file.
+                var client = new GitHubClient(new ProductHeaderValue("arc-explorer"));
+                var commit = await client.Repository.Commit.Get("ultimate-research", "archive-hashes", "master");
+                return commit;
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Logger.Error(e, "Error checking for latest hashes");
+                return null;
+            }
         }
     }
 }

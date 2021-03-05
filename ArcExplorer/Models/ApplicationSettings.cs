@@ -28,6 +28,8 @@ namespace ArcExplorer.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
 
+        public string CurrentHashesCommitSha { get; set; } = "1b2da43a6e4cbeb0809acc2d5f325314a3ea2f72";
+
         public string ExtractLocation { get; set; } = "export";
 
         private ApplicationSettings()
