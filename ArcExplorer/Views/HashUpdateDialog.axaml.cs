@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
@@ -17,9 +16,6 @@ namespace ArcExplorer.Views
         public HashUpdateDialog()
         {
             InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
         }
 
         public HashUpdateDialog(string description, string author, string date) : this()
