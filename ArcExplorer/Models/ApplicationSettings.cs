@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SmashArcNet.RustTypes;
+using System;
 
 namespace ArcExplorer.Models
 {
@@ -34,6 +35,10 @@ namespace ArcExplorer.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Region ArcRegion { get; set; } = Region.UsEnglish;
+
+        // Default to something that will be before the current time.
+        // This ensures the first run of the program tries to check for updates.
+        public DateTime LastHashesUpdateCheckTime = DateTime.UnixEpoch;
 
         private ApplicationSettings()
         {

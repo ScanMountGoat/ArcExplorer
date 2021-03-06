@@ -38,6 +38,16 @@ namespace ArcExplorer
 
         private static async Task UpdateHashesFromGithub(IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Update the time for the last update check to ensure updates are only checked once per day.
+            // This avoids rate limits with the Github API used to check for updates.
+            var currentTime = System.DateTime.UtcNow;
+            var lastCheckTime = Models.ApplicationSettings.Instance.LastHashesUpdateCheckTime.Date;
+
+            Models.ApplicationSettings.Instance.LastHashesUpdateCheckTime = currentTime;
+
+            if (lastCheckTime.Date >= currentTime.Date)
+                return;
+
             var latestCommit = await HashLabelUpdater.Instance.TryFindNewerHashesCommit();
 
             if (latestCommit != null)
