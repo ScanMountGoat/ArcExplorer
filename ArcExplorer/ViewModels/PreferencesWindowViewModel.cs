@@ -24,6 +24,13 @@ namespace ArcExplorer.ViewModels
         }
         private ApplicationSettings.IntegerDisplayFormat integerDisplayFormat = ApplicationSettings.Instance.DisplayFormat;
 
+        public bool StartMaximized
+        {
+            get => startMaximized;
+            set => this.RaiseAndSetIfChanged(ref startMaximized, value);
+        }
+        private bool startMaximized = ApplicationSettings.Instance.StartMaximized;
+
         public string ExtractLocation
         {
             get => extractLocation;
@@ -49,6 +56,9 @@ namespace ArcExplorer.ViewModels
                     break;
                 case nameof(ExtractLocation):
                     ApplicationSettings.Instance.ExtractLocation = ExtractLocation;
+                    break;
+                case nameof(StartMaximized):
+                    ApplicationSettings.Instance.StartMaximized = StartMaximized;
                     break;
                 default:
                     break;

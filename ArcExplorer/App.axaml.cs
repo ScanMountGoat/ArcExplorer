@@ -28,7 +28,8 @@ namespace ArcExplorer
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel()
+                    DataContext = new MainWindowViewModel(),
+                    WindowState = Models.ApplicationSettings.Instance.StartMaximized ? Avalonia.Controls.WindowState.Maximized : Avalonia.Controls.WindowState.Normal
                 };
 
                 await UpdateHashesFromGithub(desktop);

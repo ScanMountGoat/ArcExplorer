@@ -24,5 +24,6 @@
         <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFolderClick}" DataContext="{Binding ElementName=thisControl}">Open Folder</Button>
       </Grid>
     </Grid>
+    <CheckBox Margin="5" IsChecked="{Binding StartMaximized}">Start Application Maximized</CheckBox>
   </StackPanel>
 </Window>

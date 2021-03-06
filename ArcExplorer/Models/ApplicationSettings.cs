@@ -23,6 +23,8 @@ namespace ArcExplorer.Models
             Binary
         }
 
+        public bool StartMaximized { get; set; } = true;
+
         [JsonConverter(typeof(StringEnumConverter))]
         public VisualTheme Theme { get; set; } = VisualTheme.Dark;
 
