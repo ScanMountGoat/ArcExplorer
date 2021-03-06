@@ -59,7 +59,7 @@ namespace ArcExplorer.Models
 
         internal void SaveToFile()
         {
-            var json = JsonConvert.SerializeObject(this);
+            var json = JsonConvert.SerializeObject(this, Formatting.Indented);
             System.IO.File.WriteAllText(preferencesFilePath, json);
         }
     }
