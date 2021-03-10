@@ -9,6 +9,7 @@ using ArcExplorer.Tools;
 using SmashArcNet;
 using System.Threading.Tasks;
 using SerilogTimings;
+using Avalonia.Controls;
 
 namespace ArcExplorer
 {
@@ -26,18 +27,19 @@ namespace ArcExplorer
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                var vm = new MainWindowViewModel();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
-                    WindowState = Models.ApplicationSettings.Instance.StartMaximized ? Avalonia.Controls.WindowState.Maximized : Avalonia.Controls.WindowState.Normal
+                    DataContext = vm,
+                    WindowState = Models.ApplicationSettings.Instance.StartMaximized ? WindowState.Maximized : WindowState.Normal
                 };
 
-                await UpdateHashesFromGithub(desktop);
+                await UpdateHashesFromGithub(desktop.MainWindow, vm);
             }
             base.OnFrameworkInitializationCompleted();
         }
 
-        private static async Task UpdateHashesFromGithub(IClassicDesktopStyleApplicationLifetime desktop)
+        private static async Task UpdateHashesFromGithub(Window window, MainWindowViewModel vm)
         {
             // Update the time for the last update check to ensure updates are only checked once per day.
             // This avoids rate limits with the Github API used to check for updates.
@@ -63,6 +65,7 @@ namespace ArcExplorer
                 {
                     if (!dialog.WasCancelled)
                     {
+                        vm.BackgroundTaskStart("Updating hashes");
                         using (var downloadHashes = Operation.Begin("Downloading latest hashes"))
                         {
                             await HashLabelUpdater.Instance.DownloadHashes(HashLabelUpdater.HashesPath);
@@ -80,10 +83,11 @@ namespace ArcExplorer
                             Models.ApplicationSettings.Instance.CurrentHashesCommitSha = latestCommit.Sha;
                             updateHashes.Complete();
                         }
+                        vm.BackgroundTaskEnd();
                     }
                 };
 
-                await dialog.ShowDialog(desktop.MainWindow);
+                await dialog.ShowDialog(window);
             }
         }
 

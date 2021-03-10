@@ -192,7 +192,7 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private void BackgroundTaskStart(string taskDescription)
+        public void BackgroundTaskStart(string taskDescription)
         {
             // TODO: Correctly update the description for multiple background tasks.
             // The code currently only shows a description for the most recent task.
@@ -200,7 +200,7 @@ namespace ArcExplorer.ViewModels
             LoadingDescription = taskDescription;
         }
 
-        private void BackgroundTaskEnd()
+        public void BackgroundTaskEnd()
         {
             LoadingDescription = "";
             IsLoading = false;
