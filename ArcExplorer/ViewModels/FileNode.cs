@@ -81,15 +81,41 @@ namespace ArcExplorer.ViewModels
             // It's redundant to show the compressed size for uncompressed files.
             if (IsCompressed)
             {
-                info.Add("Compressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(CompressedSize)} bytes");
-                info.Add("Decompressed Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes");
+                info.Add("Compressed Size", $"{GetFormattedSize(CompressedSize)}");
+                info.Add("Decompressed Size", $"{GetFormattedSize(DecompressedSize)}");
             }
             else
             {
-                info.Add("Size", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(DecompressedSize)} bytes");
+                info.Add("Size", $"{GetFormattedSize(DecompressedSize)}");
             }
 
             return info;
+        }
+
+        private static string GetFormattedSize(ulong sizeInBytes)
+        {
+            // Using MB, KB, etc only makes sense for decimal.
+            if (Models.ApplicationSettings.Instance.DisplayFormat != Models.ApplicationSettings.IntegerDisplayFormat.Decimal)
+            {
+                return $"{Tools.ValueConversion.GetValueFromPreferencesFormat(sizeInBytes)} bytes";
+            }
+
+            if (sizeInBytes > 1024 * 1024 * 1024)
+            {
+                return $"{sizeInBytes / 1024.0 / 1024.0 / 1024.0:0.00} GB ({sizeInBytes} bytes)";
+            }
+            else if (sizeInBytes > 1024 * 1024)
+            {
+                return $"{sizeInBytes / 1024.0 / 1024.0:0.00} MB ({sizeInBytes} bytes)";
+            }
+            else if (sizeInBytes > 1024) 
+            {
+                return $"{sizeInBytes / 1024.0:0.00} KB ({sizeInBytes} bytes)";
+            }
+            else
+            {
+                return $"{sizeInBytes} bytes";
+            }
         }
     }
 }
