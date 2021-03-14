@@ -14,6 +14,10 @@ On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open 
 ## Opening the data.arc
 Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. The program also supports opening an ARC file over the network by connecting to the Switch console using the Switch's IP address. All program features work normally when connecting to the ARC file over the network but expect program performance to be slower. Use ArcCross (Windows only) for opening very old ARC versions. 
 
+## Updating Hashes
+When the program launches, it will check Github for any hash label updates. If an update is available, a dialog will appear with details on the new commit. Click the update button to download and load the new hashes. 
+If any errors occur, check the log for details.  
+
 ## Application Log
 If the application encounters an error, click the red error icon to see details on the error. Application errors, warnings, and additional performance information are logged to the `log.txt` file in the executable directory. If an extract operation fails or the data.arc won't open, check the `log.txt` for details. Include the relevant lines from the `log.txt` when reporting issues if possible. 
 
