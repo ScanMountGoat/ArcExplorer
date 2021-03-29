@@ -1,13 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using ArcExplorer.Tools;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SmashArcNet.RustTypes;
 using System;
+using System.IO;
 
 namespace ArcExplorer.Models
 {
     public sealed class ApplicationSettings
     {
-        private const string preferencesFilePath = "ApplicationPreferences.json";
+        public static readonly string preferencesFilePath = ApplicationDirectory.CreateAbsolutePath("ApplicationPreferences.json");
+
         public static ApplicationSettings Instance { get; } = FromJson(preferencesFilePath);
 
         public enum VisualTheme

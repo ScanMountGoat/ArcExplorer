@@ -96,14 +96,16 @@ namespace ArcExplorer.ViewModels
 
         private static string GetExportPath(ArcFileNode arcNode)
         {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var paths = new string[] { currentDirectory, ApplicationSettings.Instance.ExtractLocation };
-
             // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.
             var filePath = arcNode.Path.Replace(":", "");
             if (arcNode.FileName.StartsWith("0x"))
                 filePath += "." + arcNode.Extension;
 
+            // If the user selects an absolute path for the extract location, this overrides the current directory.
+            var exportDirectory = Tools.ApplicationDirectory.CreateAbsolutePath(ApplicationSettings.Instance.ExtractLocation);
+            var paths = new string[] { exportDirectory };
+
+            // Use the OS directory separators instead of the ARC path separators. 
             var exportPath = Path.Combine(paths.Concat(filePath.Split('/')).ToArray());
             return exportPath;
         }

@@ -1,9 +1,9 @@
 ﻿using Octokit;
-using System;
-using System.Threading.Tasks;
 using SerilogTimings;
+using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ArcExplorer.Tools
 {
@@ -11,8 +11,7 @@ namespace ArcExplorer.Tools
     {
         public static HashLabelUpdater Instance { get; } = new HashLabelUpdater();
 
-        public static readonly string HashesPath = "Hashes.txt";
-
+        public static readonly string HashesPath = ApplicationDirectory.CreateAbsolutePath("Hashes.txt");
 
         private HashLabelUpdater()
         {
