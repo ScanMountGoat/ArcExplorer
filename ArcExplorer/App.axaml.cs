@@ -94,7 +94,7 @@ namespace ArcExplorer
         private static void ConfigureAndStartLogging()
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.File("log.txt")
+                .WriteTo.File(ApplicationDirectory.CreateAbsolutePath("log.txt"))
                 .WriteTo.ApplicationLog()
                 .CreateLogger();
         }
