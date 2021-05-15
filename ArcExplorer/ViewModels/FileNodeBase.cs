@@ -20,10 +20,6 @@ namespace ArcExplorer.ViewModels
 
         public event EventHandler? FileExtracting;
 
-        public abstract bool IsExpanded { get; set; }
-
-        public AvaloniaList<FileNodeBase> Children { get; } = new AvaloniaList<FileNodeBase>();
-
         public abstract Dictionary<string, string> ObjectProperties { get; }
 
         public FileNodeBase(string name, string absolutePath)

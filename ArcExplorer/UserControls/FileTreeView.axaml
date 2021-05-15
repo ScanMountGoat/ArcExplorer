@@ -10,27 +10,9 @@
   <UserControl.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
-  <TreeView Items="{Binding Items}" SelectedItem="{Binding SelectedItem}" DataContext="{Binding ElementName=thisControl}">
-    <TreeView.Styles>
-      <Style Selector="TreeViewItem">
-        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"></Setter>
-      </Style>
-    </TreeView.Styles>
-    <TreeView.DataTemplates>
-      <TreeDataTemplate DataType="{x:Type vms:FileNode}">
-        <StackPanel Orientation="Horizontal">
-          <StackPanel.ContextMenu>
-            <ContextMenu>
-              <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
-            </ContextMenu>
-          </StackPanel.ContextMenu>
-          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-          <TextBlock Text="{Binding Name}"></TextBlock>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsShared}"></DrawingPresenter>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsRegional}"></DrawingPresenter>
-        </StackPanel>
-      </TreeDataTemplate>
-      <TreeDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type vms:FolderNode}">
+  <ListBox Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}" VirtualizationMode="Simple" Name="fileListBox">
+    <ListBox.DataTemplates>
+      <DataTemplate DataType="{x:Type vms:FileNode}">
         <StackPanel Orientation="Horizontal">
           <StackPanel.ContextMenu>
             <ContextMenu>
@@ -40,7 +22,18 @@
           <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
           <TextBlock Text="{Binding Name}"></TextBlock>
         </StackPanel>
-      </TreeDataTemplate>
-    </TreeView.DataTemplates>
-  </TreeView>
+      </DataTemplate>
+      <DataTemplate DataType="{x:Type vms:FolderNode}">
+        <StackPanel Orientation="Horizontal">
+          <StackPanel.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Extract Files" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+            </ContextMenu>
+          </StackPanel.ContextMenu>
+          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+          <TextBlock Text="{Binding Name}"></TextBlock>
+        </StackPanel>
+      </DataTemplate>
+    </ListBox.DataTemplates>
+  </ListBox>
 </UserControl>
