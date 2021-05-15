@@ -6,8 +6,6 @@ using SerilogTimings;
 using SmashArcNet;
 using SmashArcNet.RustTypes;
 using System;
-using ArcExplorer.Tools;
-using ArcExplorer.Views;
 using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels

@@ -3,6 +3,7 @@ using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System;
+using System.Collections.Generic;
 
 namespace ArcExplorer.Views
 {
@@ -33,11 +34,29 @@ namespace ArcExplorer.Views
             // The dialog requires the window reference, so this can't be in the viewmodel.
             var dialog = new OpenFolderDialog();
             var result = await dialog.ShowAsync(this);
-            if (result != null && result.Length > 0)
+            if (!string.IsNullOrEmpty(result))
             {
                 var vm = (DataContext as PreferencesWindowViewModel);
                 if (vm != null)
                     vm.ExtractLocation = result;
+            }
+        }
+
+        public async void OpenFileClick()
+        {
+            // The dialog requires the window reference, so this can't be in the viewmodel.
+            var dialog = new OpenFileDialog
+            {
+                AllowMultiple = false,
+                Filters = new List<FileDialogFilter> { new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" } }
+            };
+            
+            var result = await dialog.ShowAsync(this);
+            if (result.Length > 0 && !string.IsNullOrEmpty(result[0]))
+            {
+                var vm = (DataContext as PreferencesWindowViewModel);
+                if (vm != null)
+                    vm.ArcStartupLocation = result[0];
             }
         }
 

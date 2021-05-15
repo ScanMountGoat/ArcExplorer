@@ -38,6 +38,8 @@ namespace ArcExplorer.Models
 
         public string ExtractLocation { get; set; } = "export";
 
+        public string? ArcStartupLocation { get; set; } = null;
+
         [JsonConverter(typeof(StringEnumConverter))]
         public Region ArcRegion { get; set; } = Region.UsEnglish;
 

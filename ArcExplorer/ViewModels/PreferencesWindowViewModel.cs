@@ -38,6 +38,13 @@ namespace ArcExplorer.ViewModels
         }
         private string extractLocation = ApplicationSettings.Instance.ExtractLocation;
 
+        public string? ArcStartupLocation
+        {
+            get => arcStartupLocation;
+            set => this.RaiseAndSetIfChanged(ref arcStartupLocation, value);
+        }
+        private string? arcStartupLocation = ApplicationSettings.Instance.ArcStartupLocation;
+
         public PreferencesWindowViewModel()
         {
             PropertyChanged += PreferencesWindowViewModel_PropertyChanged;
@@ -59,6 +66,9 @@ namespace ArcExplorer.ViewModels
                     break;
                 case nameof(StartMaximized):
                     ApplicationSettings.Instance.StartMaximized = StartMaximized;
+                    break;
+                case nameof(ArcStartupLocation):
+                    ApplicationSettings.Instance.ArcStartupLocation = ArcStartupLocation;
                     break;
                 default:
                     break;

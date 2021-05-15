@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="400"
-        Width="600" Height="400"
+        Width="800" Height="400"
         Icon="/Assets/arc.ico"
         x:Class="ArcExplorer.Views.PreferencesWindow"
         Name="thisControl"
@@ -21,9 +21,18 @@
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center">Extract Location</TextBlock>
       <Grid RowDefinitions="*" ColumnDefinitions="*,100" Grid.Column="1">
         <TextBox Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Text="{Binding ExtractLocation}"></TextBox>
-        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFolderClick}" DataContext="{Binding ElementName=thisControl}">Open Folder</Button>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFolderClick}" DataContext="{Binding ElementName=thisControl}" Margin="5">Open Folder</Button>
       </Grid>
     </Grid>
-    <CheckBox Margin="5" IsChecked="{Binding StartMaximized}">Start Application Maximized</CheckBox>
+    <Grid RowDefinitions="*" ColumnDefinitions="200,*">
+      <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center">Open ARC on Startup</TextBlock>
+      <Grid RowDefinitions="*" ColumnDefinitions="*,100" Grid.Column="1">
+        <TextBox Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Text="{Binding ArcStartupLocation}"></TextBox>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFileClick}" DataContext="{Binding ElementName=thisControl}" Margin="5">Open File</Button>
+      </Grid>
+    </Grid>
+    <Grid RowDefinitions="*" ColumnDefinitions="200,*">
+      <CheckBox Grid.Column="0" Margin="5" IsChecked="{Binding StartMaximized}" HorizontalAlignment="Right">Start Application Maximized</CheckBox>
+    </Grid>
   </StackPanel>
 </Window>

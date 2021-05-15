@@ -34,9 +34,9 @@ namespace ArcExplorer.Views
             // The dialog requires the window reference, so this can't be in the viewmodel.
             var dialog = new OpenFileDialog
             {
-                AllowMultiple = false
+                AllowMultiple = false,
+                Filters = new List<FileDialogFilter> { new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" } }
             };
-            dialog.Filters.Add(new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" });
             var result = await dialog.ShowAsync(this);
             if (result != null && result.Length > 0)
             {

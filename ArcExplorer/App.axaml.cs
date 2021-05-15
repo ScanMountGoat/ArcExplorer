@@ -35,7 +35,13 @@ namespace ArcExplorer
                 };
 
                 await UpdateHashesFromGithub(desktop.MainWindow, vm);
+
+                if (!string.IsNullOrEmpty(Models.ApplicationSettings.Instance.ArcStartupLocation))
+                {
+                    vm.OpenArcFile(Models.ApplicationSettings.Instance.ArcStartupLocation);
+                }
             }
+
             base.OnFrameworkInitializationCompleted();
         }
 
