@@ -79,6 +79,13 @@ namespace ArcExplorer.ViewModels
         }
         private bool isLoading = false;
 
+        public double ProgressValue
+        {
+            get => progressValue;
+            set => this.RaiseAndSetIfChanged(ref progressValue, value);
+        }
+        private double progressValue = 0.0;
+
         public string LoadingDescription
         {
             get => loadingDescription;
@@ -146,7 +153,7 @@ namespace ArcExplorer.ViewModels
                 {
                     Serilog.Log.Logger.Error(errorLogText);
                     operation.Abandon();
-                    BackgroundTaskEnd();
+                    BackgroundTaskEnd("");
                     return;
                 }
 
@@ -154,7 +161,7 @@ namespace ArcExplorer.ViewModels
                 operation.Complete();
             }
 
-            BackgroundTaskEnd();
+            BackgroundTaskEnd("");
         }
 
         private void InitializeArcFile(string arcPathText)
@@ -166,7 +173,7 @@ namespace ArcExplorer.ViewModels
             ArcPath = arcPathText;
             ArcVersion = arcFile.Version.ToString();
 
-            FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);
+            FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
         }
 
         public void ErrorClick()
@@ -188,7 +195,7 @@ namespace ArcExplorer.ViewModels
             // TODO: Preserve the existing directory structure.
             if (arcFile != null)
             {
-                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskEnd);
+                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
             }
         }
 
@@ -196,13 +203,24 @@ namespace ArcExplorer.ViewModels
         {
             // TODO: Correctly update the description for multiple background tasks.
             // The code currently only shows a description for the most recent task.
+            ProgressValue = 0.0;
             IsLoading = true;
             LoadingDescription = taskDescription;
         }
 
-        public void BackgroundTaskEnd()
+        public void BackgroundTaskReportProgress(string description, double progressPercentage)
         {
-            LoadingDescription = "";
+            // TODO: Correctly update the description for multiple background tasks.
+            // The code currently only shows a description for the most recent task.
+            IsLoading = true;
+            LoadingDescription = description;
+            ProgressValue = progressPercentage;
+        }
+
+        public void BackgroundTaskEnd(string description)
+        {
+            ProgressValue = 100.0;
+            LoadingDescription = description;
             IsLoading = false;
         }
     }

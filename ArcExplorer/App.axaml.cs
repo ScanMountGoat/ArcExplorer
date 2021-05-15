@@ -83,7 +83,7 @@ namespace ArcExplorer
                             Models.ApplicationSettings.Instance.CurrentHashesCommitSha = latestCommit.Sha;
                             updateHashes.Complete();
                         }
-                        vm.BackgroundTaskEnd();
+                        vm.BackgroundTaskEnd("");
                     }
                 };
 

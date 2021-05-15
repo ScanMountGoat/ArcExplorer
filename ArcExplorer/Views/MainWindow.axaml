@@ -82,7 +82,7 @@
           </StackPanel>
           <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
-            <ProgressBar IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Height="16" IsVisible="{Binding IsLoading}"></ProgressBar>
+            <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Height="16" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"></ProgressBar>
             <Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">
               <StackPanel Orientation="Horizontal">
                 <DrawingPresenter Drawing="{StaticResource errorIcon}" Width="16" Height="16"></DrawingPresenter>
