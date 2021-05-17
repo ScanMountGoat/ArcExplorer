@@ -160,6 +160,11 @@ namespace ArcExplorer.ViewModels
             return folder;
         }
 
+        public static async void ExtractAllFiles(ArcFile arcFile, Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
+        {
+            await RunBackgroundTask("Extracting all files", () => TryExtractAllFiles(arcFile, reportProgress), taskStart, taskEnd);
+        }
+
         private static async Task RunBackgroundTask(string taskDescription, 
             Func<ExtractResult> taskToRun, Action<string> taskStart, Action<string> taskEnd)
         {
@@ -201,7 +206,37 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        private static ExtractResult ExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string, double> reportProgress)
+        private static ExtractResult TryExtractAllFiles(ArcFile arcFile, Action<string, double> reportProgress)
+        {
+            // Loading the files first uses more memory but allows for determinate progress.
+            var filesToExtract = new List<ArcFileNode>();
+            foreach (var arcNode in arcFile.GetRootNodes())
+            {
+                if (arcNode is ArcDirectoryNode directory)
+                    AddFilesRecursive(arcFile, directory, filesToExtract);
+            }
+
+            for (int i = 0; i < filesToExtract.Count; i++)
+            {
+                TryExtractFile(arcFile, filesToExtract[i]);
+                var percentage = i / (double)filesToExtract.Count * 100;
+
+                // Fix the string length to avoid strange flickering when the progress bar resizes.
+                var desiredLength = 60;
+                reportProgress(filesToExtract[i].Path.PadRight(desiredLength).Substring(0, desiredLength), percentage);
+            }
+
+            // Assume the operation succeeds for now.
+            // Individual file extractions may still fail.
+            var result = new ExtractResult
+            {
+                Success = true,
+                CompletionSummary = $"Extracted {filesToExtract.Count} files"
+            };
+            return result;
+        }
+
+        private static ExtractResult TryExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string, double> reportProgress)
         {
             // Loading the files first uses more memory but allows for determinate progress.
             var filesToExtract = new List<ArcFileNode>();
@@ -233,7 +268,7 @@ namespace ArcExplorer.ViewModels
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode, 
             Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
         {
-            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => ExtractFilesRecursive(arcFile, arcNode, reportProgress), taskStart, taskEnd);
+            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => TryExtractFilesRecursive(arcFile, arcNode, reportProgress), taskStart, taskEnd);
         }
     }
 }

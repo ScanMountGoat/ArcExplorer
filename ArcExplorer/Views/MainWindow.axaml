@@ -40,6 +40,7 @@
       </MenuItem>
       <MenuItem Header="Arc">
         <MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
+        <MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>
       </MenuItem>
       <MenuItem Header="Settings">
         <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding ElementName=thisWindow}">
@@ -49,6 +50,33 @@
         </MenuItem>
       </MenuItem>
     </Menu>
+    <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,*,auto">
+      <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
+      </StackPanel>
+      <StackPanel Grid.Column="2" Orientation="Horizontal">
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
+      </StackPanel>
+      <Grid Grid.Column="3" ColumnDefinitions="400,*">
+        <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
+        <ProgressBar Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5,5,10,5" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"></ProgressBar>
+      </Grid>
+      <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">
+          <StackPanel Orientation="Horizontal">
+            <DrawingPresenter Drawing="{StaticResource errorIcon}" Width="16" Height="16"></DrawingPresenter>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0" Text="{Binding ErrorDescription}"></TextBlock>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+
     <Grid ColumnDefinitions="*,1,400">
       <DockPanel Grid.Column="0" LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
@@ -67,30 +95,6 @@
             </ComboBox>
           </Grid>
         </StackPanel>
-        <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,*">
-          <StackPanel Grid.Column="0" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
-          </StackPanel>
-          <StackPanel Grid.Column="1" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
-          </StackPanel>
-          <StackPanel Grid.Column="2" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
-          </StackPanel>
-          <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
-            <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Height="16" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"></ProgressBar>
-            <Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">
-              <StackPanel Orientation="Horizontal">
-                <DrawingPresenter Drawing="{StaticResource errorIcon}" Width="16" Height="16"></DrawingPresenter>
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0" Text="{Binding ErrorDescription}"></TextBlock>
-              </StackPanel>
-            </Button>
-          </StackPanel>
-        </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
       </DockPanel>
       <GridSplitter Grid.Column="1"></GridSplitter>

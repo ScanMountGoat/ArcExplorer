@@ -185,6 +185,14 @@ namespace ArcExplorer.ViewModels
             SelectedFile?.OnFileExtracting();
         }
 
+        public void ExtractAllFiles()
+        {
+            if (arcFile == null)
+                return;
+
+            FileTree.ExtractAllFiles(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+        }
+
         public void RebuildFileTree()
         {
             // Clear everything to ensure the proper icons get loaded when changing themes.
