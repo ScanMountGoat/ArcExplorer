@@ -49,6 +49,13 @@ namespace ArcExplorer.ViewModels
         }
         private FileNodeBase? selectedFile;
 
+        public FolderNode? CurrentDirectory
+        {
+            get => currentDirectory;
+            set => this.RaiseAndSetIfChanged(ref currentDirectory, value);
+        }
+        private FolderNode? currentDirectory;
+
         public string ArcVersion
         {
             get => arcVersion;
@@ -173,6 +180,40 @@ namespace ArcExplorer.ViewModels
 
             FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
         }
+
+        public void ExitFolder()
+        {
+            if (arcFile == null)
+                return;
+
+            var parent = CurrentDirectory?.Parent;
+
+            if (parent == null)
+            {
+                // There is no parent, so load the root nodes.
+                CurrentDirectory = null;
+                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            }
+            else
+            {
+                // Go up one level in the file tree.
+                CurrentDirectory = parent;
+                FileTree.PopulateFileTree(arcFile, CurrentDirectory, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            }
+        }
+
+        public void EnterFolder()
+        {
+            if (arcFile == null)
+                return;
+
+            if (SelectedFile is FolderNode folder)
+            {
+                CurrentDirectory = folder;
+                FileTree.PopulateFileTree(arcFile, CurrentDirectory, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            }
+        }
+
 
         public void ErrorClick()
         {

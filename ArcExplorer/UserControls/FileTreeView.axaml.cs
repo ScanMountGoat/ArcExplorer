@@ -39,18 +39,7 @@ namespace ArcExplorer.UserControls
         public FileTreeView()
         {
             InitializeComponent();
-            this.FindControl<ListBox>("fileListBox").DoubleTapped += FileTreeView_DoubleTapped;
         }
-
-        private void FileTreeView_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
-            if (SelectedItem is FolderNode folder)
-            {
-                // TODO: This is a confusing name.
-                folder.OnLoadingChildren();
-            }
-        }
-
 
         public void ExtractFile()
         {

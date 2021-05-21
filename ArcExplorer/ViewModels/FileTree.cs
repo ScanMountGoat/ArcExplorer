@@ -22,7 +22,6 @@ namespace ArcExplorer.ViewModels
 
         /// <summary>
         /// Clears the existing items in <paramref name="files"/> and populates the base level from <paramref name="arcFile"/>.
-        /// Directories are lazy loaded and will load their children after being expanded.
         /// The parameter to <paramref name="extractStartCallBack"/> is the task description.
         /// </summary>
         /// <param name="arcFile">the ARC to load</param>
@@ -35,23 +34,50 @@ namespace ArcExplorer.ViewModels
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack)
         {
+            // TODO: Just return the files instead?
             // Replace existing files with the new ARC.
             // Clearing the files will free the old ARC eventually.
             files.Clear();
             foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
             {
-                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files);
+                // There is no parent for root nodes, so leave the parent as null.
+                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
                 files.Add(treeNode);
             }
         }
 
-        private static FileNodeBase CreateNode(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, AvaloniaList<FileNodeBase> files)
+        /// <summary>
+        /// Clears the existing items in <paramref name="files"/> and populates the base level from <paramref name="arcFile"/>.
+        /// The parameter to <paramref name="extractStartCallBack"/> is the task description.
+        /// </summary>
+        /// <param name="arcFile">the ARC to load</param>
+        /// <param name="folderToLoad">the folder whose children will be loaded</param>
+        /// <param name="files">the file list to be cleared and updated</param>
+        /// <param name="extractStartCallBack">called before starting an extract operation</param>
+        /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
+        /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
+        public static void PopulateFileTree(ArcFile arcFile, FolderNode folder, AvaloniaList<FileNodeBase> files,
+            Action<string> extractStartCallBack,
+            Action<string, double> extractReportProgressCallBack,
+            Action<string> extractEndCallBack)
+        {
+            // TODO: Just return the files instead?
+            // Replace existing files.
+            files.Clear();
+            foreach (var node in arcFile.GetChildren(folder.arcNode, ApplicationSettings.Instance.ArcRegion))
+            {
+                var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                files.Add(treeNode);
+            }
+        }
+
+        private static FileNodeBase CreateNode(ArcFile arcFile, FolderNode? parent, IArcNode arcNode,
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
         {
             switch (arcNode)
             {
                 case ArcDirectoryNode directoryNode:
-                    var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, files);
+                    var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, parent);
                     return folder;
                 case ArcFileNode fileNode:
                     var file = CreateFileNode(arcFile, fileNode, taskEnd);
@@ -120,22 +146,11 @@ namespace ArcExplorer.ViewModels
         }
 
         private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, AvaloniaList<FileNodeBase> files)
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, FolderNode? parent)
         {
             // Create the folder.
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path, arcNode);
+            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path, arcNode, parent);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd);
-
-            // Override the file list when entering the folder.
-            // TODO: Clearing the list like this is confusing.
-            folder.LoadingChildren += (s, e) =>
-            {
-                files.Clear();
-                foreach (var child in arcFile.GetChildren(arcNode))
-                {
-                    files.Add(CreateNode(arcFile, folder, child, taskStart, reportProgress, taskEnd, files));
-                }
-            };
 
             return folder;
         }

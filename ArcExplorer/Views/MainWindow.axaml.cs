@@ -6,6 +6,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using ArcExplorer.Models;
+using ArcExplorer.UserControls;
 
 namespace ArcExplorer.Views
 {
@@ -15,6 +16,12 @@ namespace ArcExplorer.Views
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
+            this.FindControl<FileTreeView>("fileTreeView").DoubleTapped += MainWindow_DoubleTapped;
+        }
+
+        private void MainWindow_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            (DataContext as MainWindowViewModel)?.EnterFolder();
         }
 
         private void MainWindow_Closed(object? sender, EventArgs e)
