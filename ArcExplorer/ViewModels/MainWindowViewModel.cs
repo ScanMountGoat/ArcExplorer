@@ -7,6 +7,7 @@ using SmashArcNet;
 using SmashArcNet.RustTypes;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ArcExplorer.ViewModels
 {
@@ -57,12 +58,18 @@ namespace ArcExplorer.ViewModels
             set
             { 
                 this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
-                // TODO: Perform a lookup based on the path and update CurrentDirectory.
                 if (arcFile != null && value != null)
                 {
-                    Files.Clear();
-                    var newFiles = FileTree.CreateChildNodes(arcFile, value, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
-                    Files.AddRange(newFiles);
+                    var parent = FileTree.CreateFolderNode(arcFile, value);
+                    if (parent != null)
+                    {
+                        // Update the current directory to allow exiting the folder to work properly.
+                        currentDirectory = parent;
+
+                        Files.Clear();
+                        var newFiles = FileTree.CreateChildNodes(arcFile, parent, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                        Files.AddRange(newFiles);
+                    }
                 }
             }
         }
@@ -212,15 +219,21 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null)
                 return;
 
-            var parent = CurrentDirectory?.Parent;
+            if (CurrentDirectory == null)
+                return;
 
+            // Load the root if there is no parent.
+            string? parentPath = GetParentPath(CurrentDirectory.AbsolutePath);
+            if (parentPath == null)
+            {
+                LoadRootNodes(arcFile);
+                return;
+            }
+
+            var parent = FileTree.CreateFolderNode(arcFile, parentPath);
             if (parent == null)
             {
-                // There is no parent, so load the root nodes.
-                CurrentDirectory = null;
-                Files.Clear();
-                var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
-                Files.AddRange(newFiles);
+                LoadRootNodes(arcFile);
             }
             else
             {
@@ -230,6 +243,30 @@ namespace ArcExplorer.ViewModels
                 var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
                 Files.AddRange(newFiles);
             }
+        }
+
+        private void LoadRootNodes(ArcFile arcFile)
+        {
+            CurrentDirectory = null;
+            Files.Clear();
+            var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            Files.AddRange(newFiles);
+        }
+
+        private string? GetParentPath(string absolutePath)
+        {
+            // TODO: This is a bit buggy.
+            var lastIndex = absolutePath.LastIndexOf('/');
+
+            // Handle a single trailing slash.
+            if (lastIndex == absolutePath.Length - 1)
+                lastIndex = absolutePath.Substring(0, lastIndex - 1).LastIndexOf('/');
+
+            // There is no parent.
+            if (lastIndex <= 0)
+                return null;
+
+            return absolutePath.Substring(0, lastIndex);
         }
 
         public void EnterFolder()

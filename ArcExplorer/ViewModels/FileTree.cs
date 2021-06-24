@@ -88,7 +88,6 @@ namespace ArcExplorer.ViewModels
                 return CreateRootLevelNodes(arcFile, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
             }
 
-
             var files = new List<FileNodeBase>();
 
             var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
@@ -107,6 +106,15 @@ namespace ArcExplorer.ViewModels
             }
 
             return files;
+        }
+
+        public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
+        {
+            var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
+            if (arcNode is ArcDirectoryNode directory)
+                return new FolderNode(absolutePath, directory);
+            else
+                return null;
         }
 
         private static FileNodeBase CreateNode(ArcFile arcFile, FolderNode? parent, IArcNode arcNode,
@@ -186,12 +194,7 @@ namespace ArcExplorer.ViewModels
         private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
             Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, FolderNode? parent)
         {
-            // Directory info doesn't handle empty strings.
-            var name = "";
-            if (!string.IsNullOrEmpty(arcNode.Path))
-                name = new DirectoryInfo(arcNode.Path).Name;
-
-            var folder = new FolderNode(name, arcNode.Path, arcNode, parent);
+            var folder = new FolderNode(arcNode.Path, arcNode);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd);
 
             return folder;
