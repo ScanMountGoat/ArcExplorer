@@ -42,17 +42,38 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        public FileNodeBase? SelectedFile 
-        { 
+        public FileNodeBase? SelectedFile
+        {
             get => selectedFile;
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }
         private FileNodeBase? selectedFile;
 
-        public FolderNode? CurrentDirectory
+        // Use two properties to sync the directory path with the actual directory node.
+        // This allows the user to update the currently displayed folder by typing in the absolute path.
+        public string? CurrentDirectoryPath
         {
+            get => currentDirectoryPath;
+            set
+            { 
+                this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
+                // TODO: Perform a lookup based on the path and update CurrentDirectory.
+                if (arcFile != null && value != null)
+                {
+                    FileTree.PopulateFileTree(arcFile, value, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                }
+            }
+        }
+        private string? currentDirectoryPath;
+
+        public FolderNode? CurrentDirectory 
+        { 
             get => currentDirectory;
-            set => this.RaiseAndSetIfChanged(ref currentDirectory, value);
+            set
+            {
+                currentDirectory = value;
+                CurrentDirectoryPath = currentDirectory?.AbsolutePath;
+            }
         }
         private FolderNode? currentDirectory;
 
@@ -110,6 +131,7 @@ namespace ArcExplorer.ViewModels
             get => errorDescription;
             set => this.RaiseAndSetIfChanged(ref errorDescription, value);
         }
+
         private string errorDescription = "";
 
         private ArcFile? arcFile;

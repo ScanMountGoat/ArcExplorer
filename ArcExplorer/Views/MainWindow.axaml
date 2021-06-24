@@ -95,7 +95,7 @@
           </Grid>
         </StackPanel>
         <Grid DockPanel.Dock="Top" ColumnDefinitions="*,auto">
-          <TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectory.AbsolutePath}"></TextBox>
+          <TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectoryPath}"></TextBox>
           <Button Grid.Column="1" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
         </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
