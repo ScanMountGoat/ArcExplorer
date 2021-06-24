@@ -60,7 +60,9 @@ namespace ArcExplorer.ViewModels
                 // TODO: Perform a lookup based on the path and update CurrentDirectory.
                 if (arcFile != null && value != null)
                 {
-                    FileTree.PopulateFileTree(arcFile, value, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                    Files.Clear();
+                    var newFiles = FileTree.CreateChildNodes(arcFile, value, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                    Files.AddRange(newFiles);
                 }
             }
         }
@@ -200,7 +202,9 @@ namespace ArcExplorer.ViewModels
             ArcPath = arcPathText;
             ArcVersion = arcFile.Version.ToString();
 
-            FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            Files.Clear();
+            var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            Files.AddRange(newFiles);
         }
 
         public void ExitFolder()
@@ -214,13 +218,17 @@ namespace ArcExplorer.ViewModels
             {
                 // There is no parent, so load the root nodes.
                 CurrentDirectory = null;
-                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.Clear();
+                var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.AddRange(newFiles);
             }
             else
             {
                 // Go up one level in the file tree.
                 CurrentDirectory = parent;
-                FileTree.PopulateFileTree(arcFile, CurrentDirectory, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.Clear();
+                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.AddRange(newFiles);
             }
         }
 
@@ -232,7 +240,9 @@ namespace ArcExplorer.ViewModels
             if (SelectedFile is FolderNode folder)
             {
                 CurrentDirectory = folder;
-                FileTree.PopulateFileTree(arcFile, CurrentDirectory, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.Clear();
+                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.AddRange(newFiles);
             }
         }
 
@@ -264,7 +274,9 @@ namespace ArcExplorer.ViewModels
             // TODO: Preserve the existing directory structure.
             if (arcFile != null)
             {
-                FileTree.PopulateFileTree(arcFile, Files, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.Clear();
+                var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                Files.AddRange(newFiles);
             }
         }
 
