@@ -86,6 +86,13 @@ namespace ArcExplorer.ViewModels
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack)
         {
+            if (string.IsNullOrEmpty(folderPath))
+            {
+                // An empty path should load the root level since we don't use a node for the root.
+                PopulateFileTree(arcFile, files, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                return;
+            }
+
             // TODO: Just return the files instead?
             // Replace existing files.
             files.Clear();
@@ -183,8 +190,12 @@ namespace ArcExplorer.ViewModels
         private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
             Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, FolderNode? parent)
         {
-            // Create the folder.
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path, arcNode, parent);
+            // Directory info doesn't handle empty strings.
+            var name = "";
+            if (!string.IsNullOrEmpty(arcNode.Path))
+                name = new DirectoryInfo(arcNode.Path).Name;
+
+            var folder = new FolderNode(name, arcNode.Path, arcNode, parent);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd);
 
             return folder;
