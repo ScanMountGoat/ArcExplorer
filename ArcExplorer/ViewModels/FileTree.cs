@@ -77,7 +77,8 @@ namespace ArcExplorer.ViewModels
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
-        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, string parentPath,
+        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, 
+            string parentPath,
             Action<string> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack)
@@ -95,7 +96,6 @@ namespace ArcExplorer.ViewModels
             // TODO: Handle the case where the input is a file by using the parent directory.
             if (arcNode is ArcDirectoryNode directoryNode) 
             {
-                // TODO: Just recreate the parent node on demand to avoid having to recreate the entire chain.
                 var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, null);
 
                 foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))

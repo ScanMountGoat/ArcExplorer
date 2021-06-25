@@ -343,17 +343,23 @@ namespace ArcExplorer.ViewModels
             FileTree.ExtractAllFiles(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
         }
 
-        public void RebuildFileTree()
+        public void ReloadCurrentDirectory()
         {
-            // Clear everything to ensure the proper icons get loaded when changing themes.
-            SelectedFile = null;
+            // Store the paths since the nodes themselves need to be recreated.
+            var previousPath = CurrentDirectory?.AbsolutePath;
+            var previousSelectedPath = SelectedFile?.AbsolutePath;
 
-            // TODO: Preserve the existing directory structure.
-            if (arcFile != null)
+            if (arcFile != null && previousPath != null)
             {
-                Files.Clear();
-                var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
-                Files.AddRange(newFiles);
+                var parent = FileTree.CreateFolderNode(arcFile, previousPath);
+                if (parent != null)
+                {
+                    Files.Clear();
+                    var newFiles = FileTree.CreateChildNodes(arcFile, parent, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                    Files.AddRange(newFiles);
+
+                    SelectedFile = Files.First(f => f.AbsolutePath == previousSelectedPath);
+                }
             }
         }
 

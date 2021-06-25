@@ -1,4 +1,5 @@
 ﻿using ArcExplorer.Models;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using System;
 
@@ -57,6 +58,13 @@ namespace ArcExplorer.ViewModels
                 case nameof(CurrentTheme):
                     ApplicationSettings.Instance.Theme = CurrentTheme;
                     ApplicationStyles.SetThemeFromSettings();
+
+                    // Refresh the file icons.
+                    if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    {
+                        var vm = desktop.MainWindow.DataContext as MainWindowViewModel;
+                        vm?.ReloadCurrentDirectory();
+                    }
                     break;
                 case nameof(IntegerDisplayFormat):
                     ApplicationSettings.Instance.DisplayFormat = IntegerDisplayFormat;
