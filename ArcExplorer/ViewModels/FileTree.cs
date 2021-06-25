@@ -11,6 +11,7 @@ using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
 {
+    // TODO: Move this to the ArcExplorer.ArcUtils namespace?
     internal static class FileTree
     {
         private class ExtractResult
@@ -20,42 +21,112 @@ namespace ArcExplorer.ViewModels
         }
 
         /// <summary>
-        /// Clears the existing items in <paramref name="files"/> and populates the base level from <paramref name="arcFile"/>.
-        /// Directories are lazy loaded and will load their children after being expanded.
+        /// Loads the base level from <paramref name="arcFile"/>.
         /// The parameter to <paramref name="extractStartCallBack"/> is the task description.
         /// </summary>
         /// <param name="arcFile">the ARC to load</param>
+        /// <param name="extractStartCallBack">called before starting an extract operation</param>
+        /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
+        /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
+        /// <returns>The nodes for the root level</returns>
+        public static List<FileNodeBase> CreateRootLevelNodes(ArcFile arcFile,
+            Action<string> extractStartCallBack,
+            Action<string, double> extractReportProgressCallBack,
+            Action<string> extractEndCallBack)
+        {
+            var files = new List<FileNodeBase>();
+            foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
+            {
+                // There is no parent for root nodes, so leave the parent as null.
+                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                files.Add(treeNode);
+            }
+            return files;
+        }
+
+        /// <summary>
+        /// Loads the child nodes of <paramref name="parent"/> from <paramref name="arcFile"/>.
+        /// The parameter to <paramref name="extractStartCallBack"/> is the task description.
+        /// </summary>
+        /// <param name="arcFile">the ARC to load</param>
+        /// <param name="parent">the folder whose children will be loaded</param>
+        /// <param name="extractStartCallBack">called before starting an extract operation</param>
+        /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
+        /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
+        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, FolderNode parent,
+            Action<string> extractStartCallBack,
+            Action<string, double> extractReportProgressCallBack,
+            Action<string> extractEndCallBack)
+        {
+            var files = new List<FileNodeBase>();
+            foreach (var node in arcFile.GetChildren(parent.arcNode, ApplicationSettings.Instance.ArcRegion))
+            {
+                var treeNode = CreateNode(arcFile, parent, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                files.Add(treeNode);
+            }
+            return files;
+        }
+
+        /// <summary>
+        /// Loads the child nodes of <paramref name="parent"/> from <paramref name="arcFile"/>.
+        /// The parameter to <paramref name="extractStartCallBack"/> is the task description.
+        /// </summary>
+        /// <param name="arcFile">the ARC to load</param>
+        /// <param name="parentPath">the folder whose children will be loaded</param>
         /// <param name="files">the file list to be cleared and updated</param>
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
-        public static void PopulateFileTree(ArcFile arcFile, AvaloniaList<FileNodeBase> files, 
-            Action<string> extractStartCallBack, 
-            Action<string, double> extractReportProgressCallBack, 
+        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, string parentPath,
+            Action<string> extractStartCallBack,
+            Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack)
         {
-            // Replace existing files with the new ARC.
-            // Clearing the files will free the old ARC eventually.
-            files.Clear();
-            foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
+            if (string.IsNullOrEmpty(parentPath))
             {
-                var treeNode = LoadNodeAddToParent(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
-                files.Add(treeNode);
+                // An empty path should load the root level since we don't use a node for the root.
+                return CreateRootLevelNodes(arcFile, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
             }
+
+            var files = new List<FileNodeBase>();
+
+            var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
+
+            // TODO: Handle the case where the input is a file by using the parent directory.
+            if (arcNode is ArcDirectoryNode directoryNode) 
+            {
+                // TODO: Just recreate the parent node on demand to avoid having to recreate the entire chain.
+                var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, null);
+
+                foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
+                {
+                    var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                    files.Add(treeNode);
+                }
+            }
+
+            return files;
         }
 
-        private static FileNodeBase LoadNodeAddToParent(ArcFile arcFile, FileNodeBase? parent, IArcNode arcNode, 
+        public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
+        {
+            var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
+            if (arcNode is ArcDirectoryNode directory)
+                return new FolderNode(absolutePath, directory);
+            else
+                return null;
+        }
+
+        private static FileNodeBase CreateNode(ArcFile arcFile, FolderNode? parent, IArcNode arcNode,
             Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
         {
             switch (arcNode)
             {
                 case ArcDirectoryNode directoryNode:
-                    var folder = CreateFolderLoadChildren(arcFile, directoryNode, taskStart, reportProgress, taskEnd);
-                    parent?.Children.Add(folder);
+                    var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, parent);
                     return folder;
                 case ArcFileNode fileNode:
                     var file = CreateFileNode(arcFile, fileNode, taskEnd);
-                    parent?.Children.Add(file);
                     return file;
                 default:
                     throw new NotImplementedException($"Unable to create node from {arcNode}");
@@ -67,8 +138,8 @@ namespace ArcExplorer.ViewModels
             // Lazy initialize the shared file list for performance reasons.
             List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode, ApplicationSettings.Instance.ArcRegion);
 
-            var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension, 
-                arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed, 
+            var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension,
+                arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed,
                 getSharedFiles);
 
             fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskEnd);
@@ -120,42 +191,11 @@ namespace ArcExplorer.ViewModels
             return exportPath;
         }
 
-        private static FolderNode CreateFolderLoadChildren(ArcFile arcFile, ArcDirectoryNode arcNode, 
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
+        private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, FolderNode? parent)
         {
-            // Create the folder.
-            var folder = new FolderNode(new DirectoryInfo(arcNode.Path).Name, arcNode.Path);
+            var folder = new FolderNode(arcNode.Path, arcNode);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd);
-
-            // Add a temporary node to enable expanding.
-            folder.Children.Add(new FolderNode("Loading...", "Loading..."));
-
-            folder.Expanded += (s, e) =>
-            {
-                // Only initialize the nodes once.
-                // TODO: Unload nodes to save on memory?
-                if (!folder.HasInitialized)
-                {
-                    // Remove the temporary node.
-                    // This should prevent the temp node from being visible.
-                    folder.Children.Clear();
-
-                    // Load the actual children from the ARC.
-                    foreach (var child in arcFile.GetChildren(arcNode, ApplicationSettings.Instance.ArcRegion))
-                    {
-                        FileNodeBase childNode = child switch
-                        {
-                            ArcDirectoryNode directory => CreateFolderLoadChildren(arcFile, directory, taskStart, reportProgress, taskEnd),
-                            ArcFileNode file => CreateFileNode(arcFile, file, taskEnd),
-                            _ => throw new NotImplementedException($"Unable to create node from {child}")
-                        };
-
-                        folder.Children.Add(childNode);
-                    }
-
-                    folder.HasInitialized = true;
-                }
-            };
 
             return folder;
         }
@@ -165,7 +205,7 @@ namespace ArcExplorer.ViewModels
             await RunBackgroundTask("Extracting all files", () => TryExtractAllFiles(arcFile, reportProgress), taskStart, taskEnd);
         }
 
-        private static async Task RunBackgroundTask(string taskDescription, 
+        private static async Task RunBackgroundTask(string taskDescription,
             Func<ExtractResult> taskToRun, Action<string> taskStart, Action<string> taskEnd)
         {
             taskStart(taskDescription);
@@ -265,7 +305,7 @@ namespace ArcExplorer.ViewModels
             await RunBackgroundTask($"Extracting {arcNode.Path}", () => TryExtractFile(arcFile, arcNode), (_) => { }, taskEnd);
         }
 
-        private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode, 
+        private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode,
             Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
         {
             await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => TryExtractFilesRecursive(arcFile, arcNode, reportProgress), taskStart, taskEnd);

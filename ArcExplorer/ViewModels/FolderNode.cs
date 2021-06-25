@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
-using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ArcExplorer.ViewModels
 {
@@ -13,31 +13,26 @@ namespace ArcExplorer.ViewModels
         }
         private ApplicationStyles.Icon detailsIconKey = ApplicationStyles.Icon.Document;
 
-        public override bool IsExpanded
-        {
-            get => isExpanded;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref isExpanded, value);
-                TreeViewIconKey = isExpanded ? ApplicationStyles.Icon.FolderOpened : ApplicationStyles.Icon.FolderClosed;
-                Expanded?.Invoke(this, EventArgs.Empty);
-            }
-        }
-        private bool isExpanded;
-
-        public bool HasInitialized { get; set; }
+        internal SmashArcNet.Nodes.ArcDirectoryNode arcNode;
 
         public override Dictionary<string, string> ObjectProperties => new Dictionary<string, string>()
         {
-            { "Child Count", Children.Count.ToString() }
         };
 
-        public event EventHandler? Expanded;
-
-        public FolderNode(string name, string absolutePath) : base(name, absolutePath)
+        public FolderNode(string absolutePath, SmashArcNet.Nodes.ArcDirectoryNode node) : base(GetDirectoryName(absolutePath), absolutePath)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
             DetailsIconKey = ApplicationStyles.Icon.FolderClosed;
+            arcNode = node;
+        }
+
+        private static string GetDirectoryName(string absolutePath)
+        {
+            // DirectoryInfo doesn't handle null or empty strings.
+            if (string.IsNullOrEmpty(absolutePath))
+                return "";
+
+            return new DirectoryInfo(absolutePath).Name;
         }
     }
 }

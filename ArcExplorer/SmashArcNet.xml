@@ -114,6 +114,15 @@
             <param name="region"></param>
             <returns>A list of file paths that share this file's data</returns>
         </member>
+        <member name="M:SmashArcNet.ArcFile.CreateNode(System.String,SmashArcNet.RustTypes.Region)">
+            <summary>
+            Creates an ARC node from <paramref name="path"/> using the specified <paramref name="region"/>.
+            The returned <see cref="T:SmashArcNet.Nodes.IArcNode"/> is not guaranteed to refer to a valid entry in the ARC.
+            </summary>
+            <param name="path">The absolute path of the file or directory</param>
+            <param name="region"></param>
+            <returns>An <see cref="T:SmashArcNet.Nodes.IArcNode"/> representing <paramref name="path"/></returns>
+        </member>
         <member name="T:SmashArcNet.HashLabels">
             <summary>
             Contains methods for dealing with path hashes.

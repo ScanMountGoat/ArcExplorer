@@ -1,11 +1,11 @@
-﻿using ArcExplorer.ViewModels;
-using Avalonia;
+﻿using ArcExplorer.Models;
+using ArcExplorer.UserControls;
+using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using ArcExplorer.Models;
 
 namespace ArcExplorer.Views
 {
@@ -14,7 +14,43 @@ namespace ArcExplorer.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.Closed += MainWindow_Closed;
+            Closed += MainWindow_Closed;
+
+            // Use the event on the parent window to avoid keyboard focus issues.
+            KeyDown += MainWindow_KeyDown;
+
+            var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
+            fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
+        }
+
+        private void MainWindow_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+        {
+            // Register key bindings to improve file navigation.
+            // These are inspired by common shortcuts for Windows Explorer, Finder, etc.
+            switch (e.Key)
+            {
+                case Avalonia.Input.Key.Right:
+                case Avalonia.Input.Key.Enter:
+                    (DataContext as MainWindowViewModel)?.EnterSelectedFolder();
+                    break;
+                case Avalonia.Input.Key.Left:
+                    (DataContext as MainWindowViewModel)?.ExitFolder();
+                    break;
+                case Avalonia.Input.Key.Up:
+                    (DataContext as MainWindowViewModel)?.SelectPreviousFile();
+                    break;
+                case Avalonia.Input.Key.Down:
+                    (DataContext as MainWindowViewModel)?.SelectNextFile();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void MainWindow_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            (DataContext as MainWindowViewModel)?.EnterSelectedFolder();
+            (sender as FileTreeView)?.Focus();
         }
 
         private void MainWindow_Closed(object? sender, EventArgs e)

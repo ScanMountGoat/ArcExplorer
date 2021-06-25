@@ -76,7 +76,6 @@
         </Button>
       </StackPanel>
     </Grid>
-
     <Grid ColumnDefinitions="*,1,400">
       <DockPanel Grid.Column="0" LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
@@ -95,6 +94,10 @@
             </ComboBox>
           </Grid>
         </StackPanel>
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,auto">
+          <TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectoryPath}"></TextBox>
+          <Button Grid.Column="1" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
+        </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
       </DockPanel>
       <GridSplitter Grid.Column="1"></GridSplitter>

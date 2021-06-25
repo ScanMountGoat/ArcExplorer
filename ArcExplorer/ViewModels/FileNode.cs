@@ -49,7 +49,6 @@ namespace ArcExplorer.ViewModels
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 
-        public override bool IsExpanded { get; set; }
 
         private readonly Func<List<string>> getSharedFiles;
 
