@@ -7,7 +7,7 @@ using SmashArcNet;
 using SmashArcNet.RustTypes;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 namespace ArcExplorer.ViewModels
 {
@@ -214,6 +214,34 @@ namespace ArcExplorer.ViewModels
             Files.AddRange(newFiles);
         }
 
+        public void SelectNextFile()
+        {
+            if (SelectedFile is null)
+            {
+                SelectedFile = Files.First();
+            }
+            else
+            {
+                var nextIndex = Files.IndexOf(SelectedFile) + 1;
+                if (nextIndex < Files.Count)
+                    SelectedFile = Files[nextIndex];
+            }
+        }
+
+        public void SelectPreviousFile()
+        {
+            if (SelectedFile is null)
+            {
+                SelectedFile = Files.First();
+            }
+            else
+            {
+                var previousIndex = Files.IndexOf(SelectedFile) - 1;
+                if (Files.Count != 0 && previousIndex >= 0)
+                    SelectedFile = Files[previousIndex];
+            }
+        }
+
         public void ExitFolder()
         {
             if (arcFile == null)
@@ -222,11 +250,17 @@ namespace ArcExplorer.ViewModels
             if (CurrentDirectory == null)
                 return;
 
+            var originalPath = CurrentDirectory.AbsolutePath;
+
             // Load the root if there is no parent.
             string? parentPath = GetParentPath(CurrentDirectory.AbsolutePath);
             if (parentPath == null)
             {
                 LoadRootNodes(arcFile);
+
+                // Select a file to facilitate keyboard navigation.
+                SelectedFile = Files.First(f => f.AbsolutePath == originalPath);
+
                 return;
             }
 
@@ -243,6 +277,9 @@ namespace ArcExplorer.ViewModels
                 var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
                 Files.AddRange(newFiles);
             }
+
+            // Select a file to facilitate keyboard navigation.
+            SelectedFile = Files.First(f => f.AbsolutePath == originalPath);
         }
 
         private void LoadRootNodes(ArcFile arcFile)
@@ -269,7 +306,7 @@ namespace ArcExplorer.ViewModels
             return absolutePath.Substring(0, lastIndex);
         }
 
-        public void EnterFolder()
+        public void EnterSelectedFolder()
         {
             if (arcFile == null)
                 return;
@@ -280,6 +317,9 @@ namespace ArcExplorer.ViewModels
                 Files.Clear();
                 var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
                 Files.AddRange(newFiles);
+
+                // Select a file to facilitate keyboard navigation.
+                SelectedFile = newFiles.First();
             }
         }
 
