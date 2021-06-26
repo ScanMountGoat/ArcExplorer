@@ -1,5 +1,6 @@
 ﻿using ArcExplorer.Logging;
 using ArcExplorer.Models;
+using ArcExplorer.Tools;
 using Avalonia.Collections;
 using ReactiveUI;
 using SerilogTimings;
@@ -253,7 +254,7 @@ namespace ArcExplorer.ViewModels
             var originalPath = CurrentDirectory.AbsolutePath;
 
             // Load the root if there is no parent.
-            string? parentPath = GetParentPath(CurrentDirectory.AbsolutePath);
+            string? parentPath = ArcPaths.GetParentPath(CurrentDirectory.AbsolutePath);
             if (parentPath == null)
             {
                 LoadRootNodes(arcFile);
@@ -288,22 +289,6 @@ namespace ArcExplorer.ViewModels
             Files.Clear();
             var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
             Files.AddRange(newFiles);
-        }
-
-        private string? GetParentPath(string absolutePath)
-        {
-            // TODO: This is a bit buggy.
-            var lastIndex = absolutePath.LastIndexOf('/');
-
-            // Handle a single trailing slash.
-            if (lastIndex == absolutePath.Length - 1)
-                lastIndex = absolutePath.Substring(0, lastIndex - 1).LastIndexOf('/');
-
-            // There is no parent.
-            if (lastIndex <= 0)
-                return null;
-
-            return absolutePath.Substring(0, lastIndex);
         }
 
         public void EnterSelectedFolder()

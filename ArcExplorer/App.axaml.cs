@@ -72,28 +72,39 @@ namespace ArcExplorer
                     if (!dialog.WasCancelled)
                     {
                         vm.BackgroundTaskStart("Updating hashes");
-                        using (var downloadHashes = Operation.Begin("Downloading latest hashes"))
-                        {
-                            await HashLabelUpdater.Instance.DownloadHashes(HashLabelUpdater.HashesPath);
-                            downloadHashes.Complete();
-                        }
 
-                        using (var updateHashes = Operation.Begin("Updating hashes"))
-                        {
-                            if (!HashLabels.TryLoadHashes(HashLabelUpdater.HashesPath))
-                            {
-                                Log.Logger.Error("Failed to open hashes file {@path}", HashLabelUpdater.HashesPath);
-                                updateHashes.Cancel();
-                            }
+                        await DownloadHashesFile();
+                        LoadNewHashes(vm, latestCommit);
 
-                            Models.ApplicationSettings.Instance.CurrentHashesCommitSha = latestCommit.Sha;
-                            updateHashes.Complete();
-                        }
                         vm.BackgroundTaskEnd("");
                     }
                 };
 
                 await dialog.ShowDialog(window);
+            }
+        }
+
+        private static void LoadNewHashes(MainWindowViewModel vm, Octokit.GitHubCommit latestCommit)
+        {
+            using (var updateHashes = Operation.Begin("Updating hashes"))
+            {
+                if (!HashLabels.TryLoadHashes(HashLabelUpdater.HashesPath))
+                {
+                    Log.Logger.Error("Failed to open hashes file {@path}", HashLabelUpdater.HashesPath);
+                    updateHashes.Cancel();
+                }
+
+                Models.ApplicationSettings.Instance.CurrentHashesCommitSha = latestCommit.Sha;
+                updateHashes.Complete();
+            }
+        }
+
+        private static async Task DownloadHashesFile()
+        {
+            using (var downloadHashes = Operation.Begin("Downloading latest hashes"))
+            {
+                await HashLabelUpdater.Instance.DownloadHashes(HashLabelUpdater.HashesPath);
+                downloadHashes.Complete();
             }
         }
 
