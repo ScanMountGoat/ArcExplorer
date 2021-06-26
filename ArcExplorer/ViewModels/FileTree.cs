@@ -58,13 +58,7 @@ namespace ArcExplorer.ViewModels
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack)
         {
-            var files = new List<FileNodeBase>();
-            foreach (var node in arcFile.GetChildren(parent.arcNode, ApplicationSettings.Instance.ArcRegion))
-            {
-                var treeNode = CreateNode(arcFile, parent, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
-                files.Add(treeNode);
-            }
-            return files;
+            return CreateChildNodes(arcFile, parent.AbsolutePath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
         }
 
         /// <summary>
@@ -89,23 +83,43 @@ namespace ArcExplorer.ViewModels
                 return CreateRootLevelNodes(arcFile, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
             }
 
+            // TODO: Handle the case where the input is a file by using the parent directory.
+
+
             var files = new List<FileNodeBase>();
 
+            // Load with and without a trailing slash to be more forgiving about the input path.
+            // If either node isn't a valid path, the ARC won't find any children.
+            var cleanedPath = parentPath.Trim('/');
+            AddChildNodes(arcFile, cleanedPath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files);
+            AddChildNodes(arcFile, cleanedPath + '/', extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files);
+
+            return files;
+        }
+
+        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string> extractStartCallBack, Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, List<FileNodeBase> files)
+        {
             var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
 
-            // TODO: Handle the case where the input is a file by using the parent directory.
-            if (arcNode is ArcDirectoryNode directoryNode) 
+            if (arcNode is ArcDirectoryNode directoryNode)
             {
+                // Keep track of visited names to avoid having duplicate nodes differing by a trailing slash.
+                // Assume file names are also unique within a directory.
+                var names = new HashSet<string>();
+
                 var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, null);
 
                 foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
                 {
                     var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
-                    files.Add(treeNode);
+                    
+                    if (!names.Contains(treeNode.Name))
+                    {
+                        files.Add(treeNode);
+                        names.Add(treeNode.Name);
+                    }
                 }
             }
-
-            return files;
         }
 
         public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
@@ -229,7 +243,26 @@ namespace ArcExplorer.ViewModels
 
         private static void AddFilesRecursive(ArcFile arcFile, ArcDirectoryNode root, List<ArcFileNode> files)
         {
-            foreach (var child in arcFile.GetChildren(root, ApplicationSettings.Instance.ArcRegion))
+            var cleanedPath = root.Path.Trim('/');
+
+            // We don't display separate nodes for directories differing only by a trailing slash.
+            // Try both options here in case one was removed.
+            var rootNoSlash = arcFile.CreateNode(cleanedPath, ApplicationSettings.Instance.ArcRegion);
+            if (rootNoSlash is ArcDirectoryNode rootDirectoryNoSlash)
+            {
+                AddChildrenRecursive(arcFile, files, rootDirectoryNoSlash);
+            }
+
+            var rootWithSlash = arcFile.CreateNode(cleanedPath + '/', ApplicationSettings.Instance.ArcRegion);
+            if (rootWithSlash is ArcDirectoryNode rootDirectoryWithSlash)
+            {
+                AddChildrenRecursive(arcFile, files, rootDirectoryWithSlash);
+            }
+        }
+
+        private static void AddChildrenRecursive(ArcFile arcFile, List<ArcFileNode> files, ArcDirectoryNode rootDirectoryNoSlash)
+        {
+            foreach (var child in arcFile.GetChildren(rootDirectoryNoSlash, ApplicationSettings.Instance.ArcRegion))
             {
                 // Assume files have no children, so only recurse for directories.
                 switch (child)
