@@ -7,11 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using ArcExplorer.Tools;
+using ArcExplorer.ViewModels;
 
-namespace ArcExplorer.ViewModels
+namespace ArcExplorer.Tools
 {
-    // TODO: Move this to the ArcExplorer.ArcUtils namespace?
     internal static class FileTree
     {
         private class ExtractResult
