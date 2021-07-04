@@ -37,7 +37,10 @@ namespace ArcExplorer.Views
                     (DataContext as MainWindowViewModel)?.ExitFolder();
                     break;
                 case Avalonia.Input.Key.Up:
-                    (DataContext as MainWindowViewModel)?.SelectPreviousFile();
+                    if (e.KeyModifiers == Avalonia.Input.KeyModifiers.Alt)
+                        (DataContext as MainWindowViewModel)?.ExitFolder();
+                    else
+                        (DataContext as MainWindowViewModel)?.SelectPreviousFile();
                     break;
                 case Avalonia.Input.Key.Down:
                     (DataContext as MainWindowViewModel)?.SelectNextFile();
