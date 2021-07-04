@@ -27,17 +27,19 @@ namespace ArcExplorer.Tools
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
+        /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
         /// <returns>The nodes for the root level</returns>
         public static List<FileNodeBase> CreateRootLevelNodes(ArcFile arcFile,
             Action<string> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
-            Action<string> extractEndCallBack)
+            Action<string> extractEndCallBack,
+            bool mergeTrailingSlash)
         {
             var files = new List<FileNodeBase>();
             foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
             {
                 // There is no parent for root nodes, so leave the parent as null.
-                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
                 files.Add(treeNode);
             }
             return files;
@@ -52,12 +54,15 @@ namespace ArcExplorer.Tools
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
+        /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
         public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, FolderNode parent,
             Action<string> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
-            Action<string> extractEndCallBack)
+            Action<string> extractEndCallBack,
+            bool mergeTrailingSlash)
         {
-            return CreateChildNodes(arcFile, parent.AbsolutePath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+            return CreateChildNodes(arcFile, parent.AbsolutePath,
+                extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
         }
 
         /// <summary>
@@ -70,33 +75,43 @@ namespace ArcExplorer.Tools
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
-        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, 
+        /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
+        public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile,
             string parentPath,
             Action<string> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
-            Action<string> extractEndCallBack)
+            Action<string> extractEndCallBack,
+            bool mergeTrailingSlash)
         {
             if (string.IsNullOrEmpty(parentPath))
             {
                 // An empty path should load the root level since we don't use a node for the root.
-                return CreateRootLevelNodes(arcFile, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
+                return CreateRootLevelNodes(arcFile, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
             }
 
             // TODO: Handle the case where the input is a file by using the parent directory.
 
-
             var files = new List<FileNodeBase>();
 
-            // Load with and without a trailing slash to be more forgiving about the input path.
-            // If either node isn't a valid path, the ARC won't find any children.
-            var cleanedPath = parentPath.Trim('/');
-            AddChildNodes(arcFile, cleanedPath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files);
-            AddChildNodes(arcFile, cleanedPath + '/', extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files);
+            if (mergeTrailingSlash)
+            {
+                // Load with and without a trailing slash to be more forgiving about the input path.
+                // It's safe to try both since no children will be added for invalid paths.
+                var cleanedPath = parentPath.Trim('/');
+                AddChildNodes(arcFile, cleanedPath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files, mergeTrailingSlash);
+                AddChildNodes(arcFile, cleanedPath + '/', extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files, mergeTrailingSlash);
+            }
+            else
+            {
+                AddChildNodes(arcFile, parentPath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files, mergeTrailingSlash);
+            }
+
 
             return files;
         }
 
-        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string> extractStartCallBack, Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, List<FileNodeBase> files)
+        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string> extractStartCallBack, 
+            Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, List<FileNodeBase> files, bool mergeTrailingSlash)
         {
             var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
 
@@ -106,13 +121,15 @@ namespace ArcExplorer.Tools
                 // Assume file names are also unique within a directory.
                 var names = new HashSet<string>();
 
-                var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, null);
+                var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, 
+                    extractEndCallBack, mergeTrailingSlash);
 
                 foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
                 {
-                    var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack);
-                    
-                    if (!names.Contains(treeNode.Name))
+                    var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
+
+                    // Only ignore duplicates if directories differing by a trailing slash should be merged.
+                    if (!mergeTrailingSlash || !names.Contains(treeNode.Name))
                     {
                         files.Add(treeNode);
                         names.Add(treeNode.Name);
@@ -131,12 +148,12 @@ namespace ArcExplorer.Tools
         }
 
         private static FileNodeBase CreateNode(ArcFile arcFile, FolderNode? parent, IArcNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             switch (arcNode)
             {
                 case ArcDirectoryNode directoryNode:
-                    var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, parent);
+                    var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
                     return folder;
                 case ArcFileNode fileNode:
                     var file = CreateFileNode(arcFile, fileNode, taskEnd);
@@ -202,17 +219,18 @@ namespace ArcExplorer.Tools
         }
 
         private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, FolderNode? parent)
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             var folder = new FolderNode(arcNode.Path, arcNode);
-            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd);
+            folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
 
             return folder;
         }
 
-        public static async void ExtractAllFiles(ArcFile arcFile, Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
+        public static async void ExtractAllFiles(ArcFile arcFile, Action<string> taskStart, 
+            Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
-            await RunBackgroundTask("Extracting all files", () => TryExtractAllFiles(arcFile, reportProgress), taskStart, taskEnd);
+            await RunBackgroundTask("Extracting all files", () => TryExtractAllFiles(arcFile, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
         }
 
         private static async Task RunBackgroundTask(string taskDescription,
@@ -237,28 +255,35 @@ namespace ArcExplorer.Tools
             taskEnd(result?.CompletionSummary ?? "");
         }
 
-        private static void AddFilesRecursive(ArcFile arcFile, ArcDirectoryNode root, List<ArcFileNode> files)
+        private static void AddFilesRecursive(ArcFile arcFile, ArcDirectoryNode root, List<ArcFileNode> files, bool mergeTrailingSlash)
         {
-            var cleanedPath = root.Path.Trim('/');
-
-            // We don't display separate nodes for directories differing only by a trailing slash.
-            // Try both options here in case one was removed.
-            var rootNoSlash = arcFile.CreateNode(cleanedPath, ApplicationSettings.Instance.ArcRegion);
-            if (rootNoSlash is ArcDirectoryNode rootDirectoryNoSlash)
+            if (mergeTrailingSlash)
             {
-                AddChildrenRecursive(arcFile, files, rootDirectoryNoSlash);
+                var cleanedPath = root.Path.Trim('/');
+
+                // We don't display separate nodes for directories differing only by a trailing slash.
+                // Try both options here in case one was removed.
+                var rootNoSlash = arcFile.CreateNode(cleanedPath, ApplicationSettings.Instance.ArcRegion);
+                if (rootNoSlash is ArcDirectoryNode rootDirectoryNoSlash)
+                {
+                    AddChildrenRecursive(arcFile, files, rootDirectoryNoSlash, mergeTrailingSlash);
+                }
+
+                var rootWithSlash = arcFile.CreateNode(cleanedPath + '/', ApplicationSettings.Instance.ArcRegion);
+                if (rootWithSlash is ArcDirectoryNode rootDirectoryWithSlash)
+                {
+                    AddChildrenRecursive(arcFile, files, rootDirectoryWithSlash, mergeTrailingSlash);
+                }
             }
-
-            var rootWithSlash = arcFile.CreateNode(cleanedPath + '/', ApplicationSettings.Instance.ArcRegion);
-            if (rootWithSlash is ArcDirectoryNode rootDirectoryWithSlash)
+            else
             {
-                AddChildrenRecursive(arcFile, files, rootDirectoryWithSlash);
+                AddChildrenRecursive(arcFile, files, root, mergeTrailingSlash);
             }
         }
 
-        private static void AddChildrenRecursive(ArcFile arcFile, List<ArcFileNode> files, ArcDirectoryNode rootDirectoryNoSlash)
+        private static void AddChildrenRecursive(ArcFile arcFile, List<ArcFileNode> files, ArcDirectoryNode parent, bool mergeTrailingSlash)
         {
-            foreach (var child in arcFile.GetChildren(rootDirectoryNoSlash, ApplicationSettings.Instance.ArcRegion))
+            foreach (var child in arcFile.GetChildren(parent, ApplicationSettings.Instance.ArcRegion))
             {
                 // Assume files have no children, so only recurse for directories.
                 switch (child)
@@ -267,7 +292,7 @@ namespace ArcExplorer.Tools
                         files.Add(file);
                         break;
                     case ArcDirectoryNode directory:
-                        AddFilesRecursive(arcFile, directory, files);
+                        AddFilesRecursive(arcFile, directory, files, mergeTrailingSlash);
                         break;
                     default:
                         break;
@@ -275,14 +300,14 @@ namespace ArcExplorer.Tools
             }
         }
 
-        private static ExtractResult TryExtractAllFiles(ArcFile arcFile, Action<string, double> reportProgress)
+        private static ExtractResult TryExtractAllFiles(ArcFile arcFile, Action<string, double> reportProgress, bool mergeTrailingSlash)
         {
             // Loading the files first uses more memory but allows for determinate progress.
             var filesToExtract = new List<ArcFileNode>();
             foreach (var arcNode in arcFile.GetRootNodes())
             {
                 if (arcNode is ArcDirectoryNode directory)
-                    AddFilesRecursive(arcFile, directory, filesToExtract);
+                    AddFilesRecursive(arcFile, directory, filesToExtract, mergeTrailingSlash);
             }
 
             for (int i = 0; i < filesToExtract.Count; i++)
@@ -305,11 +330,11 @@ namespace ArcExplorer.Tools
             return result;
         }
 
-        private static ExtractResult TryExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string, double> reportProgress)
+        private static ExtractResult TryExtractFilesRecursive(ArcFile arcFile, ArcDirectoryNode arcNode, Action<string, double> reportProgress, bool mergeTrailingSlash)
         {
             // Loading the files first uses more memory but allows for determinate progress.
             var filesToExtract = new List<ArcFileNode>();
-            AddFilesRecursive(arcFile, arcNode, filesToExtract);
+            AddFilesRecursive(arcFile, arcNode, filesToExtract, mergeTrailingSlash);
 
             for (int i = 0; i < filesToExtract.Count; i++)
             {
@@ -335,9 +360,10 @@ namespace ArcExplorer.Tools
         }
 
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd)
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
-            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () => TryExtractFilesRecursive(arcFile, arcNode, reportProgress), taskStart, taskEnd);
+            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () =>
+                TryExtractFilesRecursive(arcFile, arcNode, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
         }
     }
 }

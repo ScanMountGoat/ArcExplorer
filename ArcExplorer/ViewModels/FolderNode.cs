@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using ArcExplorer.Models;
+using ReactiveUI;
 using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
@@ -19,7 +20,8 @@ namespace ArcExplorer.ViewModels
             // TODO: Add child count and additional info.
         };
 
-        public FolderNode(string absolutePath, SmashArcNet.Nodes.ArcDirectoryNode node) : base(Tools.ArcPaths.GetDirectoryName(absolutePath), absolutePath)
+        public FolderNode(string absolutePath, SmashArcNet.Nodes.ArcDirectoryNode node) 
+            : base(Tools.ArcPaths.GetDirectoryName(absolutePath, !ApplicationSettings.Instance.MergeTrailingSlash), absolutePath)
         {
             TreeViewIconKey = ApplicationStyles.Icon.FolderClosed;
             DetailsIconKey = ApplicationStyles.Icon.FolderClosed;

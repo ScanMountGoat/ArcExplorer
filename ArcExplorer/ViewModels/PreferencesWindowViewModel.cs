@@ -32,6 +32,13 @@ namespace ArcExplorer.ViewModels
         }
         private bool startMaximized = ApplicationSettings.Instance.StartMaximized;
 
+        public bool MergeTrailingSlash
+        {
+            get => mergeTrailingSlash;
+            set => this.RaiseAndSetIfChanged(ref mergeTrailingSlash, value);
+        }
+        private bool mergeTrailingSlash = ApplicationSettings.Instance.MergeTrailingSlash;
+
         public string ExtractLocation
         {
             get => extractLocation;
@@ -77,6 +84,9 @@ namespace ArcExplorer.ViewModels
                     break;
                 case nameof(ArcStartupLocation):
                     ApplicationSettings.Instance.ArcStartupLocation = ArcStartupLocation;
+                    break;
+                case nameof(MergeTrailingSlash):
+                    ApplicationSettings.Instance.MergeTrailingSlash = MergeTrailingSlash;
                     break;
                 default:
                     break;

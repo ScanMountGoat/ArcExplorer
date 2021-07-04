@@ -27,6 +27,8 @@ namespace ArcExplorer.Models
 
         public bool StartMaximized { get; set; } = true;
 
+        public bool MergeTrailingSlash { get; set; } = true;
+
         [JsonConverter(typeof(StringEnumConverter))]
         public VisualTheme Theme { get; set; } = VisualTheme.Dark;
 

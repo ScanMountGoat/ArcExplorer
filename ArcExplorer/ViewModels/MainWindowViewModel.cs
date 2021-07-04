@@ -68,7 +68,8 @@ namespace ArcExplorer.ViewModels
                         currentDirectory = parent;
 
                         Files.Clear();
-                        var newFiles = FileTree.CreateChildNodes(arcFile, parent, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                        var newFiles = FileTree.CreateChildNodes(arcFile, parent, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, 
+                            ApplicationSettings.Instance.MergeTrailingSlash);
                         Files.AddRange(newFiles);
                     }
                 }
@@ -211,7 +212,8 @@ namespace ArcExplorer.ViewModels
             ArcVersion = arcFile.Version.ToString();
 
             Files.Clear();
-            var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            var newFiles = FileTree.CreateRootLevelNodes(arcFile, 
+                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
             Files.AddRange(newFiles);
         }
 
@@ -219,7 +221,7 @@ namespace ArcExplorer.ViewModels
         {
             if (SelectedFile is null)
             {
-                SelectedFile = Files.First();
+                SelectedFile = Files.FirstOrDefault();
             }
             else
             {
@@ -233,7 +235,7 @@ namespace ArcExplorer.ViewModels
         {
             if (SelectedFile is null)
             {
-                SelectedFile = Files.First();
+                SelectedFile = Files.FirstOrDefault();
             }
             else
             {
@@ -260,7 +262,7 @@ namespace ArcExplorer.ViewModels
                 LoadRootNodes(arcFile);
 
                 // Select a file to facilitate keyboard navigation.
-                SelectedFile = Files.First(f => f.AbsolutePath == originalPath);
+                SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
 
                 return;
             }
@@ -273,21 +275,26 @@ namespace ArcExplorer.ViewModels
             else
             {
                 // Go up one level in the file tree.
+                // TODO: This code is shared with the neighboring methods.
                 CurrentDirectory = parent;
                 Files.Clear();
-                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, 
+                    BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
+                    ApplicationSettings.Instance.MergeTrailingSlash);
                 Files.AddRange(newFiles);
             }
 
             // Select a file to facilitate keyboard navigation.
-            SelectedFile = Files.First(f => f.AbsolutePath == originalPath);
+            SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
         }
 
         private void LoadRootNodes(ArcFile arcFile)
         {
             CurrentDirectory = null;
             Files.Clear();
-            var newFiles = FileTree.CreateRootLevelNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            var newFiles = FileTree.CreateRootLevelNodes(arcFile,
+                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
+                ApplicationSettings.Instance.MergeTrailingSlash);
             Files.AddRange(newFiles);
         }
 
@@ -300,14 +307,15 @@ namespace ArcExplorer.ViewModels
             {
                 CurrentDirectory = folder;
                 Files.Clear();
-                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory, 
+                    BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
+                    ApplicationSettings.Instance.MergeTrailingSlash);
                 Files.AddRange(newFiles);
 
                 // Select a file to facilitate keyboard navigation.
-                SelectedFile = newFiles.First();
+                SelectedFile = newFiles.FirstOrDefault();
             }
         }
-
 
         public void ErrorClick()
         {
@@ -325,7 +333,9 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null)
                 return;
 
-            FileTree.ExtractAllFiles(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+            FileTree.ExtractAllFiles(arcFile, 
+                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
+                ApplicationSettings.Instance.MergeTrailingSlash);
         }
 
         public void ReloadCurrentDirectory()
@@ -340,10 +350,12 @@ namespace ArcExplorer.ViewModels
                 if (parent != null)
                 {
                     Files.Clear();
-                    var newFiles = FileTree.CreateChildNodes(arcFile, parent, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd);
+                    var newFiles = FileTree.CreateChildNodes(arcFile, parent, 
+                        BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
+                        ApplicationSettings.Instance.MergeTrailingSlash);
                     Files.AddRange(newFiles);
 
-                    SelectedFile = Files.First(f => f.AbsolutePath == previousSelectedPath);
+                    SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == previousSelectedPath);
                 }
             }
         }

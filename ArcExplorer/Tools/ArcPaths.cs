@@ -33,14 +33,20 @@ namespace ArcExplorer.Tools
         /// Example: The name for "a/b/c/" is "c".
         /// </summary>
         /// <param name="absolutePath">The input path</param>
+        /// <param name="showTrailingSlashes">Preserves a single trailing slash when <c>true</c></param>
         /// <returns>The name of the directory</returns>
-        public static string GetDirectoryName(string absolutePath)
+        public static string GetDirectoryName(string absolutePath, bool showTrailingSlashes)
         {
             // DirectoryInfo doesn't handle null or empty strings.
             if (string.IsNullOrEmpty(absolutePath))
                 return "";
 
-            return new DirectoryInfo(absolutePath).Name;
+            // Keep the trailing slash to show that the directories are different entries.
+            var name = new DirectoryInfo(absolutePath).Name;
+            if (showTrailingSlashes && absolutePath.EndsWith("/"))
+                name += "/";
+
+            return name;
         }
 
         public static string GetOsSafePath(string absolutePath, string fileName, string extension)
