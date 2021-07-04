@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using ArcExplorer.Tools;
 
 namespace ArcExplorer.ViewModels
 {
@@ -191,13 +192,10 @@ namespace ArcExplorer.ViewModels
 
         private static string GetExportPath(ArcFileNode arcNode)
         {
-            // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.
-            var filePath = arcNode.Path.Replace(":", "");
-            if (arcNode.FileName.StartsWith("0x"))
-                filePath += "." + arcNode.Extension;
+            var filePath = ArcPaths.GetOsSafePath(arcNode.Path, arcNode.FileName, arcNode.Extension);
 
             // If the user selects an absolute path for the extract location, this overrides the current directory.
-            var exportDirectory = Tools.ApplicationDirectory.CreateAbsolutePath(ApplicationSettings.Instance.ExtractLocation);
+            var exportDirectory = ApplicationDirectory.CreateAbsolutePath(ApplicationSettings.Instance.ExtractLocation);
             var paths = new string[] { exportDirectory };
 
             // Use the OS directory separators instead of the ARC path separators. 

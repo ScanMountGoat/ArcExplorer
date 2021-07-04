@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using SmashArcNet.Nodes;
+using System.IO;
 
 namespace ArcExplorer.Tools
 {
@@ -41,6 +42,16 @@ namespace ArcExplorer.Tools
                 return "";
 
             return new DirectoryInfo(absolutePath).Name;
+        }
+
+        public static string GetOsSafePath(string absolutePath, string fileName, string extension)
+        {
+            // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.
+            var filePath = absolutePath.Replace(":", "");
+            if (fileName.StartsWith("0x"))
+                filePath += "." + extension;
+
+            return filePath;
         }
     }
 }
