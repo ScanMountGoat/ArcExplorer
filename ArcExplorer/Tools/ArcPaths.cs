@@ -1,5 +1,4 @@
-﻿using SmashArcNet.Nodes;
-using System.IO;
+﻿using System.IO;
 
 namespace ArcExplorer.Tools
 {

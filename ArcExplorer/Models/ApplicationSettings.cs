@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SmashArcNet.RustTypes;
 using System;
-using System.IO;
 
 namespace ArcExplorer.Models
 {
