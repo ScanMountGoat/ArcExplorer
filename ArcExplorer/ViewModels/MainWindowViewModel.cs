@@ -322,11 +322,13 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null || SelectedFile == null)
                 return;
 
-            var folder = FileTree.CreateFolderNode(arcFile, SelectedFile.AbsolutePath);
-            LoadFolder(folder);
+            if (SelectedFile is FolderNode folder)
+            {
+                LoadFolder(folder);
 
-            // Select a file to facilitate keyboard navigation.
-            SelectedFileIndex = 0;
+                // Select a file to facilitate keyboard navigation.
+                SelectedFileIndex = 0;
+            }
         }
 
         public void ErrorClick()

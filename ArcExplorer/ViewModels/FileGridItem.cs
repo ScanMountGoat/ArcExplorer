@@ -19,41 +19,17 @@ namespace ArcExplorer.ViewModels
         public string AbsolutePath { get; }
         public string Name { get; }
 
-        public List<string> SharedFilePaths
-        {
-            get
-            {
-                // Lazy load for performance reasons.
-                if (sharedFilePaths == null)
-                {
-                    sharedFilePaths = getSharedFiles();
-                    // Use ascending alphabetical order.
-                    sharedFilePaths.Sort();
-                }
-                return sharedFilePaths;
-            }
-        }
-        private List<string>? sharedFilePaths;
-
         public string? Extension { get; }
 
         public string? Description { get; }
 
         public bool IsCompressed { get; }
 
-        public string SharedFileDescription => $"Shared with the following {SharedFilePaths.Count} files:";
-
-        public Dictionary<string, string>? ObjectProperties { get; }
-
-
-        private readonly Func<List<string>> getSharedFiles;
-
         public FileGridItem(FolderNode folder)
         {
             Name = folder.Name;
             AbsolutePath = folder.AbsolutePath;
             DetailsIconKey = folder.DetailsIconKey;
-            getSharedFiles = () => new List<string>();
             TreeViewIconKey = folder.TreeViewIconKey;
         }
 
@@ -67,12 +43,9 @@ namespace ArcExplorer.ViewModels
             Offset = file.Offset;
             CompressedSize = file.CompressedSize;
             DecompressedSize = file.DecompressedSize;
-            sharedFilePaths = file.SharedFilePaths;
             Extension = file.Extension;
             Description = file.Description;
             IsCompressed = file.IsCompressed;
-            ObjectProperties = file.ObjectProperties;
-            getSharedFiles = file.getSharedFiles;
             TreeViewIconKey = file.TreeViewIconKey;
         }
     }
