@@ -10,32 +10,33 @@
   <UserControl.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
-  <ListBox Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}" VirtualizationMode="Simple" Name="fileListBox">
-    <ListBox.DataTemplates>
-      <DataTemplate DataType="{x:Type vms:FileNode}">
-        <StackPanel Orientation="Horizontal">
-          <StackPanel.ContextMenu>
-            <ContextMenu>
-              <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
-            </ContextMenu>
-          </StackPanel.ContextMenu>
-          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-          <TextBlock Text="{Binding Name}"></TextBlock>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsShared}"></DrawingPresenter>
-          <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsRegional}"></DrawingPresenter>
-        </StackPanel>
-      </DataTemplate>
-      <DataTemplate DataType="{x:Type vms:FolderNode}">
-        <StackPanel Orientation="Horizontal">
-          <StackPanel.ContextMenu>
-            <ContextMenu>
-              <MenuItem Header="Extract Files" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
-            </ContextMenu>
-          </StackPanel.ContextMenu>
-          <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-          <TextBlock Text="{Binding Name}"></TextBlock>
-        </StackPanel>
-      </DataTemplate>
-    </ListBox.DataTemplates>
-  </ListBox>
+  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedIndex="{Binding SelectedIndex}"
+            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True">
+    <DataGrid.Columns>
+      <DataGridTemplateColumn Header="Name" SortMemberPath="Name">
+        <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate DataType="{x:Type vms:FileGridItem}">
+            <StackPanel Orientation="Horizontal">
+              <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
+              <TextBlock Text="{Binding Name}"></TextBlock>
+              <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsShared}"></DrawingPresenter>
+              <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsRegional}"></DrawingPresenter>
+            </StackPanel>
+          </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+      </DataGridTemplateColumn>
+      <DataGridTextColumn Header="Compressed Size" Binding="{Binding CompressedSize}"/>
+      <DataGridTextColumn Header="Decompressed Size" Binding="{Binding DecompressedSize}"/>
+    </DataGrid.Columns>
+    <DataGrid.ContextMenu>
+      <ContextMenu>
+        <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+      </ContextMenu>
+    </DataGrid.ContextMenu>
+  </DataGrid>
+  <UserControl.Styles>
+    <Style Selector="DataGridRow">
+      <Setter Property="Background" Value="{Binding #fileGrid.Background}" />
+    </Style>
+  </UserControl.Styles>
 </UserControl>

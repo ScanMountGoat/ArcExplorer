@@ -16,6 +16,9 @@ namespace ArcExplorer.ViewModels
     {
         public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
+        // TODO: Temporary workaround to avoid converting the FileTree logic to use FileGridItem.
+        public AvaloniaList<FileGridItem> Items { get; } = new AvaloniaList<FileGridItem>();
+
         public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
         {
             { Region.Japanese, "Japanese" },
@@ -50,6 +53,18 @@ namespace ArcExplorer.ViewModels
             set => this.RaiseAndSetIfChanged(ref selectedFile, value);
         }
         private FileNodeBase? selectedFile;
+
+        public int SelectedFileIndex
+        {
+            get => selectedFileIndex;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref selectedFileIndex, value);
+                // TODO: Is this logic correct?
+                SelectedFile = Files.ElementAtOrDefault(selectedFileIndex);
+            }
+        }
+        private int selectedFileIndex;
 
         // Use two properties to sync the directory path with the actual directory node.
         // This allows the user to update the currently displayed folder by typing in the absolute path.
@@ -158,6 +173,19 @@ namespace ArcExplorer.ViewModels
             {
                 Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
             }
+
+            // HACK: DataGrid doesn't seem to support multiple types, so use a wrapper type.
+            Files.CollectionChanged += (s, e) =>
+            {
+                Items.Clear();
+                foreach (var node in Files)
+                {
+                    if (node is FileNode file)
+                        Items.Add(new FileGridItem(file));
+                    else if (node is FolderNode folder)
+                        Items.Add(new FileGridItem(folder));
+                }
+            };
         }
 
         private void LogEventHandled(object? sender, EventArgs e)
@@ -218,30 +246,14 @@ namespace ArcExplorer.ViewModels
 
         public void SelectNextFile()
         {
-            if (SelectedFile is null)
-            {
-                SelectedFile = Files.FirstOrDefault();
-            }
-            else
-            {
-                var nextIndex = Files.IndexOf(SelectedFile) + 1;
-                if (nextIndex < Files.Count)
-                    SelectedFile = Files[nextIndex];
-            }
+            if (SelectedFileIndex + 1 < Files.Count)
+                SelectedFileIndex += 1;
         }
 
         public void SelectPreviousFile()
         {
-            if (SelectedFile is null)
-            {
-                SelectedFile = Files.FirstOrDefault();
-            }
-            else
-            {
-                var previousIndex = Files.IndexOf(SelectedFile) - 1;
-                if (Files.Count != 0 && previousIndex >= 0)
-                    SelectedFile = Files[previousIndex];
-            }
+            if (SelectedFileIndex - 1 >= 0)
+                SelectedFileIndex -= 1;
         }
 
         public void ExitFolder()
@@ -307,16 +319,14 @@ namespace ArcExplorer.ViewModels
 
         public void EnterSelectedFolder()
         {
-            if (arcFile == null)
+            if (arcFile == null || SelectedFile == null)
                 return;
 
-            if (SelectedFile is FolderNode folder)
-            {
-                LoadFolder(folder);
+            var folder = FileTree.CreateFolderNode(arcFile, SelectedFile.AbsolutePath);
+            LoadFolder(folder);
 
-                // Select a file to facilitate keyboard navigation.
-                SelectedFile = Files.FirstOrDefault();
-            }
+            // Select a file to facilitate keyboard navigation.
+            SelectedFileIndex = 0;
         }
 
         public void ErrorClick()
@@ -350,7 +360,10 @@ namespace ArcExplorer.ViewModels
             {
                 var parent = FileTree.CreateFolderNode(arcFile, previousPath);
                 LoadFolder(parent);
+
+                // TODO: This may be buggy.
                 SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == previousSelectedPath);
+                SelectedFileIndex = Files.IndexOf(SelectedFile);
             }
         }
 

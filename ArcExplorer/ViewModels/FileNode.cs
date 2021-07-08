@@ -49,8 +49,7 @@ namespace ArcExplorer.ViewModels
 
         public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
 
-
-        private readonly Func<List<string>> getSharedFiles;
+        public readonly Func<List<string>> getSharedFiles;
 
         public FileNode(string name, string absolutePath, string extension,
             bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, bool isCompressed,

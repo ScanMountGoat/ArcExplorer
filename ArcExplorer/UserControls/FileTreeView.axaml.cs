@@ -20,21 +20,21 @@ namespace ArcExplorer.UserControls
             get => items;
             set => SetAndRaise(ItemsProperty, ref items, value);
         }
-        private IEnumerable items = new AvaloniaList<FileNodeBase>();
+        private IEnumerable items = new AvaloniaList<FileGridItem>();
 
-        public static readonly DirectProperty<FileTreeView, FileNodeBase?> SelectedItemProperty =
-            AvaloniaProperty.RegisterDirect<FileTreeView, FileNodeBase?>(
-            nameof(SelectedItem),
-            o => o.SelectedItem,
-            (o, v) => o.SelectedItem = v, 
+        public static readonly DirectProperty<FileTreeView, int> SelectedIndexProperty =
+            AvaloniaProperty.RegisterDirect<FileTreeView, int>(
+            nameof(SelectedIndex),
+            o => o.SelectedIndex,
+            (o, v) => o.SelectedIndex = v, 
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
-        public FileNodeBase? SelectedItem
+        public int SelectedIndex
         {
-            get => selectedItem;
-            set => SetAndRaise(SelectedItemProperty, ref selectedItem, value);
+            get => selectedIndex;
+            set => SetAndRaise(SelectedIndexProperty, ref selectedIndex, value);
         }
-        private FileNodeBase? selectedItem;
+        private int selectedIndex;
 
         public FileTreeView()
         {
@@ -43,7 +43,8 @@ namespace ArcExplorer.UserControls
 
         public void ExtractFile()
         {
-            SelectedItem?.OnFileExtracting();
+            // TODO: Fix file extraction.
+            //SelectedItem?.OnFileExtracting();
         }
 
         private void InitializeComponent()
