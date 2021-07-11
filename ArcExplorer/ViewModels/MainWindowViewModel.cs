@@ -50,7 +50,17 @@ namespace ArcExplorer.ViewModels
         public FileNodeBase? SelectedFile
         {
             get => selectedFile;
-            set => this.RaiseAndSetIfChanged(ref selectedFile, value);
+            set
+            {
+                if (value != selectedFile)
+                {
+                    this.RaiseAndSetIfChanged(ref selectedFile, value);
+                    if (value != null)
+                    {
+                        SelectedFileIndex = Files.IndexOf(value);
+                    }
+                }
+            }
         }
         private FileNodeBase? selectedFile;
 
@@ -60,7 +70,6 @@ namespace ArcExplorer.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref selectedFileIndex, value);
-                // TODO: Is this logic correct?
                 SelectedFile = Files.ElementAtOrDefault(selectedFileIndex);
             }
         }
@@ -278,7 +287,6 @@ namespace ArcExplorer.ViewModels
                 // Select a file to facilitate keyboard navigation.
                 // TODO: Handle this automatically within the properties.
                 SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
-                SelectedFileIndex = Files.IndexOf(SelectedFile);
 
                 return;
             }
@@ -292,8 +300,6 @@ namespace ArcExplorer.ViewModels
 
             // Select a file to facilitate keyboard navigation.
             SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
-            // TODO: Handle this automatically within the properties.
-            SelectedFileIndex = Files.IndexOf(SelectedFile);
         }
 
         private void LoadFolder(FolderNode? parent)
@@ -370,9 +376,7 @@ namespace ArcExplorer.ViewModels
                 var parent = FileTree.CreateFolderNode(arcFile, previousPath);
                 LoadFolder(parent);
 
-                // TODO: This may be buggy.
                 SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == previousSelectedPath);
-                SelectedFileIndex = Files.IndexOf(SelectedFile);
             }
         }
 

@@ -17,7 +17,9 @@ namespace ArcExplorer.Views
             Closed += MainWindow_Closed;
 
             // Use the event on the parent window to avoid keyboard focus issues.
+            //KeyUp += MainWindow_KeyDown;
             KeyDown += MainWindow_KeyDown;
+            // TODO: arrow keys are handled differently and won't trigger the keydown event?
 
             var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
             fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
