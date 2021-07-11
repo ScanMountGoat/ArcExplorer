@@ -21,6 +21,13 @@ namespace ArcExplorer.Views
 
             var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
             fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
+            fileTreeView.SelectedIndexExtracting += FileTreeView_SelectedIndexExtracting;
+        }
+
+        private void FileTreeView_SelectedIndexExtracting(object? sender, int selectedIndex)
+        {
+            // Ignore the index and assume this is handled properly by the view model.
+            (DataContext as MainWindowViewModel)?.ExtractSelectedNode();
         }
 
         private void MainWindow_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)

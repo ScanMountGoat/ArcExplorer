@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using ArcExplorer.ViewModels;
 using System.Collections;
+using System;
 
 namespace ArcExplorer.UserControls
 {
@@ -36,6 +37,8 @@ namespace ArcExplorer.UserControls
         }
         private int selectedIndex;
 
+        public event EventHandler<int>? SelectedIndexExtracting;
+
         public FileTreeView()
         {
             InitializeComponent();
@@ -43,8 +46,7 @@ namespace ArcExplorer.UserControls
 
         public void ExtractFile()
         {
-            // TODO: Fix file extraction.
-            //SelectedItem?.OnFileExtracting();
+            SelectedIndexExtracting?.Invoke(this, SelectedIndex);
         }
 
         private void InitializeComponent()
