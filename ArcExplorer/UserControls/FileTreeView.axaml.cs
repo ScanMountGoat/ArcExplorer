@@ -5,6 +5,8 @@ using Avalonia.Markup.Xaml;
 using ArcExplorer.ViewModels;
 using System.Collections;
 using System;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace ArcExplorer.UserControls
 {
@@ -39,9 +41,13 @@ namespace ArcExplorer.UserControls
 
         public event EventHandler<int>? SelectedIndexExtracting;
 
+        public DataGrid? FileGrid { get; }
+
         public FileTreeView()
         {
             InitializeComponent();
+
+            FileGrid = this.FindControl<DataGrid>("fileGrid");
         }
 
         public void ExtractFile()

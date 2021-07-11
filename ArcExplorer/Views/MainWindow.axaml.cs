@@ -2,6 +2,7 @@
 using ArcExplorer.UserControls;
 using ArcExplorer.ViewModels;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Serilog;
 using System;
@@ -17,13 +18,15 @@ namespace ArcExplorer.Views
             Closed += MainWindow_Closed;
 
             // Use the event on the parent window to avoid keyboard focus issues.
-            //KeyUp += MainWindow_KeyDown;
-            KeyDown += MainWindow_KeyDown;
-            // TODO: arrow keys are handled differently and won't trigger the keydown event?
+            KeyDown += FolderNavigation_KeyDown;
 
             var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
             fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
             fileTreeView.SelectedIndexExtracting += FileTreeView_SelectedIndexExtracting;
+
+            // Navigation keys won't normally trigger the key down event, so add an additional handler.
+            // https://github.com/AvaloniaUI/Avalonia/issues/5244 
+            fileTreeView.FileGrid?.AddHandler(KeyDownEvent, FolderNavigation_KeyDown, RoutingStrategies.Tunnel);
         }
 
         private void FileTreeView_SelectedIndexExtracting(object? sender, int selectedIndex)
@@ -32,7 +35,7 @@ namespace ArcExplorer.Views
             (DataContext as MainWindowViewModel)?.ExtractSelectedNode();
         }
 
-        private void MainWindow_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+        private void FolderNavigation_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
         {
             // Register key bindings to improve file navigation.
             // These are inspired by common shortcuts for Windows Explorer, Finder, etc.
@@ -57,6 +60,8 @@ namespace ArcExplorer.Views
                 default:
                     break;
             }
+
+            e.Handled = true;
         }
 
         private void MainWindow_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

@@ -11,7 +11,7 @@
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
   <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedIndex="{Binding SelectedIndex}"
-            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True">
+            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="None">
     <DataGrid.Columns>
       <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*">
         <DataGridTemplateColumn.CellTemplate>
