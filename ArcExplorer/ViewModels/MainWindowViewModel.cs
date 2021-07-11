@@ -17,7 +17,12 @@ namespace ArcExplorer.ViewModels
         public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
 
         // TODO: Temporary workaround to avoid converting the FileTree logic to use FileGridItem.
-        public AvaloniaList<FileGridItem> Items { get; } = new AvaloniaList<FileGridItem>();
+        public AvaloniaList<FileGridItem> Items 
+        {
+            get => items;
+            set => this.RaiseAndSetIfChanged(ref items, value);
+        }
+        private AvaloniaList<FileGridItem> items = new AvaloniaList<FileGridItem>();
 
         public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
         {
@@ -81,7 +86,7 @@ namespace ArcExplorer.ViewModels
         {
             get => currentDirectoryPath;
             set
-            { 
+            {
                 if (arcFile != null && value != currentDirectoryPath)
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
@@ -96,8 +101,8 @@ namespace ArcExplorer.ViewModels
         }
         private string? currentDirectoryPath;
 
-        public FolderNode? CurrentDirectory 
-        { 
+        public FolderNode? CurrentDirectory
+        {
             get => currentDirectory;
             set
             {
@@ -186,14 +191,17 @@ namespace ArcExplorer.ViewModels
             // HACK: DataGrid doesn't seem to support multiple types, so use a wrapper type.
             Files.CollectionChanged += (s, e) =>
             {
-                Items.Clear();
+                var newItems = new List<FileGridItem>();
                 foreach (var node in Files)
                 {
                     if (node is FileNode file)
-                        Items.Add(new FileGridItem(file));
+                        newItems.Add(new FileGridItem(file));
                     else if (node is FolderNode folder)
-                        Items.Add(new FileGridItem(folder));
+                        newItems.Add(new FileGridItem(folder));
                 }
+
+                // Recreating the list is faster than adding items individually.
+                Items = new AvaloniaList<FileGridItem>(newItems);
 
                 // HACK: Adding files to the file list increments selected index?
                 SelectedFileIndex = 0;
@@ -251,7 +259,7 @@ namespace ArcExplorer.ViewModels
             ArcVersion = arcFile.Version.ToString();
 
             Files.Clear();
-            var newFiles = FileTree.CreateRootLevelNodes(arcFile, 
+            var newFiles = FileTree.CreateRootLevelNodes(arcFile,
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
             Files.AddRange(newFiles);
         }
@@ -291,7 +299,7 @@ namespace ArcExplorer.ViewModels
                 return;
             }
 
-           // Go up one level in the file tree.
+            // Go up one level in the file tree.
             var parent = FileTree.CreateFolderNode(arcFile, parentPath);
             if (parent == null)
                 LoadRootNodes(arcFile);
@@ -360,7 +368,7 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null)
                 return;
 
-            FileTree.ExtractAllFiles(arcFile, 
+            FileTree.ExtractAllFiles(arcFile,
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
                 ApplicationSettings.Instance.MergeTrailingSlash);
         }
