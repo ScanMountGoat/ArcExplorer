@@ -25,8 +25,8 @@
           </DataTemplate>
         </DataGridTemplateColumn.CellTemplate>
       </DataGridTemplateColumn>
-      <DataGridTextColumn Header="Compressed Size" Binding="{Binding CompressedSize}" Width="*"/>
-      <DataGridTextColumn Header="Decompressed Size" Binding="{Binding DecompressedSize}" Width="*"/>
+      <DataGridTextColumn Header="Compressed Size" Binding="{Binding CompressedSize}" Width="*" IsVisible="False"/>
+      <DataGridTextColumn Header="Decompressed Size" Binding="{Binding DecompressedSize}" Width="*" IsVisible="False"/>
     </DataGrid.Columns>
     <DataGrid.ContextMenu>
       <ContextMenu>
