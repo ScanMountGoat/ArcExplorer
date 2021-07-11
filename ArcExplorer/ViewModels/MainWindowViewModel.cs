@@ -185,6 +185,9 @@ namespace ArcExplorer.ViewModels
                     else if (node is FolderNode folder)
                         Items.Add(new FileGridItem(folder));
                 }
+
+                // HACK: Adding files to the file list increments selected index?
+                SelectedFileIndex = 0;
             };
         }
 
@@ -273,7 +276,9 @@ namespace ArcExplorer.ViewModels
                 LoadRootNodes(arcFile);
 
                 // Select a file to facilitate keyboard navigation.
+                // TODO: Handle this automatically within the properties.
                 SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
+                SelectedFileIndex = Files.IndexOf(SelectedFile);
 
                 return;
             }
@@ -287,6 +292,8 @@ namespace ArcExplorer.ViewModels
 
             // Select a file to facilitate keyboard navigation.
             SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
+            // TODO: Handle this automatically within the properties.
+            SelectedFileIndex = Files.IndexOf(SelectedFile);
         }
 
         private void LoadFolder(FolderNode? parent)
