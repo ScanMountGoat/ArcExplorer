@@ -15,8 +15,11 @@ On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open 
 Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. The program also supports opening an ARC file over the network by connecting to the Switch console using the Switch's IP address. All program features work normally when connecting to the ARC file over the network but expect program performance to be slower. Use ArcCross (Windows only) for opening very old ARC versions. 
 
 ## Navigation
-Navigating the ARC file can be done with the mouse or the keyboard. Double click a folder to open it. Click the "Exit Folder" button to exit the current folder and go the parent folder. Keyboard shortcuts are listed below. 
+Navigating the ARC file can be done with the mouse or the keyboard. Double click a folder to open it. Click the "Exit Folder" button to exit the current folder and go the parent folder. 
 
+The textbox above the file list shows the current folder. Modify the path in the textbox to navigate directly to the desired folder. For example, copy paste `fighter/mario/model/body/c00` into the textbox to avoid having to click `fighter` > `mario` > `model` > `body` > `c00` individually.   
+
+Keyboard shortcuts are listed below. 
 | Action | Keys |
 | --- | --- |
 | Enter Selected Folder | Enter, Right Arrow |
