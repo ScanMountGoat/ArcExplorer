@@ -1,6 +1,6 @@
 # Arc Explorer
 <img src="https://github.com/ScanMountGoat/ArcExplorer/blob/master/application.jpg" align="top" height="auto" width="100%">  
-A file browser for Smash Ultimate's data.arc file for Windows and Linux.
+A file browser and extractor for Smash Ultimate's data.arc file for Windows and Linux.
 
 ## Installation
 Download and install the Microsoft [.NET Core 3.1 desktop runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1/runtime/?utm_source=getdotnetcore&utm_medium=referral
