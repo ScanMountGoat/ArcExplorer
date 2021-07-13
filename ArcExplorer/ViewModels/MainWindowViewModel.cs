@@ -78,12 +78,7 @@ namespace ArcExplorer.ViewModels
                 if (arcFile != null && value != currentDirectoryPath)
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
-
-                    if (value != null)
-                    {
-                        var parent = FileTree.CreateFolderNode(arcFile, value);
-                        LoadFolder(parent);
-                    }
+                    LoadFolder(value);
                 }
             }
         }
@@ -247,7 +242,7 @@ namespace ArcExplorer.ViewModels
                 return;
 
             Files.Clear();
-            var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText);
+            var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
             Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
         }
 
@@ -305,14 +300,25 @@ namespace ArcExplorer.ViewModels
             }
 
             // Go up one level in the file tree.
-            var parent = FileTree.CreateFolderNode(arcFile, parentPath);
-            if (parent == null)
-                LoadRootNodes(arcFile);
+            var parent = FileTree.CreateNodeFromPath(arcFile, parentPath, 
+                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
+            if (parent is FolderNode folder)
+                LoadFolder(folder);
             else
-                LoadFolder(parent);
+                LoadRootNodes(arcFile);
 
             // Select a file to facilitate keyboard navigation.
             SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == originalPath);
+        }
+
+        private void LoadFolder(string? path)
+        {
+            if (arcFile != null && path != null)
+            {
+                var parent = FileTree.CreateNodeFromPath(arcFile, path, 
+                    BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
+                LoadFolder(parent as FolderNode);
+            }
         }
 
         private void LoadFolder(FolderNode? parent)
@@ -327,8 +333,7 @@ namespace ArcExplorer.ViewModels
                 return;
 
             var newFiles = FileTree.CreateChildNodes(arcFile, CurrentDirectory,
-                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
-                ApplicationSettings.Instance.MergeTrailingSlash);
+                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
 
             Files = new AvaloniaList<FileGridItem>(newFiles.Select(n => new FileGridItem(n)));
         }
@@ -381,9 +386,7 @@ namespace ArcExplorer.ViewModels
 
             if (arcFile != null && previousPath != null)
             {
-                var parent = FileTree.CreateFolderNode(arcFile, previousPath);
-                LoadFolder(parent);
-
+                LoadFolder(previousPath);
                 SelectedFile = Files.FirstOrDefault(f => f.AbsolutePath == previousSelectedPath);
             }
         }

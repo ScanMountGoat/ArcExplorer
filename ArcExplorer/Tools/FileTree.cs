@@ -108,8 +108,18 @@ namespace ArcExplorer.Tools
             return files;
         }
         
+        /// <summary>
+        /// Searches the entire ARC file using a fuzzy search.
+        /// </summary>
+        /// <param name="arcFile">The ARC to search</param>
+        /// <param name="extractStartCallBack"></param>
+        /// <param name="extractReportProgressCallBack"></param>
+        /// <param name="extractEndCallBack"></param>
+        /// <param name="searchText">The string to search for</param>
+        /// <param name="mergeTrailingSlash"></param>
+        /// <returns>The results sorted by matching score</returns>
         public static List<FileNodeBase> SearchAllNodes(ArcFile arcFile, Action<string> extractStartCallBack,
-            Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, string searchText)
+            Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, string searchText, bool mergeTrailingSlash)
         {
             // TODO: The max result count has a big impact on performance and is worth tuning.
             var paths = arcFile.SearchFiles(searchText, 2000, ApplicationSettings.Instance.ArcRegion);
@@ -121,8 +131,7 @@ namespace ArcExplorer.Tools
                 if (path.Contains("0x"))
                     continue;
 
-                // TODO: This node wasn't created with the necessary extraction methods set up.
-                var treeNode = CreateNodeFromPath(arcFile, path);
+                var treeNode = CreateNodeFromPath(arcFile, path, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
                 if (treeNode != null)
                     result.Add(treeNode);
             }
@@ -179,27 +188,15 @@ namespace ArcExplorer.Tools
             }
         }
 
-        // TODO: A lot of the file creation logic is repeated, so find a way to consolidate the creation methods.
-        public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
-        {
-            // TODO: This method is only used to load the children of the returned node.
-            var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
-            if (arcNode is ArcDirectoryNode directory)
-                return new FolderNode(absolutePath, directory);
-            else
-                return null;
-        }
-
-        public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath)
+        public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath, 
+            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             // TODO: This doesn't properly handle extraction.
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
-            if (arcNode is ArcDirectoryNode directory)
-                return new FolderNode(absolutePath, directory);
-            else if (arcNode is ArcFileNode fileNode)
-                return CreateFileNode(arcFile, fileNode, (_) => { });
-            else
+            if (arcNode == null)
                 return null;
+
+            return CreateNode(arcFile, arcNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
         }
 
         private static FileNodeBase CreateNode(ArcFile arcFile, IArcNode arcNode, Action<string> taskStart,
