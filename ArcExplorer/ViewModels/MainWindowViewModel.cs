@@ -173,6 +173,17 @@ namespace ArcExplorer.ViewModels
 
         private string errorDescription = "";
 
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref searchText, value);
+                SearchArcFile(searchText);
+            }
+        }
+        private string searchText = "";
+
         private ArcFile? arcFile;
 
         public MainWindowViewModel()
@@ -258,10 +269,16 @@ namespace ArcExplorer.ViewModels
             ArcPath = arcPathText;
             ArcVersion = arcFile.Version.ToString();
 
+            LoadRootNodes(arcFile);
+        }
+
+        private void SearchArcFile(string searchText)
+        {
+            if (arcFile == null)
+                return;
+
             Files.Clear();
-            var newFiles = FileTree.CreateRootLevelNodes(arcFile,
-                BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
-            Files.AddRange(newFiles);
+            Files.AddRange(FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText));
         }
 
         public void SelectNextFile()

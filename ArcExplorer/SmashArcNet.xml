@@ -111,8 +111,19 @@
             for the speciied <paramref name="region"/>.
             </summary>
             <param name="file">The file node to search</param>
-            <param name="region"></param>
+            <param name="region">The regional variant of each file to use</param>
             <returns>A list of file paths that share this file's data</returns>
+        </member>
+        <member name="M:SmashArcNet.ArcFile.SearchFiles(System.String,System.UInt64,SmashArcNet.RustTypes.Region)">
+            <summary>
+            Searches the entire ARC using a fuzzy file path search.
+            Results are ordered based on how closely they match <paramref name="searchTerm"/>,
+            and the top <paramref name="maxFiles"/> results are returned.
+            </summary>
+            <param name="searchTerm">The term to search for</param>
+            <param name="maxFiles">The maximum number of results to return</param>
+            <param name="region">The regional variant of each file to use</param>
+            <returns>The matching file paths</returns>
         </member>
         <member name="M:SmashArcNet.ArcFile.CreateNode(System.String,SmashArcNet.RustTypes.Region)">
             <summary>

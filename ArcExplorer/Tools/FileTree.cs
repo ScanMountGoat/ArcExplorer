@@ -39,7 +39,7 @@ namespace ArcExplorer.Tools
             foreach (var node in arcFile.GetRootNodes(ApplicationSettings.Instance.ArcRegion))
             {
                 // There is no parent for root nodes, so leave the parent as null.
-                var treeNode = CreateNode(arcFile, null, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
+                var treeNode = CreateNode(arcFile, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
                 files.Add(treeNode);
             }
             return files;
@@ -71,7 +71,6 @@ namespace ArcExplorer.Tools
         /// </summary>
         /// <param name="arcFile">the ARC to load</param>
         /// <param name="parentPath">the folder whose children will be loaded</param>
-        /// <param name="files">the file list to be cleared and updated</param>
         /// <param name="extractStartCallBack">called before starting an extract operation</param>
         /// <param name="extractReportProgressCallBack">contains the file path and progress percentage on extracting multiple files</param>
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
@@ -106,8 +105,50 @@ namespace ArcExplorer.Tools
                 AddChildNodes(arcFile, parentPath, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, files, mergeTrailingSlash);
             }
 
-
             return files;
+        }
+        
+        public static List<FileNodeBase> SearchAllNodes(ArcFile arcFile, Action<string> extractStartCallBack,
+            Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, string searchText)
+        {
+            // TODO: The max result count has a big impact on performance and is worth tuning.
+            var paths = arcFile.SearchFiles(searchText, 2000, ApplicationSettings.Instance.ArcRegion);
+
+            var result = new List<FileNodeBase>((int)arcFile.FileCount);
+            foreach (var path in paths)
+            {
+                // TODO: This triggers an error when calling smash-arc from SmashArcNet with an invalid path.
+                if (path.Contains("0x"))
+                    continue;
+
+                // TODO: This node wasn't created with the necessary extraction methods set up.
+                var treeNode = CreateNodeFromPath(arcFile, path);
+                if (treeNode != null)
+                    result.Add(treeNode);
+            }
+
+            // Avoiding sorting by path to preserve the order based on matching score.
+            return result;
+        }
+
+        private static void AddAllFilesRecursive(ArcFile arcFile, List<IArcNode> files, ArcDirectoryNode parent)
+        {
+            foreach (var child in arcFile.GetChildren(parent, ApplicationSettings.Instance.ArcRegion))
+            {
+                // Assume files have no children, so only recurse for directories.
+                switch (child)
+                {
+                    case ArcFileNode file:
+                        files.Add(file);
+                        break;
+                    case ArcDirectoryNode directory:
+                        files.Add(directory);
+                        AddAllFilesRecursive(arcFile, files, directory);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string> extractStartCallBack, 
@@ -126,7 +167,7 @@ namespace ArcExplorer.Tools
 
                 foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
                 {
-                    var treeNode = CreateNode(arcFile, folder, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
+                    var treeNode = CreateNode(arcFile, node, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
 
                     // Only ignore duplicates if directories differing by a trailing slash should be merged.
                     if (!mergeTrailingSlash || !names.Contains(treeNode.Name))
@@ -138,6 +179,7 @@ namespace ArcExplorer.Tools
             }
         }
 
+        // TODO: A lot of the file creation logic is repeated, so find a way to consolidate the creation methods.
         public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
         {
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
@@ -147,8 +189,19 @@ namespace ArcExplorer.Tools
                 return null;
         }
 
-        private static FileNodeBase CreateNode(ArcFile arcFile, FolderNode? parent, IArcNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
+        public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath)
+        {
+            var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
+            if (arcNode is ArcDirectoryNode directory)
+                return new FolderNode(absolutePath, directory);
+            else if (arcNode is ArcFileNode fileNode)
+                return CreateFileNode(arcFile, fileNode, (_) => { });
+            else
+                return null;
+        }
+
+        private static FileNodeBase CreateNode(ArcFile arcFile, IArcNode arcNode, Action<string> taskStart,
+            Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             switch (arcNode)
             {
