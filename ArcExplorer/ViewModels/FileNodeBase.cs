@@ -10,21 +10,23 @@ namespace ArcExplorer.ViewModels
 
         public string AbsolutePath { get; } = "";
 
-        public ApplicationStyles.Icon TreeViewIconKey
-        {
-            get => treeViewIconKey;
-            protected set => this.RaiseAndSetIfChanged(ref treeViewIconKey, value);
-        }
-        private ApplicationStyles.Icon treeViewIconKey = ApplicationStyles.Icon.Document;
 
         public event EventHandler? FileExtracting;
-
         public abstract Dictionary<string, string> ObjectProperties { get; }
 
-        public FileNodeBase(string name, string absolutePath)
+        public virtual ApplicationStyles.Icon TreeViewIconKey => ApplicationStyles.Icon.Document;
+        public virtual ApplicationStyles.Icon DetailsIconKey => ApplicationStyles.Icon.Document;
+        public virtual ApplicationStyles.Icon SharedIconKey => ApplicationStyles.Icon.None;
+        public virtual ApplicationStyles.Icon RegionalIconKey => ApplicationStyles.Icon.None;
+        public bool IsShared { get; }
+        public bool IsRegional { get; }
+
+        public FileNodeBase(string name, string absolutePath, bool isShared, bool isRegional)
         {
             Name = name;
             AbsolutePath = absolutePath;
+            IsShared = isShared;
+            IsRegional = isRegional;
         }
 
         public void OnFileExtracting()

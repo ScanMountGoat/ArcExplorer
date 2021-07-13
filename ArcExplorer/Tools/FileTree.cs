@@ -182,6 +182,7 @@ namespace ArcExplorer.Tools
         // TODO: A lot of the file creation logic is repeated, so find a way to consolidate the creation methods.
         public static FolderNode? CreateFolderNode(ArcFile arcFile, string absolutePath)
         {
+            // TODO: This method is only used to load the children of the returned node.
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
             if (arcNode is ArcDirectoryNode directory)
                 return new FolderNode(absolutePath, directory);
@@ -191,6 +192,7 @@ namespace ArcExplorer.Tools
 
         public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath)
         {
+            // TODO: This doesn't properly handle extraction.
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
             if (arcNode is ArcDirectoryNode directory)
                 return new FolderNode(absolutePath, directory);

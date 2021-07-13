@@ -6,20 +6,6 @@ namespace ArcExplorer.ViewModels
 {
     public sealed class FileNode : FileNodeBase
     {
-        public ApplicationStyles.Icon DetailsIconKey
-        {
-            get => detailsIconKey;
-            set => this.RaiseAndSetIfChanged(ref detailsIconKey, value);
-        }
-        private ApplicationStyles.Icon detailsIconKey = ApplicationStyles.Icon.Document;
-
-        public ApplicationStyles.Icon SharedIconKey => IsShared ? ApplicationStyles.Icon.Link : ApplicationStyles.Icon.None;
-
-        public ApplicationStyles.Icon RegionalIconKey => IsRegional ? ApplicationStyles.Icon.Web : ApplicationStyles.Icon.None;
-
-        public bool IsShared { get; }
-
-        public bool IsRegional { get; }
         public ulong Offset { get; }
         public ulong CompressedSize { get; }
         public ulong DecompressedSize { get; }
@@ -51,18 +37,19 @@ namespace ArcExplorer.ViewModels
 
         public readonly Func<List<string>> getSharedFiles;
 
+        public override ApplicationStyles.Icon SharedIconKey => IsShared ? ApplicationStyles.Icon.Link : ApplicationStyles.Icon.None;
+        public override ApplicationStyles.Icon RegionalIconKey => IsRegional ? ApplicationStyles.Icon.Web : ApplicationStyles.Icon.None;
+        public override ApplicationStyles.Icon DetailsIconKey => FileFormatInfo.GetFileIconKey(Extension);
+
         public FileNode(string name, string absolutePath, string extension,
             bool isShared, bool isRegional, ulong offset, ulong compressedSize, ulong decompressedSize, bool isCompressed,
-            Func<List<string>> getSharedFiles) : base(name, absolutePath)
+            Func<List<string>> getSharedFiles) : base(name, absolutePath, isShared, isRegional)
         {
             Extension = extension;
             Offset = offset;
-            IsShared = isShared;
             IsCompressed = isCompressed;
-            IsRegional = isRegional;
             CompressedSize = compressedSize;
             DecompressedSize = decompressedSize;
-            DetailsIconKey = FileFormatInfo.GetFileIconKey(Extension);
             Description = FileFormatInfo.GetDescription(Extension);
             this.getSharedFiles = getSharedFiles;
         }

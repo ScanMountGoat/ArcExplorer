@@ -10,7 +10,7 @@
   <UserControl.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
-  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedIndex="{Binding SelectedIndex}"
+  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}"
             IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="None">
     <DataGrid.Columns>
       <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*">
@@ -25,8 +25,6 @@
           </DataTemplate>
         </DataGridTemplateColumn.CellTemplate>
       </DataGridTemplateColumn>
-      <DataGridTextColumn Header="Compressed Size" Binding="{Binding CompressedSize}" Width="*" IsVisible="False"/>
-      <DataGridTextColumn Header="Decompressed Size" Binding="{Binding DecompressedSize}" Width="*" IsVisible="False"/>
     </DataGrid.Columns>
     <DataGrid.ContextMenu>
       <ContextMenu>

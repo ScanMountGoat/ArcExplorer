@@ -22,17 +22,10 @@ namespace ArcExplorer.Views
 
             var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
             fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
-            fileTreeView.SelectedIndexExtracting += FileTreeView_SelectedIndexExtracting;
 
             // Navigation keys won't normally trigger the key down event, so add an additional handler.
             // https://github.com/AvaloniaUI/Avalonia/issues/5244 
             fileTreeView.FileGrid?.AddHandler(KeyDownEvent, FolderNavigation_KeyDown, RoutingStrategies.Tunnel);
-        }
-
-        private void FileTreeView_SelectedIndexExtracting(object? sender, int selectedIndex)
-        {
-            // Ignore the index and assume this is handled properly by the view model.
-            (DataContext as MainWindowViewModel)?.ExtractSelectedNode();
         }
 
         private void FolderNavigation_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)

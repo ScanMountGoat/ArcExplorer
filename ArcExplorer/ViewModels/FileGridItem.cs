@@ -1,52 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ArcExplorer.ViewModels
+﻿namespace ArcExplorer.ViewModels
 {
     public sealed class FileGridItem
     {
-        public ApplicationStyles.Icon DetailsIconKey { get; }
-        public ApplicationStyles.Icon TreeViewIconKey { get; }
-        public ApplicationStyles.Icon SharedIconKey => IsShared ? ApplicationStyles.Icon.Link : ApplicationStyles.Icon.None;
-        public ApplicationStyles.Icon RegionalIconKey => IsRegional ? ApplicationStyles.Icon.Web : ApplicationStyles.Icon.None;
+        public ApplicationStyles.Icon DetailsIconKey => Node.DetailsIconKey;
+        public ApplicationStyles.Icon TreeViewIconKey => Node.TreeViewIconKey;
+        public ApplicationStyles.Icon SharedIconKey => Node.SharedIconKey;
+        public ApplicationStyles.Icon RegionalIconKey => Node.RegionalIconKey;
+        public string AbsolutePath => Node.AbsolutePath;
+        public string Name => Node.Name;
+        public bool IsShared => Node.IsShared;
+        public bool IsRegional => Node.IsRegional;
 
-        public bool IsShared { get; }
+        public FileNodeBase Node { get; }
 
-        public bool IsRegional { get; }
-        public ulong? Offset { get; }
-        public ulong? CompressedSize { get; }
-        public ulong? DecompressedSize { get; }
-        public string AbsolutePath { get; }
-        public string Name { get; }
-
-        public string? Extension { get; }
-
-        public string? Description { get; }
-
-        public bool IsCompressed { get; }
-
-        public FileGridItem(FolderNode folder)
+        public FileGridItem(FileNodeBase node)
         {
-            Name = folder.Name;
-            AbsolutePath = folder.AbsolutePath;
-            DetailsIconKey = folder.DetailsIconKey;
-            TreeViewIconKey = folder.TreeViewIconKey;
-        }
-
-        public FileGridItem(FileNode file)
-        {
-            Name = file.Name;
-            AbsolutePath = file.AbsolutePath;
-            DetailsIconKey = file.DetailsIconKey;
-            IsShared = file.IsShared;
-            IsRegional = file.IsRegional;
-            Offset = file.Offset;
-            CompressedSize = file.CompressedSize;
-            DecompressedSize = file.DecompressedSize;
-            Extension = file.Extension;
-            Description = file.Description;
-            IsCompressed = file.IsCompressed;
-            TreeViewIconKey = file.TreeViewIconKey;
+            Node = node;
         }
     }
 }

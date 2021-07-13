@@ -14,15 +14,12 @@ namespace ArcExplorer.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public AvaloniaList<FileNodeBase> Files { get; } = new AvaloniaList<FileNodeBase>();
-
-        // TODO: Temporary workaround to avoid converting the FileTree logic to use FileGridItem.
-        public AvaloniaList<FileGridItem> Items 
+        public AvaloniaList<FileGridItem> Files
         {
-            get => items;
-            set => this.RaiseAndSetIfChanged(ref items, value);
+            get => files;
+            set => this.RaiseAndSetIfChanged(ref files, value);
         }
-        private AvaloniaList<FileGridItem> items = new AvaloniaList<FileGridItem>();
+        private AvaloniaList<FileGridItem> files = new AvaloniaList<FileGridItem>();
 
         public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
         {
@@ -52,33 +49,24 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        public FileNodeBase? SelectedFile
+        public FileGridItem? SelectedFile
         {
             get => selectedFile;
             set
             {
-                if (value != selectedFile)
-                {
-                    this.RaiseAndSetIfChanged(ref selectedFile, value);
-                    if (value != null)
-                    {
-                        SelectedFileIndex = Files.IndexOf(value);
-                    }
-                }
+                this.RaiseAndSetIfChanged(ref selectedFile, value);
+                SelectedNode = value?.Node;
             }
         }
-        private FileNodeBase? selectedFile;
+        private FileGridItem? selectedFile;
 
-        public int SelectedFileIndex
+        // Create a second property avoid binding to SelectedFile.Node when SelectedFile is null.
+        public FileNodeBase? SelectedNode
         {
-            get => selectedFileIndex;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref selectedFileIndex, value);
-                SelectedFile = Files.ElementAtOrDefault(selectedFileIndex);
-            }
+            get => selectedNode;
+            set => this.RaiseAndSetIfChanged(ref selectedNode, value);
         }
-        private int selectedFileIndex;
+        private FileNodeBase? selectedNode;
 
         // Use two properties to sync the directory path with the actual directory node.
         // This allows the user to update the currently displayed folder by typing in the absolute path.
@@ -198,25 +186,6 @@ namespace ArcExplorer.ViewModels
             {
                 Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
             }
-
-            // HACK: DataGrid doesn't seem to support multiple types, so use a wrapper type.
-            Files.CollectionChanged += (s, e) =>
-            {
-                var newItems = new List<FileGridItem>();
-                foreach (var node in Files)
-                {
-                    if (node is FileNode file)
-                        newItems.Add(new FileGridItem(file));
-                    else if (node is FolderNode folder)
-                        newItems.Add(new FileGridItem(folder));
-                }
-
-                // Recreating the list is faster than adding items individually.
-                Items = new AvaloniaList<FileGridItem>(newItems);
-
-                // HACK: Adding files to the file list increments selected index?
-                SelectedFileIndex = 0;
-            };
         }
 
         private void LogEventHandled(object? sender, EventArgs e)
@@ -278,19 +247,38 @@ namespace ArcExplorer.ViewModels
                 return;
 
             Files.Clear();
-            Files.AddRange(FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText));
+            var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText);
+            Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
         }
 
         public void SelectNextFile()
         {
-            if (SelectedFileIndex + 1 < Files.Count)
-                SelectedFileIndex += 1;
+            // TODO: It might be faster to add an additional selected file index.
+            if (SelectedFile is null)
+            {
+                SelectedFile = Files.FirstOrDefault();
+            }
+            else
+            {
+                var nextIndex = Files.IndexOf(SelectedFile) + 1;
+                if (nextIndex < Files.Count)
+                    SelectedFile = Files[nextIndex];
+            }
         }
 
         public void SelectPreviousFile()
         {
-            if (SelectedFileIndex - 1 >= 0)
-                SelectedFileIndex -= 1;
+            // TODO: It might be faster to add an additional selected file index.
+            if (SelectedFile is null)
+            {
+                SelectedFile = Files.FirstOrDefault();
+            }
+            else
+            {
+                var previousIndex = Files.IndexOf(SelectedFile) - 1;
+                if (Files.Count != 0 && previousIndex >= 0)
+                    SelectedFile = Files[previousIndex];
+            }
         }
 
         public void ExitFolder()
@@ -342,7 +330,7 @@ namespace ArcExplorer.ViewModels
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
                 ApplicationSettings.Instance.MergeTrailingSlash);
 
-            Files.AddRange(newFiles);
+            Files = new AvaloniaList<FileGridItem>(newFiles.Select(n => new FileGridItem(n)));
         }
 
         private void LoadRootNodes(ArcFile arcFile)
@@ -352,7 +340,7 @@ namespace ArcExplorer.ViewModels
             var newFiles = FileTree.CreateRootLevelNodes(arcFile,
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
                 ApplicationSettings.Instance.MergeTrailingSlash);
-            Files.AddRange(newFiles);
+            Files = new AvaloniaList<FileGridItem>(newFiles.Select(n => new FileGridItem(n)));
         }
 
         public void EnterSelectedFolder()
@@ -360,12 +348,12 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null || SelectedFile == null)
                 return;
 
-            if (SelectedFile is FolderNode folder)
+            if (SelectedFile.Node is FolderNode folder)
             {
                 LoadFolder(folder);
 
                 // Select a file to facilitate keyboard navigation.
-                SelectedFileIndex = 0;
+                SelectedFile = Files.FirstOrDefault();
             }
         }
 
@@ -373,11 +361,6 @@ namespace ArcExplorer.ViewModels
         {
             var window = new Views.LogWindow() { Items = ApplicationSink.Instance.Value.LogMessages };
             window.Show();
-        }
-
-        public void ExtractSelectedNode()
-        {
-            SelectedFile?.OnFileExtracting();
         }
 
         public void ExtractAllFiles()

@@ -1,12 +1,9 @@
-﻿using Avalonia;
+﻿using ArcExplorer.ViewModels;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ArcExplorer.ViewModels;
 using System.Collections;
-using System;
-using Avalonia.Input;
-using Avalonia.Interactivity;
 
 namespace ArcExplorer.UserControls
 {
@@ -25,21 +22,19 @@ namespace ArcExplorer.UserControls
         }
         private IEnumerable items = new AvaloniaList<FileGridItem>();
 
-        public static readonly DirectProperty<FileTreeView, int> SelectedIndexProperty =
-            AvaloniaProperty.RegisterDirect<FileTreeView, int>(
-            nameof(SelectedIndex),
-            o => o.SelectedIndex,
-            (o, v) => o.SelectedIndex = v, 
+        public static readonly DirectProperty<FileTreeView, FileGridItem?> SelectedItemProperty =
+            AvaloniaProperty.RegisterDirect<FileTreeView, FileGridItem?>(
+            nameof(SelectedItem),
+            o => o.SelectedItem,
+            (o, v) => o.SelectedItem = v, 
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
-        public int SelectedIndex
+        public FileGridItem? SelectedItem
         {
-            get => selectedIndex;
-            set => SetAndRaise(SelectedIndexProperty, ref selectedIndex, value);
+            get => selectedItem;
+            set => SetAndRaise(SelectedItemProperty, ref selectedItem, value);
         }
-        private int selectedIndex;
-
-        public event EventHandler<int>? SelectedIndexExtracting;
+        private FileGridItem? selectedItem;
 
         public DataGrid? FileGrid { get; }
 
@@ -52,7 +47,7 @@ namespace ArcExplorer.UserControls
 
         public void ExtractFile()
         {
-            SelectedIndexExtracting?.Invoke(this, SelectedIndex);
+            SelectedItem?.Node?.OnFileExtracting();
         }
 
         private void InitializeComponent()
