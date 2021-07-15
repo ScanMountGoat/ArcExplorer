@@ -79,10 +79,6 @@
     <Grid ColumnDefinitions="*,1,400">
       <DockPanel Grid.Column="0" LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
-          <Grid HorizontalAlignment="Right" ColumnDefinitions="*,200">
-            <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">Search</TextBlock>
-            <TextBox Grid.Column="1" Margin="5" VerticalAlignment="Center" Watermark="Search" Text="{Binding SearchText}"></TextBox>
-          </Grid>
           <Grid HorizontalAlignment="Right" ColumnDefinitions="*,200" IsVisible="True">
             <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">ARC Region</TextBlock>
             <ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" Items="{Binding DescriptionByRegion}" SelectedItem="{Binding SelectedRegion}">
@@ -94,9 +90,14 @@
             </ComboBox>
           </Grid>
         </StackPanel>
-        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,auto">
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*, 150, auto">
           <TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectoryPath}"></TextBox>
-          <Button Grid.Column="1" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
+          <Grid Grid.Column="1">
+            <TextBox Margin="5" VerticalAlignment="Center" Watermark="Search" Text="{Binding SearchText}"></TextBox>
+            <DrawingPresenter Margin="0,0,10,0" Width="16" Height="16" Drawing="{Binding SearchIcon, Converter={StaticResource iconKeyDrawingConverter}}" 
+                              HorizontalAlignment="Right"></DrawingPresenter>
+          </Grid>
+          <Button Grid.Column="2" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
         </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
       </DockPanel>

@@ -168,6 +168,9 @@ namespace ArcExplorer.ViewModels
         }
         private string searchText = "";
 
+        public ApplicationStyles.Icon SearchIcon { get; } = ApplicationStyles.Icon.Search;
+
+
         private ArcFile? arcFile;
 
         public MainWindowViewModel()

@@ -26,6 +26,7 @@ namespace ArcExplorer.Converters
                 ApplicationStyles.Icon.Lvd => isDarkTheme ? Application.Current.Resources["lvdWhiteIcon"] : Application.Current.Resources["lvdIcon"],
                 ApplicationStyles.Icon.Web => isDarkTheme ? Application.Current.Resources["webWhiteIcon"] : Application.Current.Resources["webIcon"],
                 ApplicationStyles.Icon.Warning => Application.Current.Resources["warningIcon"],
+                ApplicationStyles.Icon.Search => isDarkTheme ? Application.Current.Resources["searchWhiteIcon"] : Application.Current.Resources["searchIcon"],
                 _ => Application.Current.Resources["noneIcon"],
             };
         }
