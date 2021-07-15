@@ -9,6 +9,7 @@ using SmashArcNet.RustTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArcExplorer.ViewModels
 {
@@ -203,13 +204,14 @@ namespace ArcExplorer.ViewModels
                 () => InitializeArcFile(path));
         }
 
-        private void OpenArcBackgroundTask(string taskDescription, string errorLogText, Func<bool> tryOpenArc, Action arcAfterOpen)
+        private async void OpenArcBackgroundTask(string taskDescription, string errorLogText, Func<bool> tryOpenArc, Action arcAfterOpen)
         {
             BackgroundTaskStart(taskDescription);
 
             using (var operation = Operation.Begin(taskDescription))
             {
-                if (!tryOpenArc())
+                var result = await Task.Run(() => tryOpenArc());
+                if (!result)
                 {
                     Serilog.Log.Logger.Error(errorLogText);
                     operation.Abandon();
