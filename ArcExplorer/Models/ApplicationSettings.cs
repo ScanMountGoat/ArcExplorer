@@ -1,8 +1,8 @@
 ﻿using ArcExplorer.Tools;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using SmashArcNet.RustTypes;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ArcExplorer.Models
 {
@@ -29,10 +29,8 @@ namespace ArcExplorer.Models
 
         public bool MergeTrailingSlash { get; set; } = true;
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public VisualTheme Theme { get; set; } = VisualTheme.Dark;
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
 
         public string CurrentHashesCommitSha { get; set; } = "1b2da43a6e4cbeb0809acc2d5f325314a3ea2f72";
@@ -41,7 +39,6 @@ namespace ArcExplorer.Models
 
         public string? ArcStartupLocation { get; set; } = null;
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public Region ArcRegion { get; set; } = Region.UsEnglish;
 
         // Default to something that will be before the current time.
@@ -59,13 +56,16 @@ namespace ArcExplorer.Models
             {
                 return new ApplicationSettings();
             }
-
-            return JsonConvert.DeserializeObject<ApplicationSettings>(System.IO.File.ReadAllText(path));
+            // Override the application settings if deserialization fails.
+            var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
+            return JsonSerializer.Deserialize<ApplicationSettings>(System.IO.File.ReadAllText(path), options) ?? new ApplicationSettings();
         }
 
         internal void SaveToFile()
         {
-            var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() }, WriteIndented = true };
+            var json = JsonSerializer.Serialize(this, options);
+
             System.IO.File.WriteAllText(preferencesFilePath, json);
         }
     }
