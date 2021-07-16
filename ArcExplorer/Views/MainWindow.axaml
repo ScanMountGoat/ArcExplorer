@@ -76,7 +76,7 @@
         </Button>
       </StackPanel>
     </Grid>
-    <Grid ColumnDefinitions="*,1,400">
+    <Grid ColumnDefinitions="*,auto,400">
       <DockPanel Grid.Column="0" LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
           <Grid HorizontalAlignment="Right" ColumnDefinitions="*,200" IsVisible="True">
@@ -102,7 +102,7 @@
         </Grid>
         <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
       </DockPanel>
-      <GridSplitter Grid.Column="1"></GridSplitter>
+      <GridSplitter Grid.Column="1" Width="5"></GridSplitter>
       <usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedNode}"></usercontrols:FileDetailsView>
     </Grid>
   </DockPanel>
