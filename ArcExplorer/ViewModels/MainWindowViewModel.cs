@@ -262,9 +262,15 @@ namespace ArcExplorer.ViewModels
             if (arcFile == null)
                 return;
 
-            Files.Clear();
-            var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
-            Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
+                Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
+            }
+            else
+            {
+                LoadRootNodes(arcFile);
+            }
         }
 
         public void SelectNextFile()
@@ -362,7 +368,6 @@ namespace ArcExplorer.ViewModels
         private void LoadRootNodes(ArcFile arcFile)
         {
             CurrentDirectory = null;
-            Files.Clear();
             var newFiles = FileTree.CreateRootLevelNodes(arcFile,
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd,
                 ApplicationSettings.Instance.MergeTrailingSlash);
