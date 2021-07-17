@@ -43,7 +43,7 @@ namespace ArcExplorer.Models
 
         // Default to something that will be before the current time.
         // This ensures the first run of the program tries to check for updates.
-        public DateTime LastHashesUpdateCheckTime = DateTime.UnixEpoch;
+        public DateTime LastHashesUpdateCheckTime { get; set; } = DateTime.UnixEpoch;
 
         private ApplicationSettings()
         {
