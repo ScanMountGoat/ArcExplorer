@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen"
         x:Class="ArcExplorer.Views.MainWindow"
         Icon="/Assets/arc.ico"
-        Title="ARC Explorer"
+        Title="{Binding Title}"
         Name="thisWindow">
   <Window.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
