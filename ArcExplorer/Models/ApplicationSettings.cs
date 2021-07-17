@@ -25,7 +25,7 @@ namespace ArcExplorer.Models
             Binary
         }
 
-        public bool StartMaximized { get; set; } = true;
+        public bool StartMaximized { get; set; } = false;
 
         public bool MergeTrailingSlash { get; set; } = true;
 
