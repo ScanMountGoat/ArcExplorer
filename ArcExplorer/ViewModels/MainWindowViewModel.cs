@@ -86,6 +86,13 @@ namespace ArcExplorer.ViewModels
                 }
             }
         }
+
+        public void RefreshIcons()
+        {
+            // Refresh any theme dependent icons.
+            this.RaisePropertyChanged(nameof(SearchIcon));
+        }
+
         private string? currentDirectoryPath;
 
         public FolderNode? CurrentDirectory

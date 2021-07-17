@@ -69,8 +69,11 @@ namespace ArcExplorer.ViewModels
                     // Refresh the file icons.
                     if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                     {
-                        var vm = desktop.MainWindow.DataContext as MainWindowViewModel;
-                        vm?.ReloadCurrentDirectory();
+                        if (desktop.MainWindow.DataContext is MainWindowViewModel vm)
+                        { 
+                            vm.ReloadCurrentDirectory();
+                            vm.RefreshIcons();
+                        }
                     }
                     break;
                 case nameof(IntegerDisplayFormat):
