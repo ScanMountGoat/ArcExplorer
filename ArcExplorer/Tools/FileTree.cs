@@ -30,7 +30,7 @@ namespace ArcExplorer.Tools
         /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
         /// <returns>The nodes for the root level</returns>
         public static List<FileNodeBase> CreateRootLevelNodes(ArcFile arcFile,
-            Action<string> extractStartCallBack,
+            Action<string, bool> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack,
             bool mergeTrailingSlash)
@@ -56,7 +56,7 @@ namespace ArcExplorer.Tools
         /// <param name="extractEndCallBack">called after starting an extract operation with a progress message</param>
         /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
         public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile, FolderNode parent,
-            Action<string> extractStartCallBack,
+            Action<string, bool> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack,
             bool mergeTrailingSlash)
@@ -77,7 +77,7 @@ namespace ArcExplorer.Tools
         /// <param name="mergeTrailingSlash">Directories with and without a trailing slash are considered identical when <c>true</c></param>
         public static List<FileNodeBase> CreateChildNodes(ArcFile arcFile,
             string parentPath,
-            Action<string> extractStartCallBack,
+            Action<string, bool> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack,
             Action<string> extractEndCallBack,
             bool mergeTrailingSlash)
@@ -118,7 +118,7 @@ namespace ArcExplorer.Tools
         /// <param name="searchText">The string to search for</param>
         /// <param name="mergeTrailingSlash"></param>
         /// <returns>The results sorted by matching score</returns>
-        public static List<FileNodeBase> SearchAllNodes(ArcFile arcFile, Action<string> extractStartCallBack,
+        public static List<FileNodeBase> SearchAllNodes(ArcFile arcFile, Action<string, bool> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, string searchText, bool mergeTrailingSlash)
         {
             // TODO: The max result count has a big impact on performance and is worth tuning.
@@ -160,7 +160,7 @@ namespace ArcExplorer.Tools
             }
         }
 
-        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string> extractStartCallBack, 
+        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string, bool> extractStartCallBack, 
             Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, List<FileNodeBase> files, bool mergeTrailingSlash)
         {
             var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
@@ -189,7 +189,7 @@ namespace ArcExplorer.Tools
         }
 
         public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath, 
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
+            Action<string, bool> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             // TODO: This doesn't properly handle extraction.
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
@@ -199,7 +199,7 @@ namespace ArcExplorer.Tools
             return CreateNode(arcFile, arcNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
         }
 
-        private static FileNodeBase CreateNode(ArcFile arcFile, IArcNode arcNode, Action<string> taskStart,
+        private static FileNodeBase CreateNode(ArcFile arcFile, IArcNode arcNode, Action<string, bool> taskStart,
             Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             switch (arcNode)
@@ -208,14 +208,14 @@ namespace ArcExplorer.Tools
                     var folder = CreateFolder(arcFile, directoryNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
                     return folder;
                 case ArcFileNode fileNode:
-                    var file = CreateFileNode(arcFile, fileNode, taskEnd);
+                    var file = CreateFileNode(arcFile, fileNode, taskStart, taskEnd);
                     return file;
                 default:
                     throw new NotImplementedException($"Unable to create node from {arcNode}");
             }
         }
 
-        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskEnd)
+        private static FileNode CreateFileNode(ArcFile arcFile, ArcFileNode arcNode, Action<string, bool> taskStart, Action<string> taskEnd)
         {
             // Lazy initialize the shared file list for performance reasons.
             List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode, ApplicationSettings.Instance.ArcRegion);
@@ -224,7 +224,7 @@ namespace ArcExplorer.Tools
                 arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed,
                 getSharedFiles);
 
-            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskEnd);
+            fileNode.FileExtracting += (s, e) => ExtractFileAsync(arcFile, arcNode, taskStart, taskEnd);
 
             return fileNode;
         }
@@ -271,7 +271,7 @@ namespace ArcExplorer.Tools
         }
 
         private static FolderNode CreateFolder(ArcFile arcFile, ArcDirectoryNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
+            Action<string, bool> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             var folder = new FolderNode(arcNode.Path, arcNode);
             folder.FileExtracting += (s, e) => ExtractFolderAsync(arcFile, arcNode, taskStart, reportProgress, taskEnd, mergeTrailingSlash);
@@ -279,16 +279,16 @@ namespace ArcExplorer.Tools
             return folder;
         }
 
-        public static async void ExtractAllFiles(ArcFile arcFile, Action<string> taskStart, 
+        public static async void ExtractAllFiles(ArcFile arcFile, Action<string, bool> taskStart, 
             Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
-            await RunBackgroundTask("Extracting all files", () => TryExtractAllFiles(arcFile, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
+            await RunBackgroundTask("Extracting all files", true, () => TryExtractAllFiles(arcFile, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
         }
 
-        private static async Task RunBackgroundTask(string taskDescription,
-            Func<ExtractResult> taskToRun, Action<string> taskStart, Action<string> taskEnd)
+        private static async Task RunBackgroundTask(string taskDescription, bool isDeterminate,
+            Func<ExtractResult> taskToRun, Action<string, bool> taskStart, Action<string> taskEnd)
         {
-            taskStart(taskDescription);
+            taskStart(taskDescription, isDeterminate);
 
             ExtractResult? result = null;
 
@@ -405,16 +405,16 @@ namespace ArcExplorer.Tools
             return result;
         }
 
-        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode, Action<string> taskEnd)
+        private static async void ExtractFileAsync(ArcFile arcFile, ArcFileNode arcNode, Action<string, bool> taskStart, Action<string> taskEnd)
         {
             // Files extract quickly, so there's no need to update the UI by calling taskStart.
-            await RunBackgroundTask($"Extracting {arcNode.Path}", () => TryExtractFile(arcFile, arcNode), (_) => { }, taskEnd);
+            await RunBackgroundTask($"Extracting {arcNode.Path}", false, () => TryExtractFile(arcFile, arcNode), taskStart, taskEnd);
         }
 
         private static async void ExtractFolderAsync(ArcFile arcFile, ArcDirectoryNode arcNode,
-            Action<string> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
+            Action<string, bool> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
-            await RunBackgroundTask($"Extracting files from {arcNode.Path}", () =>
+            await RunBackgroundTask($"Extracting files from {arcNode.Path}", true, () =>
                 TryExtractFilesRecursive(arcFile, arcNode, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
         }
     }

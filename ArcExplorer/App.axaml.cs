@@ -71,7 +71,7 @@ namespace ArcExplorer
                 {
                     if (!dialog.WasCancelled)
                     {
-                        vm.BackgroundTaskStart("Updating hashes");
+                        vm.BackgroundTaskStart("Updating hashes", false);
 
                         await DownloadHashesFile();
                         LoadNewHashes(vm, latestCommit);

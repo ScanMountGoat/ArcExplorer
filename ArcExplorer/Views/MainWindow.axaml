@@ -65,7 +65,8 @@
       </StackPanel>
       <Grid Grid.Column="3" ColumnDefinitions="400,*">
         <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
-        <ProgressBar Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5,5,10,5" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"></ProgressBar>
+        <ProgressBar Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5,5,10,5" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"
+                     IsIndeterminate="{Binding !UseDeterminateProgress}"></ProgressBar>
       </Grid>
       <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
         <Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">

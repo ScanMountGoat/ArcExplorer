@@ -128,6 +128,13 @@ namespace ArcExplorer.ViewModels
         }
         private bool isLoading = false;
 
+        public bool UseDeterminateProgress
+        {
+            get => isDeterminate;
+            set => this.RaiseAndSetIfChanged(ref isDeterminate, value);
+        }
+        private bool isDeterminate = true;
+
         public double ProgressValue
         {
             get => progressValue;
@@ -208,7 +215,7 @@ namespace ArcExplorer.ViewModels
 
         private async void OpenArcBackgroundTask(string taskDescription, string errorLogText, Func<bool> tryOpenArc, Action arcAfterOpen)
         {
-            BackgroundTaskStart(taskDescription);
+            BackgroundTaskStart(taskDescription, false);
 
             using (var operation = Operation.Begin(taskDescription))
             {
@@ -395,13 +402,14 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        public void BackgroundTaskStart(string taskDescription)
+        public void BackgroundTaskStart(string taskDescription, bool isDeterminate)
         {
             // TODO: Correctly update the description for multiple background tasks.
             // The code currently only shows a description for the most recent task.
             ProgressValue = 0.0;
             IsLoading = true;
             LoadingDescription = taskDescription;
+            UseDeterminateProgress = isDeterminate;
         }
 
         public void BackgroundTaskReportProgress(string description, double progressPercentage)
