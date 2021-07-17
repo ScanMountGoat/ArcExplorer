@@ -45,6 +45,8 @@ namespace ArcExplorer.Models
         // This ensures the first run of the program tries to check for updates.
         public DateTime LastHashesUpdateCheckTime { get; set; } = DateTime.UnixEpoch;
 
+        public string? ArcIpAddress { get; set; }
+
         private ApplicationSettings()
         {
 

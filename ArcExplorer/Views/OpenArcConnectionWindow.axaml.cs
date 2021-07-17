@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using ArcExplorer.Models;
+using ArcExplorer.ViewModels;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
 namespace ArcExplorer.Views
@@ -7,13 +9,9 @@ namespace ArcExplorer.Views
     {
         public OpenArcConnectionWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             DataContext = this;
         }
-
-        public bool WasCancelled { get; private set; } = true;
-
-        public string IpAddress { get; set; } = "000.000.000.000";
 
         private void InitializeComponent()
         {
@@ -22,13 +20,17 @@ namespace ArcExplorer.Views
 
         public void ConnectClick()
         {
-            WasCancelled = false;
+            if (DataContext is OpenArcConnectionWindowViewModel vm)
+                vm.WasCancelled = false;
+
             Close();
         }
 
         public void CancelClick()
         {
-            WasCancelled = true;
+            if (DataContext is OpenArcConnectionWindowViewModel vm)
+                vm.WasCancelled = true;
+
             Close();
         }
     }

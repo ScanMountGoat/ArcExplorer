@@ -92,14 +92,30 @@ namespace ArcExplorer.Views
 
         public async void OpenArcNetworked()
         {
-            var dialog = new OpenArcConnectionWindow();
+            var vm = new OpenArcConnectionWindowViewModel()
+            {
+                IpAddress = ApplicationSettings.Instance.ArcIpAddress ?? "000.000.000.000"
+            };
+
+            var dialog = new OpenArcConnectionWindow()
+            {
+                DataContext = vm
+            };
+
             dialog.Closed += (s, e) =>
             {
-                if (!dialog.WasCancelled)
+                if (!vm.WasCancelled)
                 {
-                    (DataContext as MainWindowViewModel)?.OpenArcNetworked(dialog.IpAddress);
+                    // Only save settings that were actually submitted.
+                    if (vm.RememberIpAddress)
+                    {
+                        ApplicationSettings.Instance.ArcIpAddress = vm.IpAddress;
+                    }
+
+                    (DataContext as MainWindowViewModel)?.OpenArcNetworked(vm.IpAddress);
                 }
             };
+
             await dialog.ShowDialog(this);
         }
 

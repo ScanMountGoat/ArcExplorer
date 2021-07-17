@@ -2,19 +2,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="100"
-        Width="400" Height="100"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
+        Width="400" Height="120"
         x:Class="ArcExplorer.Views.OpenArcConnectionWindow"
-        WindowStartupLocation="CenterScreen"
         Icon="avares://ArcExplorer/Assets/arc.ico"
         Name="thisControl"
-        Title="Connect to ARC">
+        Title="Connect to ARC"
+        WindowStartupLocation="CenterOwner">
   <StackPanel Margin="10">
-    <Grid ColumnDefinitions="*,*">
-      <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">IP Address</TextBlock>
-      <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IpAddress}"></TextBox>
+    <Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
+      <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">IP Address</TextBlock>
+      <TextBox Margin="5" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IpAddress}"
+               ToolTip.Tip="The IP address for the connection. This should be your Nintendo Switch's IP Address."></TextBox>
+      <CheckBox Margin="5" Grid.Row="1" Grid.Column="0" IsChecked="{Binding RememberIpAddress}" 
+                ToolTip.Tip="The IP address will be saved after clicking connect if checked.">Remember these settings</CheckBox>
     </Grid>
-    <Grid ColumnDefinitions="*,*">
+    <Grid ColumnDefinitions="*,*" DataContext="{Binding #thisControl}">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Cancel</Button>
       <Button Grid.Column="1" Margin="5" Command="{Binding ConnectClick}">Connect</Button>
     </Grid>
