@@ -27,6 +27,9 @@ Keyboard shortcuts are listed below.
 | Move Selection Down | Down Arrow |
 | Exit Selected Folder | Left Arrow, Alt + Up Arrow |
 
+## Searching
+Type paths or parts of a path into the search box to search the entire ARC. This works if the ARC is opened from a file or when connecting over the network. The search is "fuzzy", so small inaccuracies in spelling don' t matter like "mrio" instead of "mario". To clear the search results and return to the ARC root, delete the text in the search bar.
+
 ## Updating Hashes
 <img src="https://github.com/ScanMountGoat/ArcExplorer/blob/master/hash_update.jpg" align="top" height="auto" width="auto">  
 When the program launches, it will check Github for any hash label updates. If an update is available, a dialog will appear with details on the new commit. Click the update button to download and load the new hashes. 

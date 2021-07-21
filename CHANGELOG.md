@@ -1,4 +1,10 @@
 # Change Log
+### Version 1.4.0
+* Added search support. Type paths or parts of a path into the search box to search the entire ARC. This works if the ARC is opened from a file or when connecting over the network. The search is "fuzzy", so small inaccuracies in spelling don' t matter like "mrio" instead of "mario". 
+* Added an option to remember the IP address when connecting to the ARC over the network.
+* Minor improvements to performance and memory usage
+* The application now shows the current version for the main window's title
+
 ### Version 1.3.0
 * Fixed an issue where the application failed to find configuration files such as preferences or hashes
 * The progress bar now shows the progress percentage when extracting multiple files
