@@ -220,6 +220,7 @@ namespace ArcExplorer.Tools
             // Lazy initialize the shared file list for performance reasons.
             List<string> getSharedFiles() => arcFile.GetSharedFilePaths(arcNode, ApplicationSettings.Instance.ArcRegion);
 
+            // TODO: Avoid caching this information since it may change when changing regions.
             var fileNode = new FileNode(arcNode.FileName, arcNode.Path, arcNode.Extension,
                 arcNode.IsShared, arcNode.IsRegional, arcNode.Offset, arcNode.CompSize, arcNode.DecompSize, arcNode.IsCompressed,
                 getSharedFiles);

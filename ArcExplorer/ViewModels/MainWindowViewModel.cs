@@ -9,6 +9,9 @@ using SmashArcNet.RustTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ArcExplorer.ViewModels
@@ -24,6 +27,8 @@ namespace ArcExplorer.ViewModels
             set => this.RaiseAndSetIfChanged(ref files, value);
         }
         private AvaloniaList<FileGridItem> files = new AvaloniaList<FileGridItem>();
+
+        private readonly object searchLock = new object();
 
         public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
         {
@@ -177,11 +182,7 @@ namespace ArcExplorer.ViewModels
         public string SearchText
         {
             get => searchText;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref searchText, value);
-                SearchArcFile(searchText);
-            }
+            set => this.RaiseAndSetIfChanged(ref searchText, value);
         }
         private string searchText = "";
 
@@ -201,6 +202,14 @@ namespace ArcExplorer.ViewModels
             {
                 Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
             }
+
+            // Throttle search calls to reduce the chance of searching while the user is still typing.
+            // Subscribing to an asynchronous method described here: 
+            // https://stackoverflow.com/questions/27618401/what-is-the-best-way-to-call-async-methods-using-reactiveui-throttle
+            this.WhenAnyValue(x => x.SearchText)
+                .Throttle(TimeSpan.FromMilliseconds(500))
+                .SelectMany(SearchArcFileAsync)
+                .Subscribe();
         }
 
         private void LogEventHandled(object? sender, EventArgs e)
@@ -257,19 +266,31 @@ namespace ArcExplorer.ViewModels
             LoadRootNodes(arcFile);
         }
 
-        private void SearchArcFile(string searchText)
+        private async Task<Unit> SearchArcFileAsync(string searchText, CancellationToken cancel)
         {
-            if (arcFile == null)
-                return;
+            await Task.Run(() => SearchArcFileThreaded(searchText));
+            return Unit.Default;
+        }
 
-            if (!string.IsNullOrEmpty(searchText))
+        private void SearchArcFileThreaded(string searchText)
+        {
+            // This doesn't make all accesses to the file tree thread safe, but it does prevent multiple searches from running at once.
+            // This is good enough for calling just this method from multiple threads.
+            // Calling ARC methods should be inherently thread safe since we don't mutate the ARC struct or its wrapper type.
+            lock (searchLock)
             {
-                var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
-                Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
-            }
-            else
-            {
-                LoadRootNodes(arcFile);
+                if (arcFile == null)
+                    return;
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
+                    Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
+                }
+                else
+                {
+                    LoadRootNodes(arcFile);
+                }
             }
         }
 
@@ -327,7 +348,7 @@ namespace ArcExplorer.ViewModels
             }
 
             // Go up one level in the file tree.
-            var parent = FileTree.CreateNodeFromPath(arcFile, parentPath, 
+            var parent = FileTree.CreateNodeFromPath(arcFile, parentPath,
                 BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
             if (parent is FolderNode folder)
                 LoadFolder(folder);
@@ -342,7 +363,7 @@ namespace ArcExplorer.ViewModels
         {
             if (arcFile != null && path != null)
             {
-                var parent = FileTree.CreateNodeFromPath(arcFile, path, 
+                var parent = FileTree.CreateNodeFromPath(arcFile, path,
                     BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
                 LoadFolder(parent as FolderNode);
             }
