@@ -191,7 +191,6 @@ namespace ArcExplorer.Tools
         public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath, 
             Action<string, bool> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
-            // TODO: This doesn't properly handle extraction.
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
             if (arcNode == null)
                 return null;
