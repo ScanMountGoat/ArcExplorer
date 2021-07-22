@@ -2,20 +2,20 @@
 using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 using System;
 using System.Collections.Generic;
 
 namespace ArcExplorer.Views
 {
-    public class PreferencesWindow : Window
+    public class PreferencesWindow : ReactiveWindow<PreferencesWindowViewModel>
     {
         public static Lazy<PreferencesWindow> Instance { get; } = new Lazy<PreferencesWindow>();
 
         public PreferencesWindow()
         {
-            this.InitializeComponent();
-            DataContext = new PreferencesWindowViewModel();
-
+            InitializeComponent();
+            ViewModel = new PreferencesWindowViewModel();
             Closing += PreferencesWindow_Closing;
         }
 
@@ -34,11 +34,9 @@ namespace ArcExplorer.Views
             // The dialog requires the window reference, so this can't be in the viewmodel.
             var dialog = new OpenFolderDialog();
             var result = await dialog.ShowAsync(this);
-            if (!string.IsNullOrEmpty(result))
+            if (!string.IsNullOrEmpty(result) && ViewModel != null)
             {
-                var vm = (DataContext as PreferencesWindowViewModel);
-                if (vm != null)
-                    vm.ExtractLocation = result;
+                ViewModel.ExtractLocation = result;
             }
         }
 
@@ -52,11 +50,9 @@ namespace ArcExplorer.Views
             };
             
             var result = await dialog.ShowAsync(this);
-            if (result.Length > 0 && !string.IsNullOrEmpty(result[0]))
+            if (result.Length > 0 && !string.IsNullOrEmpty(result[0]) && ViewModel != null)
             {
-                var vm = (DataContext as PreferencesWindowViewModel);
-                if (vm != null)
-                    vm.ArcStartupLocation = result[0];
+                ViewModel.ArcStartupLocation = result[0];
             }
         }
 

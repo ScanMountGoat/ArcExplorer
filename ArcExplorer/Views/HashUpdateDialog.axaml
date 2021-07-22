@@ -6,9 +6,10 @@
         Icon="avares://ArcExplorer/Assets/arc.ico"
         WindowStartupLocation="CenterOwner"
         x:Class="ArcExplorer.Views.HashUpdateDialog"
+        Name="thisWindow"
         Title="Hash labels update available">
   <DockPanel LastChildFill="True" Margin="10">
-    <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom">
+    <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" DataContext="{Binding #thisWindow}">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Remind me later</Button>
       <Button Grid.Column="1" Margin="5" Command="{Binding ConnectClick}">Update</Button>
     </Grid>

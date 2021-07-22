@@ -21,7 +21,7 @@
   <DockPanel LastChildFill="True">
     <Menu DockPanel.Dock="Top" >
       <MenuItem Header="File">
-        <MenuItem Name="openArcMenuItem" Width="180"  HotKey="Ctrl+O" Command="{Binding OpenArc}" DataContext="{Binding ElementName=thisWindow}">
+        <MenuItem Name="openArcMenuItem" Width="180"  HotKey="Ctrl+O" Command="{Binding OpenArc}" DataContext="{Binding #thisWindow}">
           <MenuItem.Header>
             <Grid ColumnDefinitions="*,*">
               <TextBlock Grid.Column="0" TextAlignment="Left">Open Arc</TextBlock>
@@ -32,7 +32,7 @@
             <DrawingPresenter Drawing="{StaticResource openFileIcon}"></DrawingPresenter>
           </MenuItem.Icon>
         </MenuItem>
-        <MenuItem Header="Connect to Arc" Width="180" Command="{Binding OpenArcNetworked}" DataContext="{Binding ElementName=thisWindow}">
+        <MenuItem Header="Connect to Arc" Width="180" Command="{Binding OpenArcNetworked}" DataContext="{Binding #thisWindow}">
           <MenuItem.Icon>
             <DrawingPresenter Drawing="{StaticResource connectIcon}"></DrawingPresenter>
           </MenuItem.Icon>
@@ -43,7 +43,7 @@
         <MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>
       </MenuItem>
       <MenuItem Header="Settings">
-        <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding ElementName=thisWindow}">
+        <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding #thisWindow}">
           <MenuItem.Icon>
             <DrawingPresenter Drawing="{StaticResource settingsIcon}"></DrawingPresenter>
           </MenuItem.Icon>

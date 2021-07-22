@@ -1,13 +1,9 @@
-﻿using ArcExplorer.Models;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using ReactiveUI;
 
 namespace ArcExplorer.ViewModels
 {
     public class OpenArcConnectionWindowViewModel : ViewModelBase
     {
-        // TODO: Does this need property changed?
         public bool RememberIpAddress
         {
             get => rememberIpAddress;

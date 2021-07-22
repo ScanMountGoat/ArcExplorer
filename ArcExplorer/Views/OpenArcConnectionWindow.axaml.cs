@@ -1,16 +1,14 @@
-﻿using ArcExplorer.Models;
-using ArcExplorer.ViewModels;
-using Avalonia.Controls;
+﻿using ArcExplorer.ViewModels;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 
 namespace ArcExplorer.Views
 {
-    public class OpenArcConnectionWindow : Window
+    public class OpenArcConnectionWindow : ReactiveWindow<OpenArcConnectionWindowViewModel>
     {
         public OpenArcConnectionWindow()
         {
             InitializeComponent();
-            DataContext = this;
         }
 
         private void InitializeComponent()

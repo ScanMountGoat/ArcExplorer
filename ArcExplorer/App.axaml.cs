@@ -30,7 +30,7 @@ namespace ArcExplorer
                 var vm = new MainWindowViewModel();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = vm,
+                    ViewModel = vm,
                     WindowState = Models.ApplicationSettings.Instance.StartMaximized ? WindowState.Maximized : WindowState.Normal
                 };
 
@@ -66,10 +66,13 @@ namespace ArcExplorer
                 var message = latestCommit.Commit.Message;
                 Log.Logger.Information("Found a hashes update. Author: {@author}, Date: {@date}, Message: {@message}", author, date, message);
 
-                var dialog = new HashUpdateDialog(message, author, date);
+                var dialog = new HashUpdateDialog()
+                {
+                    ViewModel = new HashUpdateDialogViewModel(message, author, date)
+                };
                 dialog.Closed += async (s, e) =>
                 {
-                    if (!dialog.WasCancelled)
+                    if (dialog.ViewModel?.WasCancelled == false)
                     {
                         vm.BackgroundTaskStart("Updating hashes", false);
 

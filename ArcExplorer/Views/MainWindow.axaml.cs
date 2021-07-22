@@ -4,13 +4,14 @@ using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 using Serilog;
 using System;
 using System.Collections.Generic;
 
 namespace ArcExplorer.Views
 {
-    public class MainWindow : Window
+    public class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()
         {
@@ -36,19 +37,19 @@ namespace ArcExplorer.Views
             {
                 case Avalonia.Input.Key.Right:
                 case Avalonia.Input.Key.Enter:
-                    (DataContext as MainWindowViewModel)?.EnterSelectedFolder();
+                    ViewModel?.EnterSelectedFolder();
                     break;
                 case Avalonia.Input.Key.Left:
-                    (DataContext as MainWindowViewModel)?.ExitFolder();
+                    ViewModel?.ExitFolder();
                     break;
                 case Avalonia.Input.Key.Up:
                     if (e.KeyModifiers == Avalonia.Input.KeyModifiers.Alt)
-                        (DataContext as MainWindowViewModel)?.ExitFolder();
+                        ViewModel?.ExitFolder();
                     else
-                        (DataContext as MainWindowViewModel)?.SelectPreviousFile();
+                        ViewModel?.SelectPreviousFile();
                     break;
                 case Avalonia.Input.Key.Down:
-                    (DataContext as MainWindowViewModel)?.SelectNextFile();
+                    ViewModel?.SelectNextFile();
                     break;
                 default:
                     break;
@@ -57,9 +58,9 @@ namespace ArcExplorer.Views
             e.Handled = true;
         }
 
-        private void MainWindow_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void MainWindow_DoubleTapped(object? sender, RoutedEventArgs e)
         {
-            (DataContext as MainWindowViewModel)?.EnterSelectedFolder();
+            ViewModel?.EnterSelectedFolder();
             (sender as FileTreeView)?.Focus();
         }
 
@@ -86,20 +87,20 @@ namespace ArcExplorer.Views
             var result = await dialog.ShowAsync(this);
             if (result != null && result.Length > 0)
             {
-                (DataContext as MainWindowViewModel)?.OpenArcFile(result[0]);
+                ViewModel?.OpenArcFile(result[0]);
             }
         }
 
         public async void OpenArcNetworked()
         {
-            var vm = new OpenArcConnectionWindowViewModel()
+            var vm = new OpenArcConnectionWindowViewModel
             {
                 IpAddress = ApplicationSettings.Instance.ArcIpAddress ?? "000.000.000.000"
             };
 
-            var dialog = new OpenArcConnectionWindow()
-            {
-                DataContext = vm
+            var dialog = new OpenArcConnectionWindow 
+            { 
+                ViewModel = vm 
             };
 
             dialog.Closed += (s, e) =>
@@ -112,7 +113,7 @@ namespace ArcExplorer.Views
                         ApplicationSettings.Instance.ArcIpAddress = vm.IpAddress;
                     }
 
-                    (DataContext as MainWindowViewModel)?.OpenArcNetworked(vm.IpAddress);
+                    ViewModel?.OpenArcNetworked(vm.IpAddress);
                 }
             };
 
