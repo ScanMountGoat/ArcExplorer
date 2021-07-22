@@ -63,4 +63,5 @@ Build in Visual Studio 2019 or later or using `dotnet build` from terminal. Requ
 [SmashArcNet](https://github.com/ScanMountGoat/SmashArcNet) - C# wrapper for smash-arc  
 [smash-arc](https://github.com/jam1garner/smash-arc) - Rust lib for interacting with the data.arc  
 [ArcCross](https://github.com/Ploaj/ArcCross) - original .Net ARC file browser  
-[archive-hashes](https://github.com/ultimate-research/archive-hashes) - hashes for file and directory paths
+[archive-hashes](https://github.com/ultimate-research/archive-hashes) - hashes for file and directory paths  
+Application icons except for the main application icon and some file format specific icons are from the [Visual Studio 2019 Image Library](https://www.microsoft.com/en-us/download/details.aspx?id=35825).
