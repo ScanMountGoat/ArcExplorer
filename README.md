@@ -56,7 +56,7 @@ Folders or individual files can be extracted by right clicking the folder or fil
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
 
 ## Building
-Build in Visual Studio 2019 or later or using `dotnet build` from terminal. Requires the .NET Core 3.1 SDK. The Rust lib [smash-arc](https://github.com/jam1garner/smash-arc) is downloaded and built separately using `cargo build --release --features=libzstd`. The Arc Explorer source contains prebuilt binaries for smash-arc for Windows and Linux. 
+Build in Visual Studio 2019 or later or using `dotnet build` from terminal. Requires the .NET Core 3.1 SDK. The Rust lib [smash-arc](https://github.com/jam1garner/smash-arc) is downloaded and built separately using `cargo build --release --features=libzstd,search`. The Arc Explorer source contains prebuilt binaries for smash-arc for Windows and Linux. 
 
 ## Credits
 [AvaloniaUI](https://github.com/AvaloniaUI/Avalonia) - cross platform UI Framework  
