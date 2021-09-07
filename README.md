@@ -4,7 +4,7 @@ A file browser and extractor for Smash Ultimate's data.arc file for Windows and 
 
 ## Installation
 Download and install the Microsoft [.NET Core 3.1 desktop runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1/runtime/?utm_source=getdotnetcore&utm_medium=referral
-) if you haven't already. Make sure to install the version to run desktop apps. When running the program for the first time, it should provide a link to install .NET Core 3.1 if it is not installed already.  
+) if you haven't already. Make sure to install the version to run desktop apps and select x64. When running the program for the first time, it should provide a link to install .NET Core 3.1 if it is not installed already.  
 
 The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
