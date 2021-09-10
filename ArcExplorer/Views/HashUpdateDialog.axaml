@@ -7,7 +7,8 @@
         WindowStartupLocation="CenterOwner"
         x:Class="ArcExplorer.Views.HashUpdateDialog"
         Name="thisWindow"
-        Title="Hash labels update available">
+        Title="Hash labels update available"
+        SizeToContent="Height">
   <DockPanel LastChildFill="True" Margin="10">
     <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" DataContext="{Binding #thisWindow}">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Remind me later</Button>
@@ -15,15 +16,15 @@
     </Grid>
     <StackPanel>
       <Grid ColumnDefinitions="*,*">
-        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Right">Author</TextBlock>
+        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left">Author</TextBlock>
         <TextBlock Grid.Column="1" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding Author}" TextWrapping="Wrap"></TextBlock>
       </Grid>
       <Grid ColumnDefinitions="*,*">
-        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Right">Date</TextBlock>
+        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left">Date</TextBlock>
         <TextBlock Grid.Column="1" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding Date}" TextWrapping="Wrap"></TextBlock>
       </Grid>
       <Grid ColumnDefinitions="*,*">
-        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Right">Description</TextBlock>
+        <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left">Description</TextBlock>
         <TextBlock Grid.Column="1" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding Description}" TextWrapping="Wrap"></TextBlock>
       </Grid>
     </StackPanel>
