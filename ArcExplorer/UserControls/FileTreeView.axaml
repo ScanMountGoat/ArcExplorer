@@ -11,7 +11,13 @@
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
   <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}"
-            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="None">
+            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="All">
+    <DataGrid.Styles>
+      <Style Selector="DataGridCell.right">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,0,5,0" />
+      </Style>
+    </DataGrid.Styles>
     <DataGrid.Columns>
       <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*">
         <DataGridTemplateColumn.CellTemplate>
@@ -25,6 +31,13 @@
           </DataTemplate>
         </DataGridTemplateColumn.CellTemplate>
       </DataGridTemplateColumn>
+      <DataGridTextColumn Header="Description" Width="200" Binding="{Binding Description}"></DataGridTextColumn>
+      <DataGridTextColumn CanUserSort="True" Header="Compressed Size" Width="150" Binding="{Binding CompressedSize.Description}" SortMemberPath="CompressedSize.SizeValue" 
+                          CellStyleClasses="right">
+      </DataGridTextColumn>
+      <DataGridTextColumn CanUserSort="True" Header="Decompressed Size" Width="150" Binding="{Binding DecompressedSize.Description}" SortMemberPath="DecompressedSize.SizeValue"
+                          CellStyleClasses="right">
+      </DataGridTextColumn>
     </DataGrid.Columns>
     <DataGrid.ContextMenu>
       <ContextMenu>

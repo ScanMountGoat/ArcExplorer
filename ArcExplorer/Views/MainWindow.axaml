@@ -18,7 +18,7 @@
   <Design.DataContext>
     <vm:MainWindowViewModel/>
   </Design.DataContext>
-  <DockPanel LastChildFill="True">
+  <DockPanel LastChildFill="True" Margin="5">
     <Menu DockPanel.Dock="Top" >
       <MenuItem Header="File">
         <MenuItem Name="openArcMenuItem" Width="180"  HotKey="Ctrl+O" Command="{Binding OpenArc}" DataContext="{Binding #thisWindow}">

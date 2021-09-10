@@ -77,7 +77,7 @@ namespace ArcExplorer.ViewModels
             return info;
         }
 
-        private static string GetFormattedSize(ulong sizeInBytes)
+        public static string GetFormattedSize(ulong sizeInBytes, bool showBytes = true)
         {
             // Using MB, KB, etc only makes sense for decimal.
             if (Models.ApplicationSettings.Instance.DisplayFormat != Models.ApplicationSettings.IntegerDisplayFormat.Decimal)
@@ -85,22 +85,26 @@ namespace ArcExplorer.ViewModels
                 return $"{Tools.ValueConversion.GetValueFromPreferencesFormat(sizeInBytes)} bytes";
             }
 
+            var text = "";
             if (sizeInBytes > 1024 * 1024 * 1024)
             {
-                return $"{sizeInBytes / 1024.0 / 1024.0 / 1024.0:0.00} GB ({sizeInBytes} bytes)";
+                text = $"{sizeInBytes / 1024.0 / 1024.0 / 1024.0:0.00} GB";
             }
             else if (sizeInBytes > 1024 * 1024)
             {
-                return $"{sizeInBytes / 1024.0 / 1024.0:0.00} MB ({sizeInBytes} bytes)";
-            }
-            else if (sizeInBytes > 1024) 
-            {
-                return $"{sizeInBytes / 1024.0:0.00} KB ({sizeInBytes} bytes)";
+                text = $"{sizeInBytes / 1024.0 / 1024.0:0.00} MB";
             }
             else
             {
-                return $"{sizeInBytes} bytes";
+                text = $"{sizeInBytes / 1024.0:0.00} KB";
             }
+
+            if (showBytes)
+            {
+                return $"{text} ({sizeInBytes} bytes)";
+            }
+
+            return text;
         }
     }
 }
