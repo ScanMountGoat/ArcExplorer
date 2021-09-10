@@ -239,7 +239,7 @@ namespace ArcExplorer.ViewModels
             using (var operation = Operation.Begin(taskDescription))
             {
                 // Always clear the file list since ARC operations won't work once the arcFile object is changed.
-                Files = new AvaloniaList<FileGridItem>();
+                ClearFileTree();
 
                 var result = await Task.Run(() => tryOpenArc());
                 if (!result)
@@ -255,6 +255,14 @@ namespace ArcExplorer.ViewModels
             }
 
             BackgroundTaskEnd("");
+        }
+
+        private void ClearFileTree()
+        {
+            Files = new AvaloniaList<FileGridItem>();
+            FileCount = "";
+            ArcPath = "";
+            ArcVersion = "";
         }
 
         private void InitializeArcFile(string arcPathText)
