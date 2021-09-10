@@ -127,10 +127,6 @@ namespace ArcExplorer.Tools
             var result = new List<FileNodeBase>((int)arcFile.FileCount);
             foreach (var path in paths)
             {
-                // TODO: This triggers an error when calling smash-arc from SmashArcNet with an invalid path.
-                if (path.Contains("0x"))
-                    continue;
-
                 var treeNode = CreateNodeFromPath(arcFile, path, extractStartCallBack, extractReportProgressCallBack, extractEndCallBack, mergeTrailingSlash);
                 if (treeNode != null)
                     result.Add(treeNode);
