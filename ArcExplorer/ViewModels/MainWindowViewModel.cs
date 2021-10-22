@@ -55,6 +55,8 @@ namespace ArcExplorer.ViewModels
             {
                 ApplicationSettings.Instance.ArcRegion = value.Key;
                 this.RaisePropertyChanged(nameof(SelectedRegion));
+                // The metadata will change when changing regions.
+                ReloadCurrentDirectory();
             }
         }
 
