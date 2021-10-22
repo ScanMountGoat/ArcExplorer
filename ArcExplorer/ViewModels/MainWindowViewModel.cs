@@ -274,7 +274,11 @@ namespace ArcExplorer.ViewModels
             ArcPath = arcPathText;
             ArcVersion = arcFile.Version.ToString();
 
-            LoadRootNodes(arcFile);
+            using (var operation = Operation.Begin($"Loading ARC version {ArcVersion}"))
+            {
+                LoadRootNodes(arcFile);
+                operation.Complete();
+            }
         }
 
         private async Task<Unit> SearchArcFileAsync(string searchText, CancellationToken cancel)
