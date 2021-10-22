@@ -89,7 +89,8 @@ namespace ArcExplorer.ViewModels
                 if (arcFile != null && value != currentDirectoryPath)
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
-                    LoadFolder(value);
+                    var cleanedPath = value?.Replace("\\", "/").Replace("//", "/");
+                    LoadFolder(cleanedPath);
                 }
             }
         }
