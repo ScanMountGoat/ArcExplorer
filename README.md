@@ -3,8 +3,10 @@
 A file browser and extractor for Smash Ultimate's data.arc file for Windows and Linux.
 
 ## Installation
-The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). See the release notes for installation instructions and tips for correctly installing the needed components.
+The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). See the release notes for installation instructions and tips for correctly installing the needed components.
 
+Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
+ 
 ## Running the Program
 On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open a terminal in the executable directory and run `./ArcExplorer`. Mac OS support isn't planned at this time, but it should be possible to build ArcExplorer, SmashArcNet, and smash-arc for Mac OS from source. 
 
