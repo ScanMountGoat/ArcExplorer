@@ -33,7 +33,7 @@ namespace ArcExplorer.Models
 
         public IntegerDisplayFormat DisplayFormat { get; set; } = IntegerDisplayFormat.Decimal;
 
-        public string CurrentHashesCommitSha { get; set; } = "1b2da43a6e4cbeb0809acc2d5f325314a3ea2f72";
+        public string CurrentHashesCommitSha { get; set; } = "d24d397bc3cf5a306206d68ebf0077fc47a30f38";
 
         public string ExtractLocation { get; set; } = "export";
 
