@@ -47,7 +47,7 @@ Folders or individual files can be extracted by right clicking the folder or fil
 1. Install Skyline if you haven't already
 2. Download [the companion skyline plugin, arc-network](https://github.com/jam1garner/arc-network/releases/tag/master) and install it as you would any other skyline plugin
 3. Run Smash and keep it open
-4. Click File > Connect to ARC
+4. Click File > Connect to ARC in ArcExplorer
 5. Input your Switch's IP address
 6. Click Connect
 
