@@ -11,7 +11,17 @@ Report any bugs or request new features in [issues](https://github.com/ScanMount
 On Windows, open the program by double clicking ArcExplorer.exe. On Linux, open a terminal in the executable directory and run `./ArcExplorer`. Mac OS support isn't planned at this time, but it should be possible to build ArcExplorer, SmashArcNet, and smash-arc for Mac OS from source. 
 
 ## Opening the data.arc
-Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. The program also supports opening an ARC file over the network by connecting to the Switch console using the Switch's IP address. All program features work normally when connecting to the ARC file over the network but expect program performance to be slower. Use ArcCross (Windows only) for opening very old ARC versions. 
+Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. Use ArcCross (Windows only) for opening very old ARC versions. 
+
+## Opening Over The Network
+The program also supports opening an ARC file over the network by connecting to the Switch console using the Switch's IP address. All program features work normally when connecting to the ARC file over the network but file extraction will likely be slower. 
+
+1. Install Skyline if you haven't already
+2. Download [the companion skyline plugin, arc-network](https://github.com/jam1garner/arc-network/releases/tag/master) and install it as you would any other skyline plugin
+3. Run Smash and keep it open
+4. Click File > Connect to ARC in ArcExplorer
+5. Input your Switch's IP address. This can be found under System Settings > Internet on the Switch itself.
+6. Click Connect
 
 ## Navigation
 Navigating the ARC file can be done with the mouse or the keyboard. Double click a folder to open it. Click the "Exit Folder" button to exit the current folder and go the parent folder. 
@@ -42,14 +52,6 @@ The right panel contains details on the currently selected file or folder. If a 
 
 ## Extracting Files
 Folders or individual files can be extracted by right clicking the folder or file and selecting extract or by clicking extract under the Arc menu. The export directory can be customized under Settings > Preferences.
-
-## Opening Over The Network
-1. Install Skyline if you haven't already
-2. Download [the companion skyline plugin, arc-network](https://github.com/jam1garner/arc-network/releases/tag/master) and install it as you would any other skyline plugin
-3. Run Smash and keep it open
-4. Click File > Connect to ARC in ArcExplorer
-5. Input your Switch's IP address. This can be found under System Settings > Internet on the Switch itself.
-6. Click Connect
 
 ## User Preferences
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
