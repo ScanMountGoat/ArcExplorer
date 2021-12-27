@@ -59,7 +59,7 @@ Various aspects of the program can be customized in the preferences window by se
 ## Building (WIP)
 This project contains submodules, so clone with `git clone --recurse-submodules https://github.com/ScanMountGoat/ArcExplorer`.  
 
-Build in Visual Studio 2019 or later or using `dotnet build` from terminal. This requires the .NET Core 3.1 SDK and a recent Rust toolchain. The Rust toolchain can be installed via rustup. 
+Build in Visual Studio 2022 or later or using `dotnet build` from terminal. This requires the .NET 6.0 SDK and a recent Rust toolchain. The Rust toolchain can be installed via rustup. 
 
 ## Credits
 [AvaloniaUI](https://github.com/AvaloniaUI/Avalonia) - cross platform UI Framework  
