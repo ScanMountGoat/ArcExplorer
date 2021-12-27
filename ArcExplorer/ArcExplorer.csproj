@@ -20,18 +20,10 @@
     <PackageReference Include="SerilogTimings" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="SmashArcNet">
-      <HintPath>Lib\SmashArcNet.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\SmashArcNet\SmashArcNet\SmashArcNet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Hashes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libsmash_arc.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="SmashArcNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="smash_arc.dll">

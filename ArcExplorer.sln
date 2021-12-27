@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcExplorer", "ArcExplorer\ArcExplorer.csproj", "{AAD2E256-39C9-4A31-94B7-555C2090F430}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcExplorer.Test", "ArcExplorer.Test\ArcExplorer.Test.csproj", "{EF479918-CE60-4910-A7F1-ED7FFB258A82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcExplorer.Test", "ArcExplorer.Test\ArcExplorer.Test.csproj", "{EF479918-CE60-4910-A7F1-ED7FFB258A82}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmashArcNet", "SmashArcNet\SmashArcNet\SmashArcNet.csproj", "{7D51C932-9867-45A8-B150-96DF3114E7F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{EF479918-CE60-4910-A7F1-ED7FFB258A82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF479918-CE60-4910-A7F1-ED7FFB258A82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF479918-CE60-4910-A7F1-ED7FFB258A82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D51C932-9867-45A8-B150-96DF3114E7F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D51C932-9867-45A8-B150-96DF3114E7F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D51C932-9867-45A8-B150-96DF3114E7F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D51C932-9867-45A8-B150-96DF3114E7F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
