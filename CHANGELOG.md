@@ -1,4 +1,13 @@
 # Change Log
+### Version 1.4.1
+* Upgraded to .NET 6.0. The releases are now self contained, which eliminates the need to install any extra components like .NET or C/C++ runtimes. This resolves most issues installing and running the application.
+* Fixed an issue where the files failed to clear when opening a new ARC.
+* Changed layouts to improve UI consistency.
+* Fixed a potential crash when entering invalid paths in the navigation bar.
+* Added an option to display file sizes in the file view.
+* Fixed an issue where file metadata didn't reflect the currently selected ARC region.
+* Updated the included hashes to the latest version.
+
 ### Version 1.4.0
 * Added search support. Type paths or parts of a path into the search box to search the entire ARC. This works if the ARC is opened from a file or when connecting over the network. The search is "fuzzy", so small inaccuracies in spelling don' t matter like "mrio" instead of "mario". 
 * Added an option to remember the IP address when connecting to the ARC over the network.
