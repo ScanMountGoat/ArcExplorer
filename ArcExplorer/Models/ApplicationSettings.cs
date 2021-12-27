@@ -1,6 +1,7 @@
 ﻿using ArcExplorer.Tools;
 using SmashArcNet.RustTypes;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -52,6 +53,7 @@ namespace ArcExplorer.Models
 
         }
 
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<ArcExplorer.Models.ApplicationSettings>(string, System.Text.Json.JsonSerializerOptions?)")]
         private static ApplicationSettings FromJson(string path)
         {
             if (!System.IO.File.Exists(path))
@@ -63,6 +65,7 @@ namespace ArcExplorer.Models
             return JsonSerializer.Deserialize<ApplicationSettings>(System.IO.File.ReadAllText(path), options) ?? new ApplicationSettings();
         }
 
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<ArcExplorer.Models.ApplicationSettings>(ArcExplorer.Models.ApplicationSettings, System.Text.Json.JsonSerializerOptions?)")]
         internal void SaveToFile()
         {
             var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() }, WriteIndented = true };
