@@ -90,6 +90,8 @@ namespace ArcExplorer.ViewModels
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
                     var cleanedPath = value?.Replace("\\", "/").Replace("//", "/");
+                    // TODO: Add this to ArcPaths and add tests.
+                    // TODO: Automatically convert file paths to their parent folder.
                     LoadFolder(cleanedPath);
                 }
             }
