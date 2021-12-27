@@ -47,7 +47,7 @@ namespace ArcExplorer.Models
 
         public string? ArcIpAddress { get; set; }
 
-        private ApplicationSettings()
+        public ApplicationSettings()
         {
 
         }
