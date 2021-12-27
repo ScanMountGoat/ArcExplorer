@@ -1,5 +1,6 @@
 # Arc Explorer
 <img src="https://github.com/ScanMountGoat/ArcExplorer/blob/master/application.jpg" align="top" height="auto" width="100%">  
+
 A file browser and extractor for Smash Ultimate's data.arc file for Windows and Linux. The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
 ## Opening the data.arc
