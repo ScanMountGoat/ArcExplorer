@@ -1,6 +1,6 @@
 # Change Log
 ### Version 1.4.1
-* Upgraded to .NET 6.0. The releases are now self contained, which eliminates the need to install any extra components like .NET or C/C++ runtimes. This resolves most issues installing and running the application.
+* Upgraded to .NET 6.0. The releases are now self-contained, which eliminates the need to install any extra components like .NET or C/C++ runtimes. This resolves most issues installing and running the application.
 * Fixed an issue where the files failed to clear when opening a new ARC.
 * Changed layouts to improve UI consistency.
 * Fixed a potential crash when entering invalid paths in the navigation bar.
