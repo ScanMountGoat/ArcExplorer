@@ -49,6 +49,17 @@ namespace ArcExplorer.Tools
             return name;
         }
 
+        /// <summary>
+        /// Convert <paramref name="absolutePath"/> to a directory with the ARC specific separator.
+        /// </summary>
+        /// <param name="absolutePath"></param>
+        /// <returns>The cleaned path</returns>
+        public static string? GetCleanedDirectoryPath(string? absolutePath)
+        {
+            // TODO: Automatically convert file paths to their parent folder.
+            return absolutePath?.Replace("\\", "/").Replace("//", "/");
+        }
+
         public static string GetOsSafePath(string absolutePath, string fileName, string extension)
         {
             // stream: -> stream and prebuilt: -> prebuilt to avoid invalid characters in paths.

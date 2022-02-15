@@ -89,9 +89,7 @@ namespace ArcExplorer.ViewModels
                 if (arcFile != null && value != currentDirectoryPath)
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
-                    var cleanedPath = value?.Replace("\\", "/").Replace("//", "/");
-                    // TODO: Add this to ArcPaths and add tests.
-                    // TODO: Automatically convert file paths to their parent folder.
+                    var cleanedPath = ArcPaths.GetCleanedDirectoryPath(value);
                     LoadFolder(cleanedPath);
                 }
             }
