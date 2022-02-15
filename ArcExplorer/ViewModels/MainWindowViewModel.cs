@@ -71,6 +71,13 @@ namespace ArcExplorer.ViewModels
         }
         private FileGridItem? selectedFile;
 
+        public int SelectedIndex
+        {
+            get => selectedIndex;
+            set => this.RaiseAndSetIfChanged(ref selectedIndex, value);
+        }
+        private int selectedIndex;
+
         // Create a second property avoid binding to SelectedFile.Node when SelectedFile is null.
         public FileNodeBase? SelectedNode
         {
@@ -312,34 +319,15 @@ namespace ArcExplorer.ViewModels
             }
         }
 
-        public void SelectNextFile()
-        {
-            // TODO: It might be faster to add an additional selected file index.
-            if (SelectedFile is null)
-            {
-                SelectedFile = Files.FirstOrDefault();
-            }
-            else
-            {
-                var nextIndex = Files.IndexOf(SelectedFile) + 1;
-                if (nextIndex < Files.Count)
-                    SelectedFile = Files[nextIndex];
-            }
-        }
-
+        // Updating the selected index correctly takes into account the sorted display order of items.
         public void SelectPreviousFile()
         {
-            // TODO: It might be faster to add an additional selected file index.
-            if (SelectedFile is null)
-            {
-                SelectedFile = Files.FirstOrDefault();
-            }
-            else
-            {
-                var previousIndex = Files.IndexOf(SelectedFile) - 1;
-                if (Files.Count != 0 && previousIndex >= 0)
-                    SelectedFile = Files[previousIndex];
-            }
+            SelectedIndex = Math.Max(SelectedIndex - 1, 0);
+        }
+
+        public void SelectNextFile()
+        {
+            SelectedIndex = Math.Max(Math.Min(SelectedIndex + 1, Files.Count - 1), 0);
         }
 
         public void ExitFolder()

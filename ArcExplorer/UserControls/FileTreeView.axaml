@@ -10,7 +10,7 @@
   <UserControl.Resources>
     <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
   </UserControl.Resources>
-  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}"
+  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}" SelectedIndex="{Binding SelectedIndex}"
             IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="All">
     <DataGrid.Styles>
       <Style Selector="DataGridCell.right">

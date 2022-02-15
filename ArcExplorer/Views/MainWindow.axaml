@@ -101,7 +101,8 @@
             </TextBox>
           <Button Grid.Column="2" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
         </Grid>
-        <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"></usercontrols:FileTreeView>
+        <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"
+								   SelectedIndex="{Binding SelectedIndex}"></usercontrols:FileTreeView>
       </DockPanel>
       <GridSplitter Grid.Column="1" Width="5"></GridSplitter>
       <usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedNode}"></usercontrols:FileDetailsView>

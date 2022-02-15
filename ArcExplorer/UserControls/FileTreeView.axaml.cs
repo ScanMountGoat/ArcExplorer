@@ -29,12 +29,26 @@ namespace ArcExplorer.UserControls
             (o, v) => o.SelectedItem = v, 
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
+        public static readonly DirectProperty<FileTreeView, int> SelectedIndexProperty =
+            AvaloniaProperty.RegisterDirect<FileTreeView, int>(
+            nameof(SelectedIndex),
+            o => o.SelectedIndex,
+            (o, v) => o.SelectedIndex = v,
+            defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+
         public FileGridItem? SelectedItem
         {
             get => selectedItem;
             set => SetAndRaise(SelectedItemProperty, ref selectedItem, value);
         }
         private FileGridItem? selectedItem;
+
+        public int SelectedIndex
+        {
+            get => selectedIndex;
+            set => SetAndRaise(SelectedIndexProperty, ref selectedIndex, value);
+        }
+        private int selectedIndex;
 
         public DataGrid? FileGrid { get; }
 
