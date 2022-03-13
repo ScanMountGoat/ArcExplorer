@@ -33,8 +33,42 @@
 		<None Update="libsmash_arc.so">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="smash_arc.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
+
+	<!--Determine the current operating system-->
+	<!-- https://github.com/KodrAus/rust-csharp-ffi/blob/master/dotnet/Native.targets -->
+	<PropertyGroup Condition=" '$(NativeRid)' == 'win-x64' Or ('$(NativeRid)' == '' And '$([MSBuild]::IsOsPlatform(`WINDOWS`))' == 'true') ">
+		<IsWindows>true</IsWindows>
+		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(NativeRid)' == 'linux-x64' Or ('$(NativeRid)' == '' And '$([MSBuild]::IsOsPlatform(`LINUX`))' == 'true') ">
+		<IsLinux>true</IsLinux>
+		<IsUnix>true</IsUnix>
+		<DefineConstants>$(DefineConstants);LINUX;UNIX</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(NativeRid)' == 'osx-x64'  Or ('$(NativeRid)' == '' And '$([MSBuild]::IsOsPlatform(`OSX`))' == 'true') ">
+		<IsMacOS>true</IsMacOS>
+		<IsUnix>true</IsUnix>
+		<DefineConstants>$(DefineConstants);MACOS;UNIX</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup>
+		<!--TODO: how to net hardcode .net 6?-->
+		<CargoTargetPath>$(MSBuildThisFileDirectory)/../SmashArcNet/SmashArcNet/bin/$(Configuration)/net6.0</CargoTargetPath>
+
+		<CargoExtension Condition=" '$(IsWindows)' == 'true' ">dll</CargoExtension>
+		<CargoExtension Condition=" '$(IsLinux)' == 'true' ">so</CargoExtension>
+		<CargoExtension Condition=" '$(IsMacOS)' == 'true' ">dylib</CargoExtension>
+
+		<CargoArtifact Condition=" '$(IsWindows)' == 'true' ">smash_arc.$(CargoExtension)</CargoArtifact>
+		<CargoArtifact Condition=" '$(IsLinux)' == 'true' ">libsmash_arc.$(CargoExtension)</CargoArtifact>
+		<CargoArtifact Condition=" '$(IsMacOS)' == 'true' ">libsmash_arc.$(CargoExtension)</CargoArtifact>
+
+		<CargoArtifactPath>$(CargoTargetPath)/$(CargoArtifact)</CargoArtifactPath>
+	</PropertyGroup>
+	<Target Name="CargoBuildCopy" AfterTargets="CopyFilesToOutputDirectory">
+		<Message Text="$(CargoArtifactPath)" Importance="high"></Message>
+		<Copy SourceFiles="$(CargoArtifactPath)" DestinationFolder="$(OutDir)" />
+	</Target>
 </Project>
