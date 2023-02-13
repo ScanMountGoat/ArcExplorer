@@ -12,6 +12,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
+		<None Update="Assets/ArcExplorer.icns" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('osx'))">
+      		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    	</None>	
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="0.10.11" />
@@ -22,6 +25,7 @@
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="SerilogTimings" Version="2.3.0" />
+		<PackageReference Include="Dotnet.Bundle" Version="*" Condition="$(RuntimeIdentifier.StartsWith('osx'))"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SmashArcNet\SmashArcNet\SmashArcNet.csproj" />
@@ -31,6 +35,15 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<PropertyGroup>
+		<CFBundleName>ArcExplorer</CFBundleName>
+		<CFBundleDisplayName>ArcExplorer</CFBundleDisplayName>
+		<CFBundleVersion>1.4.2</CFBundleVersion>
+		<CFBundleShortVersionString>1.4.2</CFBundleShortVersionString>
+		<CFBundleExecutable>ArcExplorer</CFBundleExecutable>
+		<CFBundleIconFile>Assets/ArcExplorer.icns</CFBundleIconFile>
+	</PropertyGroup>
 
 	<!--Determine the current operating system-->
 	<!-- https://github.com/KodrAus/rust-csharp-ffi/blob/master/dotnet/Native.targets -->
