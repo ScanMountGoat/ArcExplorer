@@ -7,22 +7,15 @@ using System.Threading.Tasks;
 
 namespace ArcExplorer.Tools
 {
-    internal class HashLabelUpdater
+    internal static class HashLabelUpdater
     {
-        public static HashLabelUpdater Instance { get; } = new HashLabelUpdater();
-
         public static readonly string HashesPath = ApplicationDirectory.CreateAbsolutePath("Hashes.txt");
-
-        private HashLabelUpdater()
-        {
-
-        }
 
         /// <summary>
         /// Attempts to find a newer commit than the current commit for the hash labels.
         /// </summary>
         /// <returns></returns>
-        public async Task<GitHubCommit?> TryFindNewerHashesCommit()
+        public static async Task<GitHubCommit?> TryFindNewerHashesCommit()
         {
             // Github doesn't store creation/modified times for files and the newly downloaded file will have the current time as its created date.
             // In order to accurately determine whether an update is available, compare the dates for the current and latest commit.
@@ -39,7 +32,7 @@ namespace ArcExplorer.Tools
             return null;
         }
 
-        public async Task DownloadHashes(string pathToCurrentLabels)
+        public static async Task DownloadHashes(string pathToCurrentLabels)
         {
             using (var operation = Operation.Begin("Updating hashes"))
             {
@@ -59,7 +52,7 @@ namespace ArcExplorer.Tools
             }
         }
 
-        private static async Task<GitHubCommit?> GetCurrentCommit()
+        public static async Task<GitHubCommit?> GetCurrentCommit()
         {
             // TODO: This assumes the commit modified the archive hashes file.
             try

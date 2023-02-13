@@ -1,20 +1,23 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace ArcExplorer.Tools
 {
     internal static class ApplicationDirectory
     {
         /// <summary>
-        /// Converts the given <paramref name="path"/> to an absolute path.
-        /// <paramref name="path"/> is assumed to be relative to the executable directory.
-        /// If <paramref name="path"/> is already an absolute path, <paramref name="path"/> will be returned instead.
+        /// Converts <paramref name="fileName"/> to an absolute path in the application's data directory.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="fileName">The file name and extension like "file.txt"</param>
         /// <returns>The resulting absolute path</returns>
-        public static string CreateAbsolutePath(string path)
+        public static string CreateAbsolutePath(string fileName)
         {
-            var executableDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
-            return Path.Combine(executableDirectory, path);
+            // Store ArcExplorer files for the local user.
+            // This makes it easier to work with bundles that can't be modified internally.
+            // On Windows, this will be a path like "C:\\Users\\UserName\\AppData\\Local\ArcExplorer\file.txt";
+            var applicationDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(applicationDirectory, "ArcExplorer", fileName);
         }
     }
 }

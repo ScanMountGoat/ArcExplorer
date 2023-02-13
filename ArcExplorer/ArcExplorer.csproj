@@ -27,9 +27,6 @@
 		<ProjectReference Include="..\SmashArcNet\SmashArcNet\SmashArcNet.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Update="Hashes.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="libsmash_arc.so">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -54,7 +51,7 @@
 		<DefineConstants>$(DefineConstants);MACOS;UNIX</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
-		<!--TODO: how to net hardcode .net 6?-->
+		<!--TODO: how to not hardcode .NET 6?-->
 		<CargoTargetPath>$(MSBuildThisFileDirectory)/../SmashArcNet/SmashArcNet/bin/$(Configuration)/net6.0</CargoTargetPath>
 
 		<CargoExtension Condition=" '$(IsWindows)' == 'true' ">dll</CargoExtension>

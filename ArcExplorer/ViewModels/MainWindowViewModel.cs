@@ -204,15 +204,6 @@ namespace ArcExplorer.ViewModels
         {
             ApplicationSink.Instance.Value.ErrorEventRaised += LogEventHandled;
 
-            // TODO: This is expensive and should be handled separately.
-            // Run a background task and continue with something to enable opening an ARC?
-            var hashesFile = "Hashes.txt";
-
-            if (!HashLabels.TryLoadHashes(hashesFile))
-            {
-                Serilog.Log.Logger.Error("Failed to open Hashes file {@path}", hashesFile);
-            }
-
             // Throttle search calls to reduce the chance of searching while the user is still typing.
             // Subscribing to an asynchronous method described here: 
             // https://stackoverflow.com/questions/27618401/what-is-the-best-way-to-call-async-methods-using-reactiveui-throttle
