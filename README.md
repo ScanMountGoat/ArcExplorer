@@ -1,7 +1,7 @@
 # Arc Explorer
-<img src="https://github.com/ScanMountGoat/ArcExplorer/blob/master/application.jpg" align="top" height="auto" width="100%">  
+![image](https://user-images.githubusercontent.com/23301691/218875745-058955f7-9bb5-4ce5-9e22-821ccd338cfb.png)
 
-A file browser and extractor for Smash Ultimate's data.arc file for Windows and Linux. The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
+A file browser and extractor for Smash Ultimate's data.arc file for Windows, MacOS, and Linux. The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
 
 ## Opening the data.arc
 Open an ARC file using File > Open ARC or Ctrl + O on the keyboard. The program supports any ARC file from Smash Ultimate version 4.0.0 (Hero DLC) or later. Use ArcCross (Windows only) for opening very old ARC versions. 
