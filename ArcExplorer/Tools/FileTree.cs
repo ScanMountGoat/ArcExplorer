@@ -107,7 +107,7 @@ namespace ArcExplorer.Tools
 
             return files;
         }
-        
+
         /// <summary>
         /// Searches the entire ARC file using a fuzzy search.
         /// </summary>
@@ -156,7 +156,7 @@ namespace ArcExplorer.Tools
             }
         }
 
-        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string, bool> extractStartCallBack, 
+        private static void AddChildNodes(ArcFile arcFile, string parentPath, Action<string, bool> extractStartCallBack,
             Action<string, double> extractReportProgressCallBack, Action<string> extractEndCallBack, List<FileNodeBase> files, bool mergeTrailingSlash)
         {
             var arcNode = arcFile.CreateNode(parentPath, ApplicationSettings.Instance.ArcRegion);
@@ -167,7 +167,7 @@ namespace ArcExplorer.Tools
                 // Assume file names are also unique within a directory.
                 var names = new HashSet<string>();
 
-                var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack, 
+                var folder = CreateFolder(arcFile, directoryNode, extractStartCallBack, extractReportProgressCallBack,
                     extractEndCallBack, mergeTrailingSlash);
 
                 foreach (var node in arcFile.GetChildren(directoryNode, ApplicationSettings.Instance.ArcRegion))
@@ -184,7 +184,7 @@ namespace ArcExplorer.Tools
             }
         }
 
-        public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath, 
+        public static FileNodeBase? CreateNodeFromPath(ArcFile arcFile, string absolutePath,
             Action<string, bool> taskStart, Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             var arcNode = arcFile.CreateNode(absolutePath, ApplicationSettings.Instance.ArcRegion);
@@ -258,7 +258,8 @@ namespace ArcExplorer.Tools
             var filePath = ArcPaths.GetOsSafePath(arcNode.Path, arcNode.FileName, arcNode.Extension);
 
             // If the user selects an absolute path for the extract location, this overrides the current directory.
-            var exportDirectory = ApplicationDirectory.CreateAbsolutePath(ApplicationSettings.Instance.ExtractLocation);
+            var executableDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
+            var exportDirectory = Path.Combine(executableDirectory, ApplicationSettings.Instance.ExtractLocation);
             var paths = new string[] { exportDirectory };
 
             // Use the OS directory separators instead of the ARC path separators. 
@@ -275,7 +276,7 @@ namespace ArcExplorer.Tools
             return folder;
         }
 
-        public static async void ExtractAllFiles(ArcFile arcFile, Action<string, bool> taskStart, 
+        public static async void ExtractAllFiles(ArcFile arcFile, Action<string, bool> taskStart,
             Action<string, double> reportProgress, Action<string> taskEnd, bool mergeTrailingSlash)
         {
             await RunBackgroundTask("Extracting all files", true, () => TryExtractAllFiles(arcFile, reportProgress, mergeTrailingSlash), taskStart, taskEnd);
