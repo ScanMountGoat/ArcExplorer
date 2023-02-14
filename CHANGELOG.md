@@ -1,5 +1,5 @@
 # Change Log
-### version 1.4.3
+### version 1.4.4
 * Moved the search UI to better indicate that searching works over the entire ARC file.
 * Application files are now stored in a user directory rather than the executable directory to work consistently across platforms.
 * Added a precompiled binary for MacOS that works on Intel or Apple silicon macs.

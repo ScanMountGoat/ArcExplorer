@@ -19,7 +19,7 @@ namespace ArcExplorer.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         // TODO: In the future the version could be loaded from a file updated by a build script.
-        public string Title { get; } = "Arc Explorer v1.4.3";
+        public string Title { get; } = "Arc Explorer v1.4.4";
 
         public AvaloniaList<FileGridItem> Files
         {
