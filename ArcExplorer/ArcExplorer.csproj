@@ -17,15 +17,15 @@
     	</None>	
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="0.10.11" />
-		<PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.11" />
-		<PackageReference Include="Avalonia.Desktop" Version="0.10.11" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="0.10.11" />
-		<PackageReference Include="Octokit" Version="0.50.0" />
-		<PackageReference Include="Serilog" Version="2.10.0" />
+		<PackageReference Include="Avalonia" Version="0.10.18" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.18" />
+		<PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
+		<PackageReference Include="Octokit" Version="5.0.0" />
+		<PackageReference Include="Serilog" Version="2.12.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<PackageReference Include="SerilogTimings" Version="2.3.0" />
-		<PackageReference Include="Dotnet.Bundle" Version="*" Condition="$(RuntimeIdentifier.StartsWith('osx'))"/>
+		<PackageReference Include="SerilogTimings" Version="3.0.1" />
+		<PackageReference Include="Dotnet.Bundle" Version="*" Condition="$(RuntimeIdentifier.StartsWith('osx'))" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SmashArcNet\SmashArcNet\SmashArcNet.csproj" />
@@ -39,8 +39,8 @@
 	<PropertyGroup>
 		<CFBundleName>ArcExplorer</CFBundleName>
 		<CFBundleDisplayName>ArcExplorer</CFBundleDisplayName>
-		<CFBundleVersion>1.4.2</CFBundleVersion>
-		<CFBundleShortVersionString>1.4.2</CFBundleShortVersionString>
+		<CFBundleVersion>1.4.3</CFBundleVersion>
+		<CFBundleShortVersionString>1.4.3</CFBundleShortVersionString>
 		<CFBundleExecutable>ArcExplorer</CFBundleExecutable>
 		<CFBundleIconFile>Assets/ArcExplorer.icns</CFBundleIconFile>
 	</PropertyGroup>

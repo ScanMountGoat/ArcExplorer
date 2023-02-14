@@ -1,4 +1,9 @@
 # Change Log
+### version 1.4.3
+* Moved the search UI to better indicate that searching works over the entire ARC file.
+* Application files are now stored in a user directory rather than the executable directory to work consistently across platforms.
+* Added a precompiled binary for MacOS that works on Intel or Apple silicon macs.
+
 ### Version 1.4.2
 * Fixed an issue where selecting files with the arrow keys while sorting would select the wrong file.
 * Fixed an issue where localized files failed to extract.
