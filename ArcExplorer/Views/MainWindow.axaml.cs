@@ -38,24 +38,32 @@ namespace ArcExplorer.Views
                 case Avalonia.Input.Key.Right:
                 case Avalonia.Input.Key.Enter:
                     ViewModel?.EnterSelectedFolder();
+                    e.Handled = true;
                     break;
                 case Avalonia.Input.Key.Left:
                     ViewModel?.ExitFolder();
+                    e.Handled = true;
                     break;
                 case Avalonia.Input.Key.Up:
                     if (e.KeyModifiers == Avalonia.Input.KeyModifiers.Alt)
+                    {
                         ViewModel?.ExitFolder();
+                        e.Handled = true;
+                    }
                     else
+                    {
                         ViewModel?.SelectPreviousFile();
+                        e.Handled = true;
+                    }
                     break;
                 case Avalonia.Input.Key.Down:
                     ViewModel?.SelectNextFile();
+                    e.Handled = true;
                     break;
                 default:
                     break;
             }
 
-            e.Handled = true;
         }
 
         private void MainWindow_DoubleTapped(object? sender, RoutedEventArgs e)
