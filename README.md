@@ -1,4 +1,4 @@
-# Arc Explorer
+# Arc Explorer [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ScanMountGoat/ArcExplorer?include_prereleases)](https://github.com/ScanMountGoat/ArcExplorer/releases/latest) [![Github All Releases](https://img.shields.io/github/downloads/ScanMountGoat/ArcExplorer/total.svg)](https://github.com/ScanMountGoat/ArcExplorer/releases/latest)
 ![image](https://user-images.githubusercontent.com/23301691/218875745-058955f7-9bb5-4ce5-9e22-821ccd338cfb.png)
 
 A file browser and extractor for Smash Ultimate's data.arc file for Windows, MacOS, and Linux. The latest version of the program can be downloaded from [releases](https://github.com/ScanMountGoat/ArcExplorer/releases). Report any bugs or request new features in [issues](https://github.com/ScanMountGoat/ArcExplorer/issues). 
