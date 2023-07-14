@@ -4,16 +4,11 @@ using Avalonia.ReactiveUI;
 
 namespace ArcExplorer.Views
 {
-    public class HashUpdateDialog : ReactiveWindow<HashUpdateDialogViewModel>
+    public partial class HashUpdateDialog : ReactiveWindow<HashUpdateDialogViewModel>
     {
         public HashUpdateDialog()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
 
         public void ConnectClick()

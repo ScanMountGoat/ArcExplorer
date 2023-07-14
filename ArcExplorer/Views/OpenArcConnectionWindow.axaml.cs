@@ -4,16 +4,11 @@ using Avalonia.ReactiveUI;
 
 namespace ArcExplorer.Views
 {
-    public class OpenArcConnectionWindow : ReactiveWindow<OpenArcConnectionWindowViewModel>
+    public partial class OpenArcConnectionWindow : ReactiveWindow<OpenArcConnectionWindowViewModel>
     {
         public OpenArcConnectionWindow()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
 
         public void ConnectClick()

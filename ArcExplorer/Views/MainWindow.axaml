@@ -12,101 +12,110 @@
         Icon="/Assets/arc.ico"
         Title="{Binding Title}"
         Name="thisWindow">
-  <Window.Resources>
-    <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
-  </Window.Resources>
-  <Design.DataContext>
-    <vm:MainWindowViewModel/>
-  </Design.DataContext>
-  <DockPanel LastChildFill="True" Margin="5">
-    <Menu DockPanel.Dock="Top" >
-      <MenuItem Header="File">
-        <MenuItem Name="openArcMenuItem" Width="180"  HotKey="Ctrl+O" Command="{Binding OpenArc}" DataContext="{Binding #thisWindow}">
-          <MenuItem.Header>
-            <Grid ColumnDefinitions="*,*">
-              <TextBlock Grid.Column="0" TextAlignment="Left">Open Arc</TextBlock>
-              <TextBlock Grid.Column="1" TextAlignment="Right">Ctrl+O</TextBlock>
-            </Grid>
-          </MenuItem.Header>
-          <MenuItem.Icon>
-            <DrawingPresenter Drawing="{StaticResource openFileIcon}"></DrawingPresenter>
-          </MenuItem.Icon>
-        </MenuItem>
-        <MenuItem Header="Connect to Arc" Width="180" Command="{Binding OpenArcNetworked}" DataContext="{Binding #thisWindow}">
-          <MenuItem.Icon>
-            <DrawingPresenter Drawing="{StaticResource connectIcon}"></DrawingPresenter>
-          </MenuItem.Icon>
-        </MenuItem>
-      </MenuItem>
-      <MenuItem Header="Arc">
-        <MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
-        <MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>
-      </MenuItem>
-      <MenuItem Header="Settings">
-        <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding #thisWindow}">
-          <MenuItem.Icon>
-            <DrawingPresenter Drawing="{StaticResource settingsIcon}"></DrawingPresenter>
-          </MenuItem.Icon>
-        </MenuItem>
-      </MenuItem>
-    </Menu>
-    <Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,*,auto">
-      <StackPanel Grid.Column="0" Orientation="Horizontal">
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
-      </StackPanel>
-      <StackPanel Grid.Column="1" Orientation="Horizontal">
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
-      </StackPanel>
-      <StackPanel Grid.Column="2" Orientation="Horizontal">
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
-        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
-      </StackPanel>
-      <Grid Grid.Column="3" ColumnDefinitions="400,*">
-        <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
-        <ProgressBar Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5,5,10,5" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"
-                     IsIndeterminate="{Binding !UseDeterminateProgress}"></ProgressBar>
-      </Grid>
-      <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">
-          <StackPanel Orientation="Horizontal">
-            <DrawingPresenter Drawing="{StaticResource errorIcon}" Width="16" Height="16"></DrawingPresenter>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0" Text="{Binding ErrorDescription}"></TextBlock>
-          </StackPanel>
-        </Button>
-      </StackPanel>
-    </Grid>
-    <Grid ColumnDefinitions="*,auto,400">
-      <DockPanel Grid.Column="0" LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top">
-          <Grid HorizontalAlignment="Right" ColumnDefinitions="*,200,200" IsVisible="True">
-            <TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">ARC Region</TextBlock>
-            <ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" Items="{Binding DescriptionByRegion}" SelectedItem="{Binding SelectedRegion}">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <TextBlock Text="{Binding Value}"></TextBlock>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-			<TextBox Grid.Column="2" Margin="5" VerticalAlignment="Center" Watermark="Search ARC" Text="{Binding SearchText}">
-				<TextBox.InnerRightContent>
-					<DrawingPresenter Margin="5,0,5,0" Width="16" Height="16" Drawing="{Binding SearchIcon, Converter={StaticResource iconKeyDrawingConverter}}"
-						HorizontalAlignment="Right"></DrawingPresenter>
-				</TextBox.InnerRightContent>
-			</TextBox>
-          </Grid>
-        </StackPanel>
-        <Grid DockPanel.Dock="Top" ColumnDefinitions="*, auto">
-          <TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectoryPath}"></TextBox>
+	<Window.Resources>
+		<converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+	</Window.Resources>
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	<DockPanel LastChildFill="True" Margin="5">
+		<Menu DockPanel.Dock="Top" >
+			<MenuItem Header="File">
+				<MenuItem Name="openArcMenuItem" Width="180"  HotKey="Ctrl+O" Command="{Binding OpenArc}" DataContext="{Binding #thisWindow}">
+					<MenuItem.Header>
+						<Grid ColumnDefinitions="*,*">
+							<TextBlock Grid.Column="0" TextAlignment="Left">Open Arc</TextBlock>
+							<TextBlock Grid.Column="1" TextAlignment="Right">Ctrl+O</TextBlock>
+						</Grid>
+					</MenuItem.Header>
+					<MenuItem.Icon>
+						<Image>
+							<DrawingImage Drawing="{StaticResource openFileIcon}"></DrawingImage>
+						</Image>
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Connect to Arc" Width="180" Command="{Binding OpenArcNetworked}" DataContext="{Binding #thisWindow}">
+					<MenuItem.Icon>
+						<Image>
+							<DrawingImage Drawing="{StaticResource connectIcon}"></DrawingImage>
+						</Image>
+					</MenuItem.Icon>
+				</MenuItem>
+			</MenuItem>
+			<MenuItem Header="Arc">
+				<MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
+				<MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>
+			</MenuItem>
+			<MenuItem Header="Settings">
+				<MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding #thisWindow}">
+					<MenuItem.Icon>
+						<Image>
+							<DrawingImage Drawing="{StaticResource settingsIcon}"></DrawingImage>
+						</Image>
+					</MenuItem.Icon>
+				</MenuItem>
+			</MenuItem>
+		</Menu>
+		<Grid Margin="15,0,10,15" DockPanel.Dock="Bottom" ColumnDefinitions="auto,auto,auto,*,auto">
+			<StackPanel Grid.Column="0" Orientation="Horizontal">
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Path:</TextBlock>
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcPath}"></TextBlock>
+			</StackPanel>
+			<StackPanel Grid.Column="1" Orientation="Horizontal">
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">Version:</TextBlock>
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding ArcVersion}"></TextBlock>
+			</StackPanel>
+			<StackPanel Grid.Column="2" Orientation="Horizontal">
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">File Count:</TextBlock>
+				<TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding FileCount}"></TextBlock>
+			</StackPanel>
+			<Grid Grid.Column="3" ColumnDefinitions="400,*">
+				<TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Text="{Binding LoadingDescription}"></TextBlock>
+				<ProgressBar Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5,5,10,5" IsVisible="{Binding IsLoading}" Value="{Binding ProgressValue}"
+							 IsIndeterminate="{Binding !UseDeterminateProgress}"></ProgressBar>
+			</Grid>
+			<StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+				<Button IsVisible="{Binding HasErrors}" Command="{Binding ErrorClick}">
+					<StackPanel Orientation="Horizontal">
+						<Image Width="16" Height="16">
+							<DrawingImage Drawing="{StaticResource errorIcon}"></DrawingImage>
+						</Image>
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0" Text="{Binding ErrorDescription}"></TextBlock>
+					</StackPanel>
+				</Button>
+			</StackPanel>
+		</Grid>
+		<Grid ColumnDefinitions="*,auto,400">
+			<DockPanel Grid.Column="0" LastChildFill="True">
+				<StackPanel DockPanel.Dock="Top">
+					<Grid HorizontalAlignment="Right" ColumnDefinitions="*,200,200" IsVisible="True">
+						<TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">ARC Region</TextBlock>
+						<ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" ItemsSource="{Binding DescriptionByRegion}" SelectedItem="{Binding SelectedRegion}">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Value}"></TextBlock>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+						<TextBox Grid.Column="2" Margin="5" VerticalAlignment="Center" Watermark="Search ARC" Text="{Binding SearchText}">
+							<TextBox.InnerRightContent>
+								<Image Margin="5,0,5,0" Width="16" Height="16" HorizontalAlignment="Right">
+									<DrawingImage Drawing="{Binding SearchIcon, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingImage>
+								</Image>
+							</TextBox.InnerRightContent>
+						</TextBox>
+					</Grid>
+				</StackPanel>
+				<Grid DockPanel.Dock="Top" ColumnDefinitions="*, auto">
+					<TextBox Grid.Column="0"  Margin="5" Text="{Binding CurrentDirectoryPath}"></TextBox>
 
-          <Button Grid.Column="2" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
-        </Grid>
-        <usercontrols:FileTreeView Name="fileTreeView" Margin="5" Grid.Column="0" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"
-								   SelectedIndex="{Binding SelectedIndex}"></usercontrols:FileTreeView>
-      </DockPanel>
-      <GridSplitter Grid.Column="1" Width="5"></GridSplitter>
-      <usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedNode}"></usercontrols:FileDetailsView>
-    </Grid>
-  </DockPanel>
+					<Button Grid.Column="1" Margin="5" Command="{Binding ExitFolder}">Exit Folder</Button>
+				</Grid>
+				<usercontrols:FileTreeView Name="fileTreeView" Margin="5" Items="{Binding Files}" SelectedItem="{Binding SelectedFile}"
+										   SelectedIndex="{Binding SelectedIndex}"></usercontrols:FileTreeView>
+			</DockPanel>
+			<GridSplitter Grid.Column="1" Width="5"></GridSplitter>
+			<usercontrols:FileDetailsView Grid.Column="2" File="{Binding SelectedNode}"></usercontrols:FileDetailsView>
+		</Grid>
+	</DockPanel>
 </Window>

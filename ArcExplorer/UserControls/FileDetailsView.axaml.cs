@@ -5,7 +5,7 @@ using ArcExplorer.ViewModels;
 
 namespace ArcExplorer.UserControls
 {
-    public class FileDetailsView : UserControl
+    public partial class FileDetailsView : UserControl
     {
         public static readonly DirectProperty<FileDetailsView, FileNodeBase?> FileProperty =
             AvaloniaProperty.RegisterDirect<FileDetailsView, FileNodeBase?>(
@@ -24,11 +24,6 @@ namespace ArcExplorer.UserControls
         public FileDetailsView()
         {
             InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

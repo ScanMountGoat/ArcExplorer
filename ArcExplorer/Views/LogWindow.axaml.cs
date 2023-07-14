@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace ArcExplorer.Views
 {
-    public class LogWindow : Window
+    public partial class LogWindow : Window
     {
         public static readonly DirectProperty<LogWindow, IEnumerable> ItemsProperty =
             AvaloniaProperty.RegisterDirect<LogWindow, IEnumerable>(
@@ -24,11 +24,6 @@ namespace ArcExplorer.Views
         public LogWindow()
         {
             this.InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

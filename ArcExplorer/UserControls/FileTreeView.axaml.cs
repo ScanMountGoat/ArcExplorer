@@ -2,12 +2,11 @@
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using System.Collections;
 
 namespace ArcExplorer.UserControls
 {
-    public class FileTreeView : UserControl
+    public partial class FileTreeView : UserControl
     {
         public static readonly DirectProperty<FileTreeView, IEnumerable> ItemsProperty =
             AvaloniaProperty.RegisterDirect<FileTreeView, IEnumerable>(
@@ -26,7 +25,7 @@ namespace ArcExplorer.UserControls
             AvaloniaProperty.RegisterDirect<FileTreeView, FileGridItem?>(
             nameof(SelectedItem),
             o => o.SelectedItem,
-            (o, v) => o.SelectedItem = v, 
+            (o, v) => o.SelectedItem = v,
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
         public static readonly DirectProperty<FileTreeView, int> SelectedIndexProperty =
@@ -50,23 +49,17 @@ namespace ArcExplorer.UserControls
         }
         private int selectedIndex;
 
-        public DataGrid? FileGrid { get; }
+        public DataGrid FileGrid { get; }
 
         public FileTreeView()
         {
             InitializeComponent();
-
-            FileGrid = this.FindControl<DataGrid>("fileGrid");
+            FileGrid = fileGrid;
         }
 
         public void ExtractFile()
         {
             SelectedItem?.Node?.OnFileExtracting();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

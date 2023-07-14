@@ -7,48 +7,54 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ArcExplorer.UserControls.FileTreeView"
              Name="thisControl">
-  <UserControl.Resources>
-    <converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
-  </UserControl.Resources>
-  <DataGrid Name="fileGrid" Items="{Binding Items}" DataContext="{Binding ElementName=thisControl}" SelectedItem="{Binding SelectedItem}" SelectedIndex="{Binding SelectedIndex}"
-            IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="All">
-    <DataGrid.Styles>
-      <Style Selector="DataGridCell.right">
-        <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="Margin" Value="0,0,5,0" />
-      </Style>
-    </DataGrid.Styles>
-    <DataGrid.Columns>
-      <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*">
-        <DataGridTemplateColumn.CellTemplate>
-          <DataTemplate DataType="{x:Type vms:FileGridItem}">
-            <StackPanel Orientation="Horizontal">
-              <DrawingPresenter Margin="5,0" Width="16" Height="16" Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingPresenter>
-              <TextBlock Text="{Binding Name}" VerticalAlignment="Center"></TextBlock>
-              <DrawingPresenter Margin="5,0" Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsShared}"></DrawingPresenter>
-              <DrawingPresenter Margin="5,0" Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" IsVisible="{Binding IsRegional}"></DrawingPresenter>
-            </StackPanel>
-          </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
-      <DataGridTextColumn Header="Description" Width="200" Binding="{Binding Description}"></DataGridTextColumn>
-      <DataGridTextColumn CanUserSort="True" Header="Compressed Size" Width="150" Binding="{Binding CompressedSize.Description}" SortMemberPath="CompressedSize.SizeValue" 
-                          CellStyleClasses="right">
-      </DataGridTextColumn>
-      <DataGridTextColumn CanUserSort="True" Header="Decompressed Size" Width="150" Binding="{Binding DecompressedSize.Description}" SortMemberPath="DecompressedSize.SizeValue"
-                          CellStyleClasses="right">
-      </DataGridTextColumn>
-    </DataGrid.Columns>
-    <DataGrid.ContextMenu>
-      <ContextMenu>
-        <MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
-      </ContextMenu>
-    </DataGrid.ContextMenu>
-  </DataGrid>
-  <UserControl.Styles>
-    <Style Selector="DataGridRow">
-      <Setter Property="Background" Value="{Binding #fileGrid.Background}" />
-      <Setter Property="Focusable" Value="False"></Setter>
-    </Style>
-  </UserControl.Styles>
+	<UserControl.Resources>
+		<converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+	</UserControl.Resources>
+	<DataGrid Name="fileGrid" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectedIndex="{Binding SelectedIndex}"
+			  IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True" HeadersVisibility="All">
+		<DataGrid.Styles>
+			<Style Selector="DataGridCell.right">
+				<Setter Property="HorizontalAlignment" Value="Right" />
+				<Setter Property="Margin" Value="0,0,5,0" />
+			</Style>
+		</DataGrid.Styles>
+		<DataGrid.Columns>
+			<DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate DataType="{x:Type vms:FileGridItem}">
+						<StackPanel Orientation="Horizontal">
+							<Image Margin="5,0" Width="16" Height="16" >
+								<DrawingImage Drawing="{Binding TreeViewIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingImage>
+							</Image>
+							<TextBlock Text="{Binding Name}" VerticalAlignment="Center"></TextBlock>
+							<Image Margin="5,0" IsVisible="{Binding IsShared}">
+								<DrawingImage Drawing="{Binding SharedIconKey, Converter={StaticResource iconKeyDrawingConverter}}"></DrawingImage>
+							</Image>
+							<Image Margin="5,0" IsVisible="{Binding IsRegional}">
+								<DrawingImage Drawing="{Binding RegionalIconKey, Converter={StaticResource iconKeyDrawingConverter}}" ></DrawingImage>
+							</Image>
+						</StackPanel>
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+			<DataGridTextColumn Header="Description" Width="200" Binding="{Binding Description}"></DataGridTextColumn>
+			<DataGridTextColumn CanUserSort="True" Header="Compressed Size" Width="150" Binding="{Binding CompressedSize.Description}" SortMemberPath="CompressedSize.SizeValue"
+								CellStyleClasses="right">
+			</DataGridTextColumn>
+			<DataGridTextColumn CanUserSort="True" Header="Decompressed Size" Width="150" Binding="{Binding DecompressedSize.Description}" SortMemberPath="DecompressedSize.SizeValue"
+								CellStyleClasses="right">
+			</DataGridTextColumn>
+		</DataGrid.Columns>
+		<DataGrid.ContextMenu>
+			<ContextMenu>
+				<MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
+			</ContextMenu>
+		</DataGrid.ContextMenu>
+	</DataGrid>
+	<UserControl.Styles>
+		<Style Selector="DataGridRow">
+			<Setter Property="Background" Value="{Binding #fileGrid.Background}" />
+			<Setter Property="Focusable" Value="False"></Setter>
+		</Style>
+	</UserControl.Styles>
 </UserControl>

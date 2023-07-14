@@ -11,11 +11,11 @@
   <StackPanel Margin="10">
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Application Theme</TextBlock>
-      <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" Items="{Binding Themes}" SelectedItem="{Binding CurrentTheme}" VerticalAlignment="Center"></ComboBox>
+      <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding CurrentTheme}" VerticalAlignment="Center"></ComboBox>
     </Grid>
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">File Properties Display Format</TextBlock>
-      <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" Items="{Binding IntegerDisplayFormats}" SelectedItem="{Binding IntegerDisplayFormat}" VerticalAlignment="Center"></ComboBox>
+      <ComboBox Margin="5" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding IntegerDisplayFormats}" SelectedItem="{Binding IntegerDisplayFormat}" VerticalAlignment="Center"></ComboBox>
     </Grid>
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Extract Location</TextBlock>

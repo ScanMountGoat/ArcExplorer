@@ -34,11 +34,11 @@ namespace ArcExplorer.Converters
 
         public object? GetIconResource(string key)
         {
-            var dictionary = Application.Current.Resources.MergedDictionaries.FirstOrDefault();
-            if (dictionary == null)
-                return null;
+            var dictionary = Application.Current?.Resources.MergedDictionaries.FirstOrDefault();
 
-            dictionary.TryGetResource(key, out object? resource);
+            // TODO: Theme variant?
+            object? resource = null;
+            dictionary?.TryGetResource(key, null, out resource);
             return resource;
         }
 

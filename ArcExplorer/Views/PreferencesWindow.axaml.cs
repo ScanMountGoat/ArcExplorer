@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace ArcExplorer.Views
 {
-    public class PreferencesWindow : ReactiveWindow<PreferencesWindowViewModel>
+    public partial class PreferencesWindow : ReactiveWindow<PreferencesWindowViewModel>
     {
         public static Lazy<PreferencesWindow> Instance { get; } = new Lazy<PreferencesWindow>();
 
@@ -54,11 +54,6 @@ namespace ArcExplorer.Views
             {
                 ViewModel.ArcStartupLocation = result[0];
             }
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

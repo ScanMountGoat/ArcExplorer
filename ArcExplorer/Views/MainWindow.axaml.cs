@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace ArcExplorer.Views
 {
-    public class MainWindow : ReactiveWindow<MainWindowViewModel>
+    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()
         {
@@ -21,7 +21,6 @@ namespace ArcExplorer.Views
             // Use the event on the parent window to avoid keyboard focus issues.
             KeyDown += FolderNavigation_KeyDown;
 
-            var fileTreeView = this.FindControl<FileTreeView>("fileTreeView");
             fileTreeView.DoubleTapped += MainWindow_DoubleTapped;
 
             // Navigation keys won't normally trigger the key down event, so add an additional handler.
@@ -126,11 +125,6 @@ namespace ArcExplorer.Views
             };
 
             await dialog.ShowDialog(this);
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }
