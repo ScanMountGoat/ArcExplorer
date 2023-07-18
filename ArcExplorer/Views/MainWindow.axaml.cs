@@ -8,6 +8,7 @@ using Avalonia.ReactiveUI;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ArcExplorer.Views
 {
@@ -105,9 +106,9 @@ namespace ArcExplorer.Views
                 IpAddress = ApplicationSettings.Instance.ArcIpAddress ?? "000.000.000.000"
             };
 
-            var dialog = new OpenArcConnectionWindow 
-            { 
-                ViewModel = vm 
+            var dialog = new OpenArcConnectionWindow
+            {
+                ViewModel = vm
             };
 
             dialog.Closed += (s, e) =>

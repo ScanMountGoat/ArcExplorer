@@ -11,7 +11,7 @@ namespace ArcExplorer.UserControls
             AvaloniaProperty.RegisterDirect<FileDetailsView, FileNodeBase?>(
             nameof(File),
             o => o.File,
-            (o, v) => o.File = v, 
+            (o, v) => o.File = v,
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
         public FileNodeBase? File

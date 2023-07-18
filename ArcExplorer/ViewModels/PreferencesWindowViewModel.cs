@@ -18,8 +18,8 @@ namespace ArcExplorer.ViewModels
 
         public Array IntegerDisplayFormats { get; } = Enum.GetValues(typeof(ApplicationSettings.IntegerDisplayFormat));
 
-        public ApplicationSettings.IntegerDisplayFormat IntegerDisplayFormat 
-        { 
+        public ApplicationSettings.IntegerDisplayFormat IntegerDisplayFormat
+        {
             get => integerDisplayFormat;
             set => this.RaiseAndSetIfChanged(ref integerDisplayFormat, value);
         }
@@ -70,7 +70,7 @@ namespace ArcExplorer.ViewModels
                     if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                     {
                         if (desktop.MainWindow.DataContext is MainWindowViewModel vm)
-                        { 
+                        {
                             vm.ReloadCurrentDirectory();
                             vm.RefreshIcons();
                         }

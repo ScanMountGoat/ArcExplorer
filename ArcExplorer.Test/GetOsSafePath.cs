@@ -9,7 +9,7 @@ namespace ArcExplorer.Test
         [TestMethod]
         public void PrebuiltFile()
         {
-            Assert.AreEqual("prebuilt/final_00.h264", 
+            Assert.AreEqual("prebuilt/final_00.h264",
                 ArcPaths.GetOsSafePath("prebuilt:/final_00.h264", "final_00.h264", "h264"));
         }
 
@@ -18,7 +18,7 @@ namespace ArcExplorer.Test
         {
             Assert.AreEqual("stream/movie/c2_howtoplay.webm", ArcPaths.GetOsSafePath("stream:/movie/c2_howtoplay.webm", "c2_howtoplay.webm", "webm"));
         }
-        
+
         [TestMethod]
         public void MissingHash()
         {

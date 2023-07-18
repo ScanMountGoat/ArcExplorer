@@ -13,9 +13,9 @@ namespace ArcExplorer.ViewModels
 
         public bool WasCancelled { get; set; } = true;
 
-        public string IpAddress 
-        { 
-            get => ipAddress; 
+        public string IpAddress
+        {
+            get => ipAddress;
             set => this.RaiseAndSetIfChanged(ref ipAddress, value);
         }
         private string ipAddress = "000.000.000.000";

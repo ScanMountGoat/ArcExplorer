@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ArcExplorer.Views
 {
@@ -48,7 +49,7 @@ namespace ArcExplorer.Views
                 AllowMultiple = false,
                 Filters = new List<FileDialogFilter> { new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" } }
             };
-            
+
             var result = await dialog.ShowAsync(this);
             if (result.Length > 0 && !string.IsNullOrEmpty(result[0]) && ViewModel != null)
             {

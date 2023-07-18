@@ -17,7 +17,7 @@ namespace ArcExplorer.ViewModels
             Date = date;
         }
 
-        public bool WasCancelled 
+        public bool WasCancelled
         {
             get => wasCancelled;
             set => this.RaiseAndSetIfChanged(ref wasCancelled, value);
