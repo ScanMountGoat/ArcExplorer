@@ -10,6 +10,7 @@
 	<PropertyGroup>
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>Link</TrimMode>
+		<PublishSingleFile>true</PublishSingleFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
