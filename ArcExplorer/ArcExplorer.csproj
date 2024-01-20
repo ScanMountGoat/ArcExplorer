@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ApplicationIcon>Assets\arc.ico</ApplicationIcon>
 		<Nullable>enable</Nullable>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
 	</PropertyGroup>
 	<PropertyGroup>
 		<PublishTrimmed>true</PublishTrimmed>
@@ -66,7 +67,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<!--TODO: how to not hardcode .NET 6?-->
-		<CargoTargetPath>$(MSBuildThisFileDirectory)/../SmashArcNet/SmashArcNet/bin/$(Configuration)/net6.0</CargoTargetPath>
+		<CargoTargetPath>$(MSBuildThisFileDirectory)/../SmashArcNet/SmashArcNet/bin/$(Configuration)/net8.0</CargoTargetPath>
 
 		<CargoExtension Condition=" '$(IsWindows)' == 'true' ">dll</CargoExtension>
 		<CargoExtension Condition=" '$(IsLinux)' == 'true' ">so</CargoExtension>
