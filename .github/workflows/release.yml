@@ -23,7 +23,7 @@ jobs:
         dotnet publish ArcExplorer -c Release -r win-x64
         copy ArcExplorer\bin\Release\net8.0\win-x64\smash_arc.dll ArcExplorer\bin\Release\net8.0\win-x64\publish\smash_arc.dll
     - name: Create Release Zip
-      run: Compress-Archive -path ArcExplorer\bin\Release\net8.0\win-x64\publish\ -destinationPath ArcExplorer_win_x64.zip
+      run: Compress-Archive -path "ArcExplorer\bin\Release\net8.0\win-x64\publish\*" -destinationPath ArcExplorer_win_x64.zip
     - name: Upload Zip
       uses: actions/upload-artifact@v3
       with:
