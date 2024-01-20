@@ -57,18 +57,17 @@ jobs:
     - name: Create Release Zip
       run: |
         # Ignore folders
-        cd ArcExplorer/bin/Release/net8.0/osx-x64/publish/
-        zip ArcExplorer_macos.zip ArcExplorer.app
-        cd ../../../../../../
+        cp -r ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app ArcExplorer.app
+        zip -r ArcExplorer_macos_x64.zip ArcExplorer.app
     - name: Upload Zip
       uses: actions/upload-artifact@v3
       with:
-        name: ArcExplorer_macos
-        path: ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer_macos.zip
+        name: ArcExplorer_macos_x64
+        path: ArcExplorer_macos_x64.zip
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer_macos.zip
+        files: ArcExplorer_macos_x64.zip
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
