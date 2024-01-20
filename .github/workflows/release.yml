@@ -48,8 +48,10 @@ jobs:
         dotnet-version: '8.0.x'
     - name: Publish
       run: |
-        dotnet msbuild ArcExplorer -t:BundleApp -p:RuntimeIdentifier=osx-x64 -property:Configuration=Release -p:UseAppHost=true -p:SelfContained=true
-        cp ArcExplorer/bin/Release/net8.0/osx-x64/libsmash_arc.dylib ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app/Contents/MacOS/libsmash_arc.dylib
+        cd ArcExplorer
+        dotnet build -t:BundleApp -p:RuntimeIdentifier=osx-x64 -property:Configuration=Release -p:UseAppHost=true -p:SelfContained=true
+        cp bin/Release/net8.0/osx-x64/libsmash_arc.dylib bin/Release/net8.0/osx-x64/publish/ArcExplorer.app/Contents/MacOS/libsmash_arc.dylib
+        cd ..
     - name: Sign Binaries
       run: codesign -s - --force --deep ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app
     - name: Create Release Zip
