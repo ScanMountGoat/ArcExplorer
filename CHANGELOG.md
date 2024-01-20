@@ -1,4 +1,7 @@
 # Change Log
+## unreleased
+* Added an option to open the parent folder for files in search results.
+
 ## v1.4.4 - 2023-02-14
 * Fixed an issue where keyboard navigation and text boxes did not work properly.
 

@@ -12,6 +12,8 @@ namespace ArcExplorer.ViewModels
 
 
         public event EventHandler? FileExtracting;
+        public event EventHandler? OpeningParentFolder;
+
         public abstract Dictionary<string, string> ObjectProperties { get; }
 
         public virtual ApplicationStyles.Icon TreeViewIconKey => ApplicationStyles.Icon.Document;
@@ -32,6 +34,11 @@ namespace ArcExplorer.ViewModels
         public void OnFileExtracting()
         {
             FileExtracting?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void OnOpeningParentFolder()
+        {
+            OpeningParentFolder?.Invoke(this, EventArgs.Empty);
         }
     }
 }

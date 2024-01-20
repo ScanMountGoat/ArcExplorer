@@ -233,7 +233,7 @@ namespace ArcExplorer.Tools
             var exportFileDirectory = Path.GetDirectoryName(exportPath);
             try
             {
-                if (!Directory.Exists(exportFileDirectory))
+                if (exportFileDirectory != null && !Directory.Exists(exportFileDirectory))
                     Directory.CreateDirectory(exportFileDirectory);
             }
             catch (Exception e)

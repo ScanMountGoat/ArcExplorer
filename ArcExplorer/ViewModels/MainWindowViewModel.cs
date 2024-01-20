@@ -96,7 +96,7 @@ namespace ArcExplorer.ViewModels
                 if (arcFile != null && value != currentDirectoryPath)
                 {
                     this.RaiseAndSetIfChanged(ref currentDirectoryPath, value);
-                    var cleanedPath = ArcPaths.GetCleanedDirectoryPath(value);
+                    var cleanedPath = ArcPaths.GetCleanedFilePath(value);
                     LoadFolder(cleanedPath);
                 }
             }
@@ -301,11 +301,22 @@ namespace ArcExplorer.ViewModels
                 if (!string.IsNullOrEmpty(searchText))
                 {
                     var nodes = FileTree.SearchAllNodes(arcFile, BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, searchText, ApplicationSettings.Instance.MergeTrailingSlash);
+
+                    foreach (var file in nodes)
+                    {
+                        // Cancel search and trigger a load of the parent folder.
+                        file.OpeningParentFolder += (s, e) =>
+                        {
+                            SearchText = "";
+                            CurrentDirectoryPath = ArcPaths.GetParentPath(file.AbsolutePath);
+                        };
+                    }
+
                     Files = new AvaloniaList<FileGridItem>(nodes.Select(n => new FileGridItem(n)));
                 }
                 else
                 {
-                    LoadRootNodes(arcFile);
+                    Avalonia.Threading.Dispatcher.UIThread.Invoke(() => LoadFolder(CurrentDirectoryPath));
                 }
             }
         }
@@ -358,11 +369,18 @@ namespace ArcExplorer.ViewModels
 
         private void LoadFolder(string? path)
         {
-            if (arcFile != null && path != null)
+            if (arcFile != null)
             {
-                var parent = FileTree.CreateNodeFromPath(arcFile, path,
-                    BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
-                LoadFolder(parent as FolderNode);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    var parent = FileTree.CreateNodeFromPath(arcFile, path,
+                        BackgroundTaskStart, BackgroundTaskReportProgress, BackgroundTaskEnd, ApplicationSettings.Instance.MergeTrailingSlash);
+                    LoadFolder(parent as FolderNode);
+                }
+                else
+                {
+                    LoadRootNodes(arcFile);
+                }
             }
         }
 

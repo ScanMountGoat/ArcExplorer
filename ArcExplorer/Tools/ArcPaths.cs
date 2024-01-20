@@ -54,7 +54,7 @@ namespace ArcExplorer.Tools
         /// </summary>
         /// <param name="absolutePath"></param>
         /// <returns>The cleaned path</returns>
-        public static string? GetCleanedDirectoryPath(string? absolutePath)
+        public static string? GetCleanedFilePath(string? absolutePath)
         {
             // TODO: Automatically convert file paths to their parent folder.
             return absolutePath?.Replace("\\", "/").Replace("//", "/");

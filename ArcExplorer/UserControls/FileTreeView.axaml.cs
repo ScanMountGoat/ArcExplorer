@@ -61,5 +61,10 @@ namespace ArcExplorer.UserControls
         {
             SelectedItem?.Node?.OnFileExtracting();
         }
+
+        public void OpenParentFolder()
+        {
+            SelectedItem?.Node?.OnOpeningParentFolder();
+        }
     }
 }
