@@ -55,16 +55,20 @@ jobs:
     - name: Sign Binaries
       run: codesign -s - --force --deep ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app
     - name: Create Release Zip
-      run: zip -j ArcExplorer_macos.zip ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app
+      run: |
+        # Ignore folders
+        cd ArcExplorer/bin/Release/net8.0/osx-x64/publish/
+        zip ArcExplorer_macos.zip ArcExplorer.app
+        cd ../../../../../../
     - name: Upload Zip
       uses: actions/upload-artifact@v3
       with:
         name: ArcExplorer_macos
-        path: ArcExplorer_macos.zip
+        path: ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer_macos.zip
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: ArcExplorer_macos.zip
+        files: ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer_macos.zip
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
