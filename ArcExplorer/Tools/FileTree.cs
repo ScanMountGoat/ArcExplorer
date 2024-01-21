@@ -258,8 +258,7 @@ namespace ArcExplorer.Tools
             var filePath = ArcPaths.GetOsSafePath(arcNode.Path, arcNode.FileName, arcNode.Extension);
 
             // If the user selects an absolute path for the extract location, this overrides the current directory.
-            var executableDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
-            var exportDirectory = Path.Combine(executableDirectory, ApplicationSettings.Instance.ExtractLocation);
+            var exportDirectory = Path.Combine(AppContext.BaseDirectory, ApplicationSettings.Instance.ExtractLocation);
             var paths = new string[] { exportDirectory };
 
             // Use the OS directory separators instead of the ARC path separators. 
