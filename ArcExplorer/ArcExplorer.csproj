@@ -11,16 +11,18 @@
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>Link</TrimMode>
 		<PublishSingleFile>true</PublishSingleFile>
+		<AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
 		<None Update="Assets/ArcExplorer.icns" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('osx'))">
       		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    	</None>	
+    	</None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.0.7" />
 		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.7" />
+		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.0.7" />
 		<PackageReference Include="Avalonia.Desktop" Version="11.0.7" />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.7" />
 		<PackageReference Include="Avalonia.Themes.Simple" Version="11.0.7" />
