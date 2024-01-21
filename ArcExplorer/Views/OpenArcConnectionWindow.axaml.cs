@@ -1,5 +1,4 @@
 ﻿using ArcExplorer.ViewModels;
-using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 
 namespace ArcExplorer.Views

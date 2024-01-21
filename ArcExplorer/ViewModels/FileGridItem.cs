@@ -1,6 +1,4 @@
-﻿using ReactiveUI;
-
-namespace ArcExplorer.ViewModels
+﻿namespace ArcExplorer.ViewModels
 {
     public sealed class FileGridItem
     {

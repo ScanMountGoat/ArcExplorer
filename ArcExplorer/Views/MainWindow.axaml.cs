@@ -3,12 +3,10 @@ using ArcExplorer.UserControls;
 using ArcExplorer.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ArcExplorer.Views
 {

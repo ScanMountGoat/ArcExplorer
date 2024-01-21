@@ -440,6 +440,11 @@ namespace ArcExplorer.ViewModels
                 ApplicationSettings.Instance.MergeTrailingSlash);
         }
 
+        public void ExtractSelectedNode()
+        {
+            SelectedFile?.Node.OnFileExtracting();
+        }
+
         public void ReloadCurrentDirectory()
         {
             // Store the paths since the nodes themselves need to be recreated.

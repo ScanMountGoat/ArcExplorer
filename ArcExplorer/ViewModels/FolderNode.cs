@@ -1,5 +1,4 @@
 ﻿using ArcExplorer.Models;
-using ReactiveUI;
 using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels

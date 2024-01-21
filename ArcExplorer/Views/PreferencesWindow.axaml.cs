@@ -1,11 +1,9 @@
 ﻿using ArcExplorer.Models;
 using ArcExplorer.ViewModels;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ArcExplorer.Views
 {
