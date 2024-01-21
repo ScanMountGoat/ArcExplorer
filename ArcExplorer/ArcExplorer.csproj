@@ -11,7 +11,7 @@
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>Link</TrimMode>
 		<PublishSingleFile>true</PublishSingleFile>
-		<AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />

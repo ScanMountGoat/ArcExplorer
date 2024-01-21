@@ -10,8 +10,7 @@
         x:Class="ArcExplorer.Views.PreferencesWindow"
         Name="thisControl"
         Title="Preferences"
-		x:DataType="vms:PreferencesWindowViewModel"
-		x:CompileBindings="True">
+		x:DataType="vms:PreferencesWindowViewModel">
   <StackPanel Margin="10">
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Application Theme</TextBlock>

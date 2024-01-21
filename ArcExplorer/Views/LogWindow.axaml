@@ -10,8 +10,7 @@
         Icon="/Assets/arc.ico"
         Name="thisControl"
         Title="Application Log"
-		x:DataType="vms:LogWindowViewModel"
-		x:CompileBindings="True">
+		x:DataType="vms:LogWindowViewModel">
 	<ItemsControl ItemsSource="{Binding Items}" Margin="5">
 		<ItemsControl.ItemTemplate>
 			<DataTemplate DataType="{x:Type sys:String}">

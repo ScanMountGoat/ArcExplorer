@@ -10,8 +10,7 @@
         Name="thisWindow"
         Title="Hash labels update available"
         SizeToContent="Height"
-		x:DataType="vms:HashUpdateDialogViewModel"
-		x:CompileBindings="True">
+		x:DataType="vms:HashUpdateDialogViewModel">
   <DockPanel LastChildFill="True" Margin="10">
     <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" DataContext="{Binding #thisWindow}">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Remind me later</Button>

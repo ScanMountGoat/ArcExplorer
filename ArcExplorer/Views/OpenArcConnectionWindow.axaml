@@ -10,8 +10,7 @@
         Name="thisControl"
         Title="Connect to ARC"
         WindowStartupLocation="CenterOwner"
-		x:DataType="vms:OpenArcConnectionWindowViewModel"
-		x:CompileBindings="True">
+		x:DataType="vms:OpenArcConnectionWindowViewModel">
   <StackPanel Margin="10">
     <Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
       <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">IP Address</TextBlock>
