@@ -2,13 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vms="using:ArcExplorer.ViewModels"
         mc:Ignorable="d" Width="475" Height="250"
         Icon="avares://ArcExplorer/Assets/arc.ico"
         WindowStartupLocation="CenterOwner"
         x:Class="ArcExplorer.Views.HashUpdateDialog"
         Name="thisWindow"
         Title="Hash labels update available"
-        SizeToContent="Height">
+        SizeToContent="Height"
+		x:DataType="vms:HashUpdateDialogViewModel"
+		x:CompileBindings="True">
   <DockPanel LastChildFill="True" Margin="10">
     <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" DataContext="{Binding #thisWindow}">
       <Button Grid.Column="0" Margin="5" Command="{Binding CancelClick}">Remind me later</Button>

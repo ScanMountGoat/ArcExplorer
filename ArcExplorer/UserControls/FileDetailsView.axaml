@@ -43,7 +43,7 @@
 					<TextBlock  Margin="5,0" Text="{Binding SharedFileDescription}" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
 				</StackPanel>
 				<Grid Name="parentGrid">
-					<ScrollViewer Height="{Binding ActualHeight, ElementName=parentGrid}">
+					<ScrollViewer Height="{Binding #parentGrid.ActualHeight}">
 						<ItemsRepeater ItemsSource="{Binding SharedFilePaths}">
 							<ItemsRepeater.ItemTemplate>
 								<DataTemplate>
@@ -77,5 +77,5 @@
 			</DockPanel>
 		</DataTemplate>
 	</UserControl.DataTemplates>
-	<ContentControl DataContext="{Binding ElementName=thisControl}" Content="{Binding File}"></ContentControl>
+	<ContentControl Content="{Binding #thisControl.File}"></ContentControl>
 </UserControl>

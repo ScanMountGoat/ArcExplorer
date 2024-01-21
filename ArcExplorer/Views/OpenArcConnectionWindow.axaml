@@ -2,13 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vms="using:ArcExplorer.ViewModels"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
         Width="400" Height="120"
         x:Class="ArcExplorer.Views.OpenArcConnectionWindow"
         Icon="avares://ArcExplorer/Assets/arc.ico"
         Name="thisControl"
         Title="Connect to ARC"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+		x:DataType="vms:OpenArcConnectionWindowViewModel"
+		x:CompileBindings="True">
   <StackPanel Margin="10">
     <Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
       <TextBlock Margin="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">IP Address</TextBlock>

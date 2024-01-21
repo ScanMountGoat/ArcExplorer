@@ -2,12 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vms="using:ArcExplorer.ViewModels"
+		xmlns:views="using:ArcExplorer.Views"
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="400"
         Width="800" Height="400"
         Icon="/Assets/arc.ico"
         x:Class="ArcExplorer.Views.PreferencesWindow"
         Name="thisControl"
-        Title="Preferences">
+        Title="Preferences"
+		x:DataType="vms:PreferencesWindowViewModel"
+		x:CompileBindings="True">
   <StackPanel Margin="10">
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Application Theme</TextBlock>
@@ -21,14 +25,14 @@
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Extract Location</TextBlock>
       <Grid RowDefinitions="*" ColumnDefinitions="*,100" Grid.Column="1">
         <TextBox Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Text="{Binding ExtractLocation}"></TextBox>
-        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFolderClick}" DataContext="{Binding ElementName=thisControl}" Margin="5">Open Folder</Button>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding #thisControl.OpenFolderClick, DataType={x:Type views:PreferencesWindow}}" Margin="5">Open Folder</Button>
       </Grid>
     </Grid>
     <Grid RowDefinitions="*" ColumnDefinitions="200,*">
       <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Left" VerticalAlignment="Center">Open ARC on startup</TextBlock>
       <Grid RowDefinitions="*" ColumnDefinitions="*,100" Grid.Column="1">
         <TextBox Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Text="{Binding ArcStartupLocation}"></TextBox>
-        <Button Grid.Row="0" Grid.Column="1" Command="{Binding OpenFileClick}" DataContext="{Binding ElementName=thisControl}" Margin="5">Open File</Button>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding #thisControl.OpenFileClick, DataType={x:Type views:PreferencesWindow}}" Margin="5">Open File</Button>
       </Grid>
     </Grid>
     <CheckBox Margin="5" IsChecked="{Binding StartMaximized}" HorizontalAlignment="Left">Start application maximized</CheckBox>

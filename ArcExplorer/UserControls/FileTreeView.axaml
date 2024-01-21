@@ -47,8 +47,8 @@
 		</DataGrid.Columns>
 		<DataGrid.ContextMenu>
 			<ContextMenu>
-				<MenuItem Header="Extract File" DataContext="{Binding ElementName=thisControl}" Command="{Binding ExtractFile}"></MenuItem>
-				<MenuItem Header="Open Parent Folder" DataContext="{Binding ElementName=thisControl}" Command="{Binding OpenParentFolder}"></MenuItem>
+				<MenuItem Header="Extract File" Command="{Binding #thisControl.ExtractFile}"></MenuItem>
+				<MenuItem Header="Open Parent Folder" Command="{Binding #thisControl.OpenParentFolder}"></MenuItem>
 			</ContextMenu>
 		</DataGrid.ContextMenu>
 	</DataGrid>

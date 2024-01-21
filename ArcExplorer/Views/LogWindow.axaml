@@ -2,15 +2,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vms="using:ArcExplorer.ViewModels"
+		xmlns:sys="using:System"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         Width="500" Height="500"
         x:Class="ArcExplorer.Views.LogWindow"
         Icon="/Assets/arc.ico"
         Name="thisControl"
-        Title="Application Log">
-	<ItemsControl ItemsSource="{Binding Items}" DataContext="{Binding ElementName=thisControl}" Margin="5">
+        Title="Application Log"
+		x:DataType="vms:LogWindowViewModel"
+		x:CompileBindings="True">
+	<ItemsControl ItemsSource="{Binding Items}" Margin="5">
 		<ItemsControl.ItemTemplate>
-			<DataTemplate>
+			<DataTemplate DataType="{x:Type sys:String}">
 				<StackPanel Orientation="Horizontal">
 					<Image Margin="5,2" Width="16" Height="16">
 						<DrawingImage  Drawing="{StaticResource errorIcon}"></DrawingImage>

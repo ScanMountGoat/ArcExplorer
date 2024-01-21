@@ -426,7 +426,7 @@ namespace ArcExplorer.ViewModels
 
         public void ErrorClick()
         {
-            var window = new Views.LogWindow() { Items = ApplicationSink.Instance.Value.LogMessages };
+            var window = new Views.LogWindow();
             window.Show();
         }
 

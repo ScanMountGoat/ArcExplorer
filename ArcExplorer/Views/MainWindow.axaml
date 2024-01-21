@@ -5,13 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:usercontrols="clr-namespace:ArcExplorer.UserControls"
         xmlns:converters="clr-namespace:ArcExplorer.Converters"
+		xmlns:vms="using:ArcExplorer.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         x:Class="ArcExplorer.Views.MainWindow"
         Icon="/Assets/arc.ico"
         Title="{Binding Title}"
-        Name="thisWindow">
+        Name="thisWindow"
+		x:DataType="vms:MainWindowViewModel"
+		x:CompileBindings="True">
 	<Window.Resources>
 		<converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
 	</Window.Resources>
@@ -43,8 +46,8 @@
 				</MenuItem>
 			</MenuItem>
 			<MenuItem Header="Arc">
-				<MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
-				<MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>
+				<!--<MenuItem Header="Extract Selected File/Folder" Command="{Binding ExtractSelectedNode}" IsEnabled="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"></MenuItem>
+				<MenuItem Header="Extract All Files" Command="{Binding ExtractAllFiles}"></MenuItem>-->
 			</MenuItem>
 			<MenuItem Header="Settings">
 				<MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindow}" DataContext="{Binding #thisWindow}">
@@ -91,11 +94,11 @@
 					<Grid HorizontalAlignment="Right" ColumnDefinitions="*,200,200" IsVisible="True">
 						<TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">ARC Region</TextBlock>
 						<ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" ItemsSource="{Binding DescriptionByRegion}" SelectedItem="{Binding SelectedRegion}">
-							<ComboBox.ItemTemplate>
+							<!--<ComboBox.ItemTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Value}"></TextBlock>
 								</DataTemplate>
-							</ComboBox.ItemTemplate>
+							</ComboBox.ItemTemplate>-->
 						</ComboBox>
 						<TextBox Grid.Column="2" Margin="5" VerticalAlignment="Center" Watermark="Search ARC" Text="{Binding SearchText}">
 							<TextBox.InnerRightContent>

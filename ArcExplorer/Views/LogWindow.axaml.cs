@@ -1,29 +1,15 @@
-﻿using Avalonia;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using System.Collections;
+﻿using ArcExplorer.Logging;
+using ArcExplorer.ViewModels;
+using Avalonia.ReactiveUI;
 
 namespace ArcExplorer.Views
 {
-    public partial class LogWindow : Window
+    public partial class LogWindow : ReactiveWindow<LogWindowViewModel>
     {
-        public static readonly DirectProperty<LogWindow, IEnumerable> ItemsProperty =
-            AvaloniaProperty.RegisterDirect<LogWindow, IEnumerable>(
-            nameof(Items),
-            o => o.Items,
-            (o, v) => o.Items = v);
-
-        public IEnumerable Items
-        {
-            get => items;
-            set => SetAndRaise(ItemsProperty, ref items, value);
-        }
-        private IEnumerable items = new AvaloniaList<string>();
-
         public LogWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            ViewModel = new LogWindowViewModel { Items = ApplicationSink.Instance.Value.LogMessages };
         }
     }
 }
