@@ -44,8 +44,8 @@
 	<PropertyGroup>
 		<CFBundleName>ArcExplorer</CFBundleName>
 		<CFBundleDisplayName>ArcExplorer</CFBundleDisplayName>
-		<CFBundleVersion>1.4.4</CFBundleVersion>
-		<CFBundleShortVersionString>1.4.4</CFBundleShortVersionString>
+		<CFBundleVersion>1.4.5</CFBundleVersion>
+		<CFBundleShortVersionString>1.4.5</CFBundleShortVersionString>
 		<CFBundleExecutable>ArcExplorer</CFBundleExecutable>
 		<CFBundleIconFile>Assets/ArcExplorer.icns</CFBundleIconFile>
 	</PropertyGroup>

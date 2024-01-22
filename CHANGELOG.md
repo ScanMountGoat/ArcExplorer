@@ -1,5 +1,5 @@
 # Change Log
-## unreleased
+## v1.4.5 - 2024-01-21
 * Added an option to open the parent folder for files in search results.
 * Fixed an issue where Arc > Extract Selected File/Folder was always disabled.
 
