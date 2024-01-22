@@ -9,7 +9,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>Link</TrimMode>
+		<TrimMode>partial</TrimMode>
 		<PublishSingleFile>true</PublishSingleFile>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
@@ -31,6 +31,18 @@
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="SerilogTimings" Version="3.0.1" />
 		<PackageReference Include="Dotnet.Bundle" Version="*" Condition="$(RuntimeIdentifier.StartsWith('osx'))" />
+	</ItemGroup>
+	<ItemGroup>
+		<TrimmableAssembly Include="Avalonia" />
+		<TrimmableAssembly Include="Avalonia.Controls.DataGrid" />
+		<TrimmableAssembly Include="Avalonia.Controls.ItemsRepeater" />
+		<TrimmableAssembly Include="Avalonia.Desktop" />
+		<TrimmableAssembly Include="Avalonia.ReactiveUI" />
+		<TrimmableAssembly Include="Avalonia.Themes.Simple" />
+		<TrimmerRootAssembly Include="Octokit" />
+		<TrimmerRootAssembly Include="Serilog" />
+		<TrimmerRootAssembly Include="Serilog.Sinks.File" />
+		<TrimmerRootAssembly Include="SerilogTimings" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SmashArcNet\SmashArcNet\SmashArcNet.csproj" />
