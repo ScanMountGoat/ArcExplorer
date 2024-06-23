@@ -49,15 +49,10 @@ Folders or individual files can be extracted by right clicking the folder or fil
 ## User Preferences
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
 
-## Building (WIP)
-This project contains submodules, so clone with  
-`git clone --recurse-submodules https://github.com/ScanMountGoat/ArcExplorer`.  
-
-The smash-arc library is built using cross with the following commands. This improves compatibility compared to building locally and eliminates the need to install runtime components. The downside is increased binary sizes.  
-`cross build --target x86_64-unknown-linux-gnu --release --features=libzstd,search,ffi-bindings`  
-`cross build --target x86_64-pc-windows-gnu --release --features=libzstd,search,ffi-bindings`  
-
-Build in Visual Studio 2022 or later or using `dotnet build` from terminal. This requires the .NET 6.0 SDK and a recent Rust toolchain. The Rust toolchain can be installed via rustup. 
+## Building
+This project contains submodules, so clone with `git clone --recursive https://github.com/ScanMountGoat/ArcExplorer`.  
+Build in Visual Studio 2022 or later or using `dotnet build` from terminal.  
+This requires the .NET 8.0 SDK and a recent Rust toolchain.
 
 ## Credits
 [AvaloniaUI](https://github.com/AvaloniaUI/Avalonia) - cross platform UI Framework  
