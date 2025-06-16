@@ -9,8 +9,12 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>partial</TrimMode>
+		<PublishAot>true</PublishAot>
 		<PublishSingleFile>true</PublishSingleFile>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<!-- Recommended Avalonia trimming settings for Native AOT -->
+		<BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+		<TrimMode>link</TrimMode>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
 	<ItemGroup>
@@ -33,12 +37,8 @@
 		<PackageReference Include="Dotnet.Bundle" Version="*" Condition="$(RuntimeIdentifier.StartsWith('osx'))" />
 	</ItemGroup>
 	<ItemGroup>
-		<TrimmableAssembly Include="Avalonia" />
-		<TrimmableAssembly Include="Avalonia.Controls.DataGrid" />
-		<TrimmableAssembly Include="Avalonia.Controls.ItemsRepeater" />
-		<TrimmableAssembly Include="Avalonia.Desktop" />
-		<TrimmableAssembly Include="Avalonia.ReactiveUI" />
-		<TrimmableAssembly Include="Avalonia.Themes.Simple" />
+		<TrimmerRootAssembly Include="Avalonia.Themes.Simple" />
+		<TrimmerRootAssembly Include="Avalonia.Controls.DataGrid" />
 		<TrimmerRootAssembly Include="Octokit" />
 		<TrimmerRootAssembly Include="Serilog" />
 		<TrimmerRootAssembly Include="Serilog.Sinks.File" />

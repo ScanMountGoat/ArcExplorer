@@ -14,9 +14,9 @@ namespace ArcExplorer.ViewModels
         }
         private ApplicationSettings.VisualTheme currentTheme = ApplicationSettings.Instance.Theme;
 
-        public Array Themes { get; } = Enum.GetValues(typeof(ApplicationSettings.VisualTheme));
+        public Array Themes { get; } = Enum.GetValues<ApplicationSettings.VisualTheme>();
 
-        public Array IntegerDisplayFormats { get; } = Enum.GetValues(typeof(ApplicationSettings.IntegerDisplayFormat));
+        public Array IntegerDisplayFormats { get; } = Enum.GetValues<ApplicationSettings.IntegerDisplayFormat>();
 
         public ApplicationSettings.IntegerDisplayFormat IntegerDisplayFormat
         {

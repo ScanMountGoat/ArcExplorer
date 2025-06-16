@@ -24,10 +24,10 @@
 				<TextBlock DockPanel.Dock="Top" Margin="5" Text="{Binding AbsolutePath}" TextWrapping="Wrap"></TextBlock>
 				<ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding ObjectProperties}">
 					<ItemsControl.ItemTemplate>
-						<DataTemplate x:CompileBindings="False">
+						<DataTemplate>
 							<Grid ColumnDefinitions="130,*" Margin="0,2">
-								<TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
-								<TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
+								<TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Item1}"></TextBlock>
+								<TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Item2}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
 							</Grid>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
@@ -68,10 +68,10 @@
 				<TextBlock DockPanel.Dock="Top" Margin="5" Text="{Binding AbsolutePath}" TextWrapping="Wrap"></TextBlock>
 				<ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding ObjectProperties}">
 					<ItemsControl.ItemTemplate>
-						<DataTemplate x:CompileBindings="False">
+						<DataTemplate>
 							<Grid ColumnDefinitions="130,*" Margin="0,2">
-								<TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Key}"></TextBlock>
-								<TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
+								<TextBlock Margin="5,0" Grid.Column="0" Text="{Binding Item1}"></TextBlock>
+								<TextBlock Margin="5,0" Grid.Column="1" Text="{Binding Item2}" FontWeight="SemiBold" TextWrapping="Wrap"></TextBlock>
 							</Grid>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>

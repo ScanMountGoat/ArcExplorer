@@ -30,30 +30,31 @@ namespace ArcExplorer.ViewModels
 
         private readonly object searchLock = new object();
 
-        public static Dictionary<Region, string> DescriptionByRegion { get; } = new Dictionary<Region, string>
+        // TODO: use a value converter instead to work with compiled bindings?
+        public static List<Region> Regions { get; } = new List<Region>
         {
-            { Region.Japanese, "Japanese" },
-            { Region.UsEnglish, "English (US)" },
-            { Region.UsFrench, "French (US)" },
-            { Region.UsSpanish, "Spanish (US)" },
-            { Region.EuEnglish, "English (EU)" },
-            { Region.EuFrench, "French (EU)" },
-            { Region.EuSpanish, "Spanish (EU)" },
-            { Region.EuGerman, "German (EU)" },
-            { Region.EuDutch, "Dutch (EU)" },
-            { Region.EuItalian, "Italian (EU)" },
-            { Region.EuRussian, "Russian (EU)" },
-            { Region.Korean, "Korean" },
-            { Region.ChinaChinese, "Chinese (China)" },
-            { Region.TaiwanChinese, "Chinese (Taiwan)" },
+            Region.Japanese,
+            Region.UsEnglish,
+            Region.UsFrench,
+            Region.UsSpanish,
+            Region.EuEnglish,
+            Region.EuFrench,
+            Region.EuSpanish,
+            Region.EuGerman,
+            Region.EuDutch,
+            Region.EuItalian,
+            Region.EuRussian,
+            Region.Korean,
+            Region.ChinaChinese,
+            Region.TaiwanChinese
         };
 
-        public KeyValuePair<Region, string> SelectedRegion
+        public Region SelectedRegion
         {
-            get => new KeyValuePair<Region, string>(ApplicationSettings.Instance.ArcRegion, DescriptionByRegion[ApplicationSettings.Instance.ArcRegion]);
+            get => ApplicationSettings.Instance.ArcRegion;
             set
             {
-                ApplicationSettings.Instance.ArcRegion = value.Key;
+                ApplicationSettings.Instance.ArcRegion = value;
                 this.RaisePropertyChanged(nameof(SelectedRegion));
                 // The metadata will change when changing regions.
                 ReloadCurrentDirectory();

@@ -13,7 +13,7 @@ namespace ArcExplorer.ViewModels
         public event EventHandler? FileExtracting;
         public event EventHandler? OpeningParentFolder;
 
-        public abstract Dictionary<string, string> ObjectProperties { get; }
+        public abstract List<Tuple<string, string>> ObjectProperties { get; }
 
         public virtual ApplicationStyles.Icon TreeViewIconKey => ApplicationStyles.Icon.Document;
         public virtual ApplicationStyles.Icon DetailsIconKey => ApplicationStyles.Icon.Document;

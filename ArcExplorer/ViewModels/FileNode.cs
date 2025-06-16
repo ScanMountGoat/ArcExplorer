@@ -32,7 +32,7 @@ namespace ArcExplorer.ViewModels
 
         public string SharedFileDescription => $"Shared with the following {SharedFilePaths.Count} files:";
 
-        public override Dictionary<string, string> ObjectProperties => GetPropertyInfo();
+        public override List<Tuple<string, string>> ObjectProperties => GetPropertyInfo();
 
         public readonly Func<List<string>> getSharedFiles;
 
@@ -53,24 +53,24 @@ namespace ArcExplorer.ViewModels
             this.getSharedFiles = getSharedFiles;
         }
 
-        private Dictionary<string, string> GetPropertyInfo()
+        private List<Tuple<string, string>> GetPropertyInfo()
         {
-            var info = new Dictionary<string, string>()
+            var info = new List<Tuple<string, string>>
             {
-                { "Description", Description },
-                { "Offset", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(Offset)} bytes" },
-                { "Compressed", $"{IsCompressed}" },
+                new("Description", Description),
+                new("Offset", $"{Tools.ValueConversion.GetValueFromPreferencesFormat(Offset)} bytes"),
+                new("Compressed", $"{IsCompressed}"),
             };
 
             // It's redundant to show the compressed size for uncompressed files.
             if (IsCompressed)
             {
-                info.Add("Compressed Size", $"{GetFormattedSize(CompressedSize)}");
-                info.Add("Decompressed Size", $"{GetFormattedSize(DecompressedSize)}");
+                info.Add(new("Compressed Size", $"{GetFormattedSize(CompressedSize)}"));
+                info.Add(new("Decompressed Size", $"{GetFormattedSize(DecompressedSize)}"));
             }
             else
             {
-                info.Add("Size", $"{GetFormattedSize(DecompressedSize)}");
+                info.Add(new("Size", $"{GetFormattedSize(DecompressedSize)}"));
             }
 
             return info;

@@ -16,6 +16,7 @@
 		x:DataType="vms:MainWindowViewModel">
 	<Window.Resources>
 		<converters:IconKeyDrawingConverter x:Key="iconKeyDrawingConverter" />
+		<converters:RegionStringConverter x:Key="regionStringConverter" />
 	</Window.Resources>
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -92,10 +93,10 @@
 				<StackPanel DockPanel.Dock="Top">
 					<Grid HorizontalAlignment="Right" ColumnDefinitions="*,200,200" IsVisible="True">
 						<TextBlock Grid.Column="0" Margin="5" VerticalAlignment="Center">ARC Region</TextBlock>
-						<ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" ItemsSource="{Binding DescriptionByRegion}" SelectedItem="{Binding SelectedRegion}">
+						<ComboBox Grid.Column="1" Margin="5" VerticalAlignment="Center" ItemsSource="{Binding Regions}" SelectedItem="{Binding SelectedRegion}">
 							<ComboBox.ItemTemplate>
-								<DataTemplate x:CompileBindings="False">
-									<TextBlock Text="{Binding Value}"></TextBlock>
+								<DataTemplate>
+									<TextBlock Text="{Binding, Converter={StaticResource regionStringConverter}}"></TextBlock>
 								</DataTemplate>
 							</ComboBox.ItemTemplate>
 						</ComboBox>

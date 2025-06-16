@@ -1,4 +1,5 @@
 ﻿using ArcExplorer.Models;
+using System;
 using System.Collections.Generic;
 
 namespace ArcExplorer.ViewModels
@@ -9,7 +10,7 @@ namespace ArcExplorer.ViewModels
         public override ApplicationStyles.Icon TreeViewIconKey => ApplicationStyles.Icon.FolderClosed;
         internal SmashArcNet.Nodes.ArcDirectoryNode arcNode;
 
-        public override Dictionary<string, string> ObjectProperties => new Dictionary<string, string>()
+        public override List<Tuple<string, string>> ObjectProperties => new List<Tuple<string, string>>
         {
             // TODO: Add child count and additional info.
         };
