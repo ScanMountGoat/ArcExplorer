@@ -1,9 +1,11 @@
 ﻿using ArcExplorer.Models;
 using ArcExplorer.ViewModels;
 using Avalonia.Controls;
-using Avalonia.ReactiveUI;
+using Avalonia.Platform.Storage;
+using ReactiveUI.Avalonia;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ArcExplorer.Views
 {
@@ -31,27 +33,23 @@ namespace ArcExplorer.Views
         public async void OpenFolderClick()
         {
             // The dialog requires the window reference, so this can't be in the viewmodel.
-            var dialog = new OpenFolderDialog();
-            var result = await dialog.ShowAsync(this);
-            if (!string.IsNullOrEmpty(result) && ViewModel != null)
+            var result = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions() { AllowMultiple = false });
+            var path = result.FirstOrDefault()?.Path.LocalPath;
+            if (!string.IsNullOrEmpty(path) && ViewModel != null)
             {
-                ViewModel.ExtractLocation = result;
+                ViewModel.ExtractLocation = path;
             }
         }
 
         public async void OpenFileClick()
         {
             // The dialog requires the window reference, so this can't be in the viewmodel.
-            var dialog = new OpenFileDialog
+            var options = new FilePickerOpenOptions { AllowMultiple = false, FileTypeFilter = new List<FilePickerFileType> { new FilePickerFileType("ARC") { Patterns = new List<string> { "*.arc" } } } };
+            var result = await StorageProvider.OpenFilePickerAsync(options);
+            var path = result.FirstOrDefault()?.Path.LocalPath;
+            if (!string.IsNullOrEmpty(path) && ViewModel != null)
             {
-                AllowMultiple = false,
-                Filters = new List<FileDialogFilter> { new FileDialogFilter { Extensions = new List<string> { "arc" }, Name = "ARC" } }
-            };
-
-            var result = await dialog.ShowAsync(this);
-            if (result.Length > 0 && !string.IsNullOrEmpty(result[0]) && ViewModel != null)
-            {
-                ViewModel.ArcStartupLocation = result[0];
+                ViewModel.ArcStartupLocation = path;
             }
         }
     }

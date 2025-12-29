@@ -1,5 +1,5 @@
 ﻿using ArcExplorer.ViewModels;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace ArcExplorer.Views
 {

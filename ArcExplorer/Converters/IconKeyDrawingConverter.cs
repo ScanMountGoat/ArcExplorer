@@ -9,8 +9,13 @@ namespace ArcExplorer.Converters
 {
     public class IconKeyDrawingConverter : IValueConverter
     {
-        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return GetIconResource("noneIcon");
+            }
+
             var isDarkTheme = ApplicationSettings.Instance.Theme == ApplicationSettings.VisualTheme.Dark;
             var icon = (ApplicationStyles.Icon)value;
             return icon switch
@@ -42,7 +47,7 @@ namespace ArcExplorer.Converters
             return resource;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

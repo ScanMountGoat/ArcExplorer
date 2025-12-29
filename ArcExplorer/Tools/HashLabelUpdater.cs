@@ -1,8 +1,10 @@
 ﻿using Octokit;
 using SerilogTimings;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ArcExplorer.Tools
@@ -39,10 +41,11 @@ namespace ArcExplorer.Tools
                 try
                 {
                     // Replace the existing file using the latest file from Github.
-                    using (var client = new WebClient())
-                    {
-                        await client.DownloadFileTaskAsync("https://github.com/ultimate-research/archive-hashes/raw/master/Hashes", pathToCurrentLabels);
-                    }
+                    using var client = new HttpClient();
+                    using Stream responseStream = await client.GetStreamAsync("https://github.com/ultimate-research/archive-hashes/raw/master/Hashes");
+                    using FileStream fileStream = new FileStream(pathToCurrentLabels, System.IO.FileMode.Create, FileAccess.Write);
+                    await responseStream.CopyToAsync(fileStream);
+
                     operation.Complete();
                 }
                 catch (Exception e)
