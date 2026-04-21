@@ -35,7 +35,8 @@ Type paths or parts of a path into the search box to search the entire ARC. This
 ## Updating Hashes
 <img src="https://github.com/ScanMountGoat/ArcExplorer/blob/master/hash_update.jpg" align="top" height="auto" width="auto">  
 When the program launches, it will check Github for any hash label updates. If an update is available, a dialog will appear with details on the new commit. Click the update button to download and load the new hashes. 
-If any errors occur, check the log for details.  
+
+If any errors occur, check the `log.txt` for details in the application's data directory (`%localappdata%\ArcExplorer` on Windows). This directory also contains the downloaded `hashes.txt` file. Deleting the `hashes.txt` file will prompt the application to redownload the latest hashes after relaunching the application. This can resolve errors in some cases.  
 
 ## Application Log
 If the application encounters an error, click the red error icon to see details on the error. Application errors, warnings, and additional performance information are logged to the `log.txt` file in the application's data directory (`%localappdata%\ArcExplorer` on Windows). If an extract operation fails or the data.arc won't open, check the `log.txt` for details. Include the relevant lines from the `log.txt` when reporting issues if possible. 
