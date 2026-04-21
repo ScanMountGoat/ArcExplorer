@@ -38,7 +38,7 @@ When the program launches, it will check Github for any hash label updates. If a
 If any errors occur, check the log for details.  
 
 ## Application Log
-If the application encounters an error, click the red error icon to see details on the error. Application errors, warnings, and additional performance information are logged to the `log.txt` file in the executable directory. If an extract operation fails or the data.arc won't open, check the `log.txt` for details. Include the relevant lines from the `log.txt` when reporting issues if possible. 
+If the application encounters an error, click the red error icon to see details on the error. Application errors, warnings, and additional performance information are logged to the `log.txt` file in the application's data directory (`%localappdata%\ArcExplorer` on Windows). If an extract operation fails or the data.arc won't open, check the `log.txt` for details. Include the relevant lines from the `log.txt` when reporting issues if possible. 
 
 ## File Details Panel
 The right panel contains details on the currently selected file or folder. If a file is selected, the details panel displays information such as the file name and full path, compressed size, offset, etc. Shared files use the same data, so edits to one of the files will update all the other files shared with it. Shared files have a link icon in the file tree and a corresponding list of files shared with that file in the details view.  
