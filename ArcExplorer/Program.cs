@@ -16,6 +16,6 @@ namespace ArcExplorer
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(rxBuilder => rxBuilder.WithAvalonia());
     }
 }
