@@ -1,0 +1,52 @@
+{
+    "name": "Custom Themes",
+    "themes": [
+        {
+            "name": "Arc Explorer Dark",
+            "mode": "dark",
+            "colors": {
+                "accent.background": "#096085",
+                "accent.foreground": "#dedede",
+                "background": "#282828",
+                "border": "#3e3936",
+                "danger.active.background": "#fb4934",
+                "foreground": "#dedede",
+                "input.background": "#ffffff",
+                "input.border": "#808080",
+                "link.active.foreground": "#83a598",
+                "link.foreground": "#83a598",
+                "list.hover.background": "#184456",
+                "link.hover.foreground": "#83a598",
+                "list.active.background": "#096085",
+                "list.active.border": "#b17f1b",
+                "list.even.background": "#282828",
+                "muted.background": "#3c383655",
+                "muted.foreground": "#808080",
+                "panel.background": "#282828",
+                "popover.background": "#282828",
+                "popover.foreground": "#dedede",
+                "primary.background": "#1095c1",
+                "primary.foreground": "#dedede",
+                "primary.hover.background": "#096085",
+                "ring": "#a0a0a0",
+                "scrollbar.background": "#505050",
+                "scrollbar.thumb.background": "#686868",
+                "scrollbar.thumb.hover.background": "#808080",
+                "secondary.active.background": "#333332",
+                "secondary.background": "#505050",
+                "secondary.foreground": "#dedede",
+                "secondary.hover.background": "#808080",
+                "tab.active.background": "#262626",
+                "tab.active.foreground": "#ebdbb2",
+                "tab.background": "#28282800",
+                "tab.foreground": "#928374",
+                "tab_bar.background": "#28282899",
+                "table.head.background": "#505050",
+                "table.head.foreground": "#dedede",
+                "title_bar.background": "#252525",
+                "title_bar.border": "#3e3936",
+                "caret": "#dedede"
+            }
+        }
+    ]
+}

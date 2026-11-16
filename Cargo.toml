@@ -1,0 +1,16 @@
+[package]
+name = "arc_explorer"
+version = "1.4.5"
+edition = "2024"
+
+[dependencies]
+directories = "6.0.0"
+gpui-kit = "0.9.1"
+rfd = "0.18.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+smash-arc = { version = "0.6.0", features = ["libzstd"] }
+
+# Make ARC loading faster in debug mode.
+[profile.dev]
+opt-level = 1
