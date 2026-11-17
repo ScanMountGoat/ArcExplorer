@@ -22,10 +22,10 @@ use gpui_kit::{
     *,
 };
 use rfd::AsyncFileDialog;
-use smash_arc::{ArcFile, Hash40};
+use smash_arc::{ArcFile, GLOBAL_LABELS, Hash40, SearchCache};
 
 use crate::{
-    arc::{FileNodeInfo, arc_file_count, arc_version, load_files},
+    arc::{FileNodeInfo, arc_file_count, arc_version, load_files, search_arc},
     preferences::ApplicationPreferences,
 };
 
@@ -36,6 +36,16 @@ pub static PROJECT_DIR: LazyLock<ProjectDirs> = LazyLock::new(|| {
     // TODO: Avoid unwrap.
     ProjectDirs::from("", "", "ArcExplorer").unwrap()
 });
+
+fn application_directory() -> std::path::PathBuf {
+    // TODO: Find a better way to strip the /data on Windows.
+    let data_local_dir = PROJECT_DIR.data_local_dir();
+    if data_local_dir.ends_with("data") {
+        data_local_dir.parent().unwrap_or(data_local_dir).to_owned()
+    } else {
+        data_local_dir.to_owned()
+    }
+}
 
 struct ArcFilesTableDelegate {
     files: Vec<FileNodeInfo>,
@@ -219,10 +229,30 @@ actions!(
     ]
 );
 
-// TODO: Split this into components?
+struct ArcData {
+    arc: ArcFile,
+    search_cache: SearchCache,
+    file_path: String,
+}
+
+impl ArcData {
+    fn from_path<P: AsRef<std::path::Path>>(path: P) -> Self {
+        // TODO: avoid unwrap.
+        let path = path.as_ref();
+        let arc = ArcFile::open(path).unwrap();
+        let search_cache = arc.generate_search_cache();
+        Self {
+            arc,
+            search_cache,
+            file_path: path.to_string_lossy().to_string(),
+        }
+    }
+}
+
 struct Application {
-    arc: Entity<Option<ArcFile>>,
-    arc_file_path: Entity<Option<String>>,
+    arc: Entity<Option<ArcData>>,
+
+    preferences: Entity<ApplicationPreferences>,
 
     current_path: Entity<String>,
     selected_file: Entity<Option<FileNodeInfo>>,
@@ -236,28 +266,19 @@ struct Application {
 }
 
 impl Application {
-    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+    fn new(
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        preferences: ApplicationPreferences,
+    ) -> Self {
         // TODO: where should hashes be loaded?
         // TODO: load hashes from a separate thread?
         // TODO: download hashes or hash update
-        let start = std::time::Instant::now();
 
-        // TODO: Find a better way to strip the /data on Windows.
-        let data_local_dir = PROJECT_DIR.data_local_dir();
-        let data_local_dir = if data_local_dir.ends_with("data") {
-            data_local_dir.parent().unwrap_or(data_local_dir)
-        } else {
-            data_local_dir
-        };
+        let data_local_dir = application_directory();
+        let start = std::time::Instant::now();
         Hash40::set_global_labels_file(data_local_dir.join("Hashes.txt")).unwrap();
         println!("Load hashes: {:?}", start.elapsed());
-
-        // TODO: log errors.
-        let preferences: ApplicationPreferences =
-            std::fs::read_to_string(data_local_dir.join("ApplicationPreferences.json"))
-                .ok()
-                .and_then(|json| serde_json::from_str(&json).ok())
-                .unwrap_or_default();
 
         // TODO: log errors.
         let start = std::time::Instant::now();
@@ -265,19 +286,18 @@ impl Application {
             preferences
                 .arc_startup_location
                 .as_ref()
-                .map(|path| ArcFile::open(path).unwrap())
+                .map(|path| ArcData::from_path(path))
         });
-        let arc_file_path = cx.new(|cx| preferences.arc_startup_location);
         println!("Load ARC: {:?}", start.elapsed());
 
-        initialize_keybindings(cx);
+        let preferences = cx.new(|cx| preferences);
 
-        // Theme::change(ThemeMode::Dark, Some(window), cx);
+        initialize_keybindings(cx);
 
         let files = arc
             .read(cx)
             .as_ref()
-            .and_then(|arc| load_files(arc, arc::ROOT_PATH, true))
+            .and_then(|arc| load_files(&arc.arc, arc::ROOT_PATH, true))
             .unwrap_or_default();
 
         let delegate = ArcFilesTableDelegate::new(files);
@@ -296,6 +316,20 @@ impl Application {
                 if let InputEvent::Change = event {
                     let value = state.read(cx).value();
                     this.change_folder(cx, window, value.to_string(), true);
+                }
+            });
+
+        let search_input_sub =
+            cx.subscribe_in(&search_input, window, |this, state, event, window, cx| {
+                if let InputEvent::Change = event {
+                    let search_term = state.read(cx).value();
+                    if !search_term.is_empty() {
+                        this.search_files(search_term.as_str(), cx);
+                    } else {
+                        // No search term should restore the files prior to searching.
+                        let folder_path = this.current_path.read(cx);
+                        this.change_folder(cx, window, folder_path.clone(), true);
+                    }
                 }
             });
 
@@ -351,14 +385,14 @@ impl Application {
 
         Self {
             arc,
-            arc_file_path,
+            preferences,
             current_path,
             selected_file,
             table,
             region_select,
             path_input,
             search_input,
-            _subscriptions: vec![table_sub, path_input_sub],
+            _subscriptions: vec![table_sub, path_input_sub, search_input_sub],
         }
     }
 
@@ -377,7 +411,7 @@ impl Application {
             .arc
             .read(cx)
             .as_ref()
-            .and_then(|arc| load_files(arc, cleaned_path.as_str(), merge_trailing_slash))
+            .and_then(|arc| load_files(&arc.arc, cleaned_path.as_str(), merge_trailing_slash))
             .unwrap_or_default();
 
         self.path_input.update(cx, |state, cx| {
@@ -390,6 +424,21 @@ impl Application {
         });
 
         cx.notify();
+    }
+
+    fn search_files(&mut self, search_term: &str, cx: &mut Context<Application>) {
+        // TODO: does this need to be debounced and/or made async?
+        if let Some(arc) = self.arc.read(cx).as_ref() {
+            let start = std::time::Instant::now();
+            let new_files = search_arc(&arc.arc, &arc.search_cache, search_term);
+            println!("Search: {:?}", start.elapsed());
+
+            self.table.update(cx, |state, _cx| {
+                state.delegate_mut().files = new_files;
+            });
+
+            cx.notify();
+        }
     }
 
     fn exit_folder(&mut self, window: &mut Window, cx: &mut Context<'_, Application>) {
@@ -418,19 +467,12 @@ impl Application {
 
                 // Update view state back on the UI context and notify for re-render
                 this.update_in(cx, |view, window, cx| {
-                    // TODO: Open arc
-                    match ArcFile::open(&path) {
-                        Ok(arc) => {
-                            view.arc.write(cx, Some(arc));
-                            view.arc_file_path
-                                .write(cx, Some(path.to_string_lossy().to_string()));
-                            view.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
-                            cx.notify();
-                        }
-                        Err(e) => {
-                            // TODO: report errors.
-                        }
-                    }
+                    // TODO: report errors.
+                    let new_arc = ArcData::from_path(path);
+
+                    view.arc.write(cx, Some(new_arc));
+                    view.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+                    cx.notify();
                 })
                 .ok();
             }
@@ -447,15 +489,16 @@ impl Application {
         // TODO: closing parent window should close this window too
         let bounds = Bounds::centered(None, size(px(700.0), px(500.0)), cx);
         let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(bounds)),
             titlebar: Some(TitlebarOptions {
                 title: Some("Preferences".into()),
                 ..Default::default()
             }),
-            window_bounds: Some(WindowBounds::Windowed(bounds)),
             ..Default::default()
         };
+        // TODO: save preferences on close
         open_window(options, cx, |window, cx| {
-            cx.new(|cx| Preferences::new(window, cx))
+            cx.new(|cx| Preferences::new(window, cx, self.preferences.clone()))
         })
         .unwrap();
     }
@@ -679,34 +722,34 @@ impl Render for Application {
                                     h_flex()
                                         .w_full()
                                         .gap_5()
-                                        .child(
-                                            // TODO Implement this manually using file explorer as a reference
-                                            // TODO: create a component that stores state for path components?
-                                            h_flex()
-                                                .child(Button::new("a").label("A"))
-                                                .child(
-                                                    // TODO: animate rotation and show popup menu with child folders
-                                                    // TODO: convert to path input on click and bread crumbs on enter
-                                                    Button::new("a2")
-                                                        .ghost()
-                                                        .icon(IconName::ChevronRight)
-                                                        .dropdown_menu(|menu, window, cx| {
-                                                            // TODO: populate with all the child folders
-                                                            // TODO: action that stores the path or hash to open?
-                                                            menu.menu(
-                                                                "B",
-                                                                Box::new(TableEnterFolder),
-                                                            )
-                                                        }),
-                                                )
-                                                .child(Button::new("b").label("B"))
-                                                .child(
-                                                    Button::new("b2")
-                                                        .ghost()
-                                                        .icon(IconName::ChevronRight),
-                                                )
-                                                .child(Button::new("c").label("C")),
-                                        )
+                                        // .child(
+                                        //     // TODO Implement this manually using file explorer as a reference
+                                        //     // TODO: create a component that stores state for path components?
+                                        //     h_flex()
+                                        //         .child(Button::new("a").label("A"))
+                                        //         .child(
+                                        //             // TODO: animate rotation and show popup menu with child folders
+                                        //             // TODO: convert to path input on click and bread crumbs on enter
+                                        //             Button::new("a2")
+                                        //                 .ghost()
+                                        //                 .icon(IconName::ChevronRight)
+                                        //                 .dropdown_menu(|menu, window, cx| {
+                                        //                     // TODO: populate with all the child folders
+                                        //                     // TODO: action that stores the path or hash to open?
+                                        //                     menu.menu(
+                                        //                         "B",
+                                        //                         Box::new(TableEnterFolder),
+                                        //                     )
+                                        //                 }),
+                                        //         )
+                                        //         .child(Button::new("b").label("B"))
+                                        //         .child(
+                                        //             Button::new("b2")
+                                        //                 .ghost()
+                                        //                 .icon(IconName::ChevronRight),
+                                        //         )
+                                        //         .child(Button::new("c").label("C")),
+                                        // )
                                         .child(styled_input(
                                             "path-input",
                                             &self.path_input,
@@ -752,14 +795,18 @@ impl Render for Application {
                         .gap_5()
                         .child(format!(
                             "Path: {:?}",
-                            self.arc_file_path.read(cx).clone().unwrap_or_default()
+                            self.arc
+                                .read(cx)
+                                .as_ref()
+                                .map(|arc| arc.file_path.clone())
+                                .unwrap_or_default()
                         ))
                         .child(format!(
                             "Version: {:?}",
                             self.arc
                                 .read(cx)
                                 .as_ref()
-                                .map(arc_version)
+                                .map(|arc| arc_version(&arc.arc))
                                 .unwrap_or_default()
                         ))
                         .child(format!(
@@ -767,7 +814,7 @@ impl Render for Application {
                             self.arc
                                 .read(cx)
                                 .as_ref()
-                                .map(arc_file_count)
+                                .map(|arc| arc_file_count(&arc.arc))
                                 .unwrap_or_default()
                         )),
                 ),
@@ -803,6 +850,7 @@ fn update_table_column_sizes(
 // TODO: move to module
 // TODO: create actions for opening folder and file
 struct Preferences {
+    preferences: Entity<ApplicationPreferences>,
     application_theme_select: Entity<SelectState<Vec<String>>>,
     display_format_select: Entity<SelectState<Vec<String>>>,
     extract_location_input: Entity<InputBaseState<InputMode>>,
@@ -810,7 +858,12 @@ struct Preferences {
 }
 
 impl Preferences {
-    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+    fn new(
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        preferences: Entity<ApplicationPreferences>,
+    ) -> Self {
+        // TODO: initialize these values from preferences.
         let application_theme_select = cx.new(|cx| {
             SelectState::new(
                 vec!["Light".to_string(), "Dark".to_string()],
@@ -837,6 +890,7 @@ impl Preferences {
         let arc_startup_input = cx.new(|cx| InputState::new(window, cx));
 
         Self {
+            preferences: preferences.clone(),
             application_theme_select,
             display_format_select,
             extract_location_input,
@@ -888,13 +942,25 @@ impl Render for Preferences {
             // TODO: left align these fields?
             // TODO: match checkbox background to arcexplorer
             .child(
-                field()
-                    .child(Checkbox::new("start-maximized").label("Start application maximized")),
+                field().child(
+                    Checkbox::new("start-maximized")
+                        .label("Start application maximized")
+                        .checked(self.preferences.read(cx).start_maximized)
+                        .on_change(cx.listener(|this, checked, _, cx| {
+                            this.preferences
+                                .update(cx, |state, _| state.start_maximized = *checked);
+                        })),
+                ),
             )
             .child(
                 field().child(
                     Checkbox::new("merge-directories")
-                        .label("Merge directories differing by a trailing slash"),
+                        .label("Merge directories differing by a trailing slash")
+                        .checked(self.preferences.read(cx).merge_trailing_slash)
+                        .on_change(cx.listener(|this, checked, _, cx| {
+                            this.preferences
+                                .update(cx, |state, _| state.merge_trailing_slash = *checked);
+                        })),
                 ),
             )
     }
@@ -942,15 +1008,30 @@ fn main() {
 
         initialize_themes(cx);
 
+        let start = std::time::Instant::now();
+        // TODO: log errors
+        let preferences: ApplicationPreferences =
+            std::fs::read_to_string(application_directory().join("ApplicationPreferences.json"))
+                .ok()
+                .and_then(|json| serde_json::from_str(&json).ok())
+                .unwrap_or_default();
+        println!("Load preferences: {:?}", start.elapsed());
+
         let options = WindowOptions {
+            window_bounds: if preferences.start_maximized {
+                Some(WindowBounds::Maximized(Bounds::default()))
+            } else {
+                None
+            },
             titlebar: Some(TitlebarOptions {
                 title: Some(concat!("Arc Explorer v", env!("CARGO_PKG_VERSION")).into()),
                 ..Default::default()
             }),
             ..Default::default()
         };
+        // TODO: save preferences on close
         open_window(options, cx, |window, cx| {
-            cx.new(|cx| Application::new(window, cx))
+            cx.new(|cx| Application::new(window, cx, preferences))
         })
         .unwrap();
     });

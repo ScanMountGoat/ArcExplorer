@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use smash_arc::{ArcFile, ArcLookup, FileNode, Hash40, Region};
+use smash_arc::{ArcFile, ArcLookup, FileNode, GLOBAL_LABELS, Hash40, Region, SearchCache};
 
 pub const ROOT_PATH: &str = "/";
 
@@ -85,79 +85,99 @@ fn load_file_nodes(arc: &ArcFile, dir: &[FileNode]) -> Vec<FileNodeInfo> {
     let files = dir
         .iter()
         .map(|f| match f {
-            FileNode::Dir(hash) => {
-                let path = hash_name(*hash);
-                let name = Path::new(&path)
-                    .file_name()
-                    .unwrap_or_default()
-                    .to_string_lossy()
-                    .to_string();
-                FileNodeInfo::Folder {
-                    hash: *hash,
-                    name,
-                    path,
-                }
-            }
-            FileNode::File(hash) => {
-                // TODO: use the current region.
-                if let Ok(info) = arc.get_file_metadata(*hash, Region::UsEnglish) {
-                    let (path, name, extension) = if info.is_stream {
-                        let stream_file_path = hash_name(info.path_hash);
-                        let stream_file_name = Path::new(&stream_file_path)
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
-                        // ARC extensions don't contain the '.' at the beginning.
-                        let stream_file_extension = Path::new(&stream_file_path)
-                            .extension()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
-                        (stream_file_path, stream_file_name, stream_file_extension)
-                    } else {
-                        // Recreate the absolute hash from the filename and parent directory.
-                        // This allows for using the smaller hash file.
-                        let parent = hash_name(info.parent_hash);
-                        let name = hash_name(info.file_name_hash);
-                        let extension = hash_name(info.ext_hash);
-
-                        // Always combine the parent and file name to get the full path.
-                        // Both hashes present: "a/b/c/d.ext"
-                        // Parent missing: "0x..../d.ext"
-                        // File missing: "a/b/c/0x..."
-                        let path = Path::new(&parent).join(&name).to_string_lossy().to_string();
-                        (path, name, extension)
-                    };
-
-                    // TODO: description.
-                    FileNodeInfo::File {
-                        hash: *hash,
-                        name,
-                        path,
-                        offset: info.offset,
-                        description: "File".to_string(),
-                        is_compressed: info.is_compressed,
-                        compressed_size: info.comp_size.to_string(),
-                        decompressed_size: info.decomp_size.to_string(),
-                    }
-                } else {
-                    // TODO: How to handle missing data.
-                    FileNodeInfo::File {
-                        hash: *hash,
-                        name: hash_name(*hash),
-                        path: hash_name(*hash),
-                        offset: 0,
-                        description: "File".to_string(),
-                        is_compressed: false,
-                        compressed_size: String::new(),
-                        decompressed_size: String::new(),
-                    }
-                }
-            }
+            FileNode::Dir(hash) => folder_info(*hash),
+            FileNode::File(hash) => file_info(arc, *hash),
         })
         .collect();
     files
+}
+
+fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
+    // TODO: use the current region.
+    if let Ok(info) = arc.get_file_metadata(hash, Region::UsEnglish) {
+        let (path, name, _extension) = if info.is_stream {
+            let stream_file_path = hash_name(info.path_hash);
+            let stream_file_name = Path::new(&stream_file_path)
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            // ARC extensions don't contain the '.' at the beginning.
+            let stream_file_extension = Path::new(&stream_file_path)
+                .extension()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            (stream_file_path, stream_file_name, stream_file_extension)
+        } else {
+            // Recreate the absolute hash from the filename and parent directory.
+            // This allows for using the smaller hash file.
+            let parent = hash_name(info.parent_hash);
+            let name = hash_name(info.file_name_hash);
+            let extension = hash_name(info.ext_hash);
+
+            // Always combine the parent and file name to get the full path.
+            // Both hashes present: "a/b/c/d.ext"
+            // Parent missing: "0x..../d.ext"
+            // File missing: "a/b/c/0x..."
+            let path = Path::new(&parent).join(&name).to_string_lossy().to_string();
+            (path, name, extension)
+        };
+
+        // TODO: description.
+        FileNodeInfo::File {
+            hash,
+            name,
+            path,
+            offset: info.offset,
+            description: "File".to_string(),
+            is_compressed: info.is_compressed,
+            compressed_size: info.comp_size.to_string(),
+            decompressed_size: info.decomp_size.to_string(),
+        }
+    } else {
+        // TODO: How to handle missing data.
+        FileNodeInfo::File {
+            hash,
+            name: hash_name(hash),
+            path: hash_name(hash),
+            offset: 0,
+            description: "File".to_string(),
+            is_compressed: false,
+            compressed_size: String::new(),
+            decompressed_size: String::new(),
+        }
+    }
+}
+
+fn folder_info(hash: Hash40) -> FileNodeInfo {
+    let path = hash_name(hash);
+    let name = Path::new(&path)
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
+    FileNodeInfo::Folder { hash, name, path }
+}
+
+pub fn search_arc(
+    arc: &ArcFile,
+    search_cache: &SearchCache,
+    search_term: &str,
+) -> Vec<FileNodeInfo> {
+    let matches = search_cache.search(search_term, &GLOBAL_LABELS.read(), 2000);
+
+    matches
+        .into_iter()
+        .map(|hash| {
+            // TODO: Is there a better way to detect files vs folders?
+            if arc.get_dir_info_from_hash(hash).is_ok() {
+                folder_info(hash)
+            } else {
+                file_info(arc, hash)
+            }
+        })
+        .collect()
 }
 
 pub fn arc_version(arc: &ArcFile) -> u32 {

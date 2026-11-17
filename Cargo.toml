@@ -5,11 +5,11 @@ edition = "2024"
 
 [dependencies]
 directories = "6.0.0"
-gpui-kit = "0.9.1"
+gpui-kit = "0.10.0"
 rfd = "0.18.0"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
-smash-arc = { version = "0.6.0", features = ["libzstd"] }
+smash-arc = { git = "https://github.com/jam1garner/smash-arc", features = ["libzstd", "search"], rev = "23418af" }
 
 # Make ARC loading faster in debug mode.
 [profile.dev]
