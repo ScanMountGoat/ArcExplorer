@@ -18,6 +18,8 @@ pub enum FileNodeInfo {
         offset: u64,
         description: String,
         is_compressed: bool,
+        is_regional: bool,
+        is_shared: bool,
         // TODO: usize for bytes and add formatting logic with tests
         compressed_size: String,
         decompressed_size: String,
@@ -63,6 +65,35 @@ impl FileNodeInfo {
             } => decompressed_size,
         }
     }
+
+    pub fn is_regional(&self) -> bool {
+        match self {
+            FileNodeInfo::Folder { .. } => false,
+            FileNodeInfo::File { is_regional, .. } => *is_regional,
+        }
+    }
+
+    pub fn is_shared(&self) -> bool {
+        match self {
+            FileNodeInfo::Folder { .. } => false,
+            FileNodeInfo::File { is_shared, .. } => *is_shared,
+        }
+    }
+
+    pub fn shared_files(&self, arc: &ArcFile) -> Vec<String> {
+        match self {
+            FileNodeInfo::Folder { .. } => Vec::new(),
+            FileNodeInfo::File { hash, .. } => arc
+                .get_shared_files(*hash, Region::UsEnglish)
+                .map(|hashes| {
+                    files_from_hashes(arc, hashes)
+                        .into_iter()
+                        .map(|f| f.path().to_string())
+                        .collect()
+                })
+                .unwrap_or_default(),
+        }
+    }
 }
 
 pub fn load_files(
@@ -82,20 +113,18 @@ pub fn load_files(
 }
 
 fn load_file_nodes(arc: &ArcFile, dir: &[FileNode]) -> Vec<FileNodeInfo> {
-    let files = dir
-        .iter()
+    dir.iter()
         .map(|f| match f {
             FileNode::Dir(hash) => folder_info(*hash),
             FileNode::File(hash) => file_info(arc, *hash),
         })
-        .collect();
-    files
+        .collect()
 }
 
 fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
     // TODO: use the current region.
     if let Ok(info) = arc.get_file_metadata(hash, Region::UsEnglish) {
-        let (path, name, _extension) = if info.is_stream {
+        let (path, name, extension) = if info.is_stream {
             let stream_file_path = hash_name(info.path_hash);
             let stream_file_name = Path::new(&stream_file_path)
                 .file_name()
@@ -124,14 +153,15 @@ fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
             (path, name, extension)
         };
 
-        // TODO: description.
         FileNodeInfo::File {
             hash,
             name,
             path,
             offset: info.offset,
-            description: "File".to_string(),
+            description: ext_description(&extension).to_string(),
             is_compressed: info.is_compressed,
+            is_regional: info.is_regional,
+            is_shared: info.is_shared,
             compressed_size: info.comp_size.to_string(),
             decompressed_size: info.decomp_size.to_string(),
         }
@@ -144,6 +174,8 @@ fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
             offset: 0,
             description: "File".to_string(),
             is_compressed: false,
+            is_regional: false,
+            is_shared: false,
             compressed_size: String::new(),
             decompressed_size: String::new(),
         }
@@ -160,6 +192,52 @@ fn folder_info(hash: Hash40) -> FileNodeInfo {
     FileNodeInfo::Folder { hash, name, path }
 }
 
+fn ext_description(ext: &str) -> &str {
+    match ext {
+        "arc" => "SARC Archive",
+        "bfotf" => "OpenType Font",
+        "bfttf" => "TrueType Font",
+        "bin" => "Binary Data",
+        "bntx" => "Texture",
+        "csb" => "Common Sound Table",
+        "eff" => "Effects Container",
+        "fnv" => "Fighter Number Volume",
+        "h264" => "MPEG-4 Video",
+        "lc" => "Compiled Lua Script",
+        "lvd" => "Stage Level Data",
+        "msbt" => "Message Text",
+        "nro" => "Executable/lua2cpp Moveset",
+        "nuanmb" => "Animation Data",
+        "nufxlb" => "Shader Data",
+        "nuhlpb" => "Helper Bone Data",
+        "numatb" => "Material Container",
+        "numdlb" => "Model Data",
+        "numshb" => "Mesh Data",
+        "numshexb" => "Mesh Extension Data",
+        "nus3audio" => "Sound Banks",
+        "nus3bank" => "Sound Banks",
+        "nus3conf" => "nus3conf",
+        "nushdb" => "Compiled Shader",
+        "nusktb" => "Model Skeleton",
+        "nusrcmdlb" => "nusrcmdlb",
+        "nurpdb" => "Render Pass Data",
+        "nutexb" => "Texture",
+        "prc" => "Parameters",
+        "shpc" => "shpc",
+        "shpcanim" => "shpcanim",
+        "sli" => "Sound Label Info",
+        "spt" => "Sound Priority Table",
+        "sqb" => "Sequence Bank",
+        "stdat" => "Stage Data",
+        "stprm" => "Stage Parameters",
+        "svt" => "Sound Volume Table",
+        "tonelabel" => "Sound Entry Lookup Table",
+        "webm" => "Video",
+        "xmb" => "Rendering Data",
+        _ => "",
+    }
+}
+
 pub fn search_arc(
     arc: &ArcFile,
     search_cache: &SearchCache,
@@ -167,7 +245,11 @@ pub fn search_arc(
 ) -> Vec<FileNodeInfo> {
     let matches = search_cache.search(search_term, &GLOBAL_LABELS.read(), 2000);
 
-    matches
+    files_from_hashes(arc, matches)
+}
+
+fn files_from_hashes(arc: &ArcFile, hashes: Vec<Hash40>) -> Vec<FileNodeInfo> {
+    hashes
         .into_iter()
         .map(|hash| {
             // TODO: Is there a better way to detect files vs folders?

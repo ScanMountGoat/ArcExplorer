@@ -1,28 +1,30 @@
-use std::{mem::replace, sync::LazyLock};
+use std::{borrow::Cow, sync::LazyLock};
 
 use directories::ProjectDirs;
 use gpui_kit::{
+    assets::{Assets, IconName, icon_assets},
     base::{
-        FocusableExt, IndexPath, h_flex, h_resizable,
-        input::{InputBaseState, InputEvent, InputMode, InputState},
-        resizable_panel, v_flex,
+        FocusableExt, IndexPath, h_flex, h_resizable, input::InputBaseState, resizable_panel,
+        v_flex,
     },
     component::{
-        ActiveTheme, Icon, IconName, Sizable, Theme, ThemeRegistry,
-        breadcrumb::{Breadcrumb, BreadcrumbItem},
+        ActiveTheme, Icon, Sizable, Theme, ThemeRegistry,
         button::{Button, ButtonVariants},
         checkbox::Checkbox,
         form::{field, h_form},
-        input::Input,
+        input::{Input, InputEvent, InputMode, InputState},
+        label::Label,
+        list::{List, ListDelegate, ListItem, ListState},
         menu::DropdownMenu,
         select::{Select, SelectItem, SelectState},
         status_bar::StatusBar,
         table::{Column, ColumnSort, DataTable, TableDelegate, TableEvent, TableState},
     },
+    prelude::FluentBuilder,
     *,
 };
 use rfd::AsyncFileDialog;
-use smash_arc::{ArcFile, GLOBAL_LABELS, Hash40, SearchCache};
+use smash_arc::{ArcFile, Hash40, SearchCache};
 
 use crate::{
     arc::{FileNodeInfo, arc_file_count, arc_version, load_files, search_arc},
@@ -31,6 +33,28 @@ use crate::{
 
 mod arc;
 mod preferences;
+
+// Add any extra Lucide icons not included in the base icon set.
+icon_assets!(ExtraIcons, [Link]);
+
+struct AppAssets;
+
+impl AssetSource for AppAssets {
+    fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
+        if let Some(bytes) = ExtraIcons.load(path)? {
+            return Ok(Some(bytes));
+        }
+        Assets.load(path)
+    }
+
+    fn list(&self, path: &str) -> Result<Vec<SharedString>> {
+        let mut paths = Assets.list(path)?;
+        paths.extend(ExtraIcons.list(path)?);
+        paths.sort();
+        paths.dedup();
+        Ok(paths)
+    }
+}
 
 pub static PROJECT_DIR: LazyLock<ProjectDirs> = LazyLock::new(|| {
     // TODO: Avoid unwrap.
@@ -59,7 +83,7 @@ impl ArcFilesTableDelegate {
             columns: vec![
                 Column::new("name", "Name").sortable(),
                 Column::new("description", "Description")
-                    .width(px(100.0))
+                    .width(px(200.0))
                     .sortable(),
                 Column::new("compressed_size", "Compressed Size")
                     .width(px(200.0))
@@ -73,7 +97,7 @@ impl ArcFilesTableDelegate {
 }
 
 impl TableDelegate for ArcFilesTableDelegate {
-    fn columns_count(&self, cx: &App) -> usize {
+    fn columns_count(&self, _cx: &App) -> usize {
         self.columns.len()
     }
 
@@ -101,6 +125,12 @@ impl TableDelegate for ArcFilesTableDelegate {
                 .gap(px(10.0))
                 .child(Icon::new(IconName::FolderClosed))
                 .child(row.name().to_string())
+                .when(row.is_regional(), |this| {
+                    this.child(Icon::new(IconName::Globe))
+                })
+                .when(row.is_shared(), |this| {
+                    this.child(Icon::new(IconName::Link))
+                })
                 .into_any_element(),
             "description" => row.description().to_string().into_any_element(),
             // TODO: where to handle size formatting?
@@ -115,8 +145,8 @@ impl TableDelegate for ArcFilesTableDelegate {
         &mut self,
         col_ix: usize,
         sort: ColumnSort,
-        window: &mut Window,
-        cx: &mut Context<TableState<Self>>,
+        _window: &mut Window,
+        _cx: &mut Context<TableState<Self>>,
     ) {
         // TODO: sorting function
         // TODO: avoid clone
@@ -172,10 +202,10 @@ impl TableDelegate for ArcFilesTableDelegate {
 
     fn context_menu(
         &mut self,
-        row_ix: usize,
+        _row_ix: usize,
         menu: component::menu::PopupMenu,
-        window: &mut Window,
-        cx: &mut Context<TableState<Self>>,
+        _window: &mut Window,
+        _cx: &mut Context<TableState<Self>>,
     ) -> component::menu::PopupMenu {
         // TODO: extract files if folder?
         menu.menu("Extract File", Box::new(TableExtractFile))
@@ -255,7 +285,8 @@ struct Application {
     preferences: Entity<ApplicationPreferences>,
 
     current_path: Entity<String>,
-    selected_file: Entity<Option<FileNodeInfo>>,
+
+    details_panel: Entity<FileDetailsPanel>,
 
     table: Entity<TableState<ArcFilesTableDelegate>>,
     region_select: Entity<SelectState<Vec<ArcRegion>>>,
@@ -282,15 +313,15 @@ impl Application {
 
         // TODO: log errors.
         let start = std::time::Instant::now();
-        let arc = cx.new(|cx| {
+        let arc = cx.new(|_cx| {
             preferences
                 .arc_startup_location
                 .as_ref()
-                .map(|path| ArcData::from_path(path))
+                .map(ArcData::from_path)
         });
         println!("Load ARC: {:?}", start.elapsed());
 
-        let preferences = cx.new(|cx| preferences);
+        let preferences = cx.new(|_cx| preferences);
 
         initialize_keybindings(cx);
 
@@ -337,8 +368,26 @@ impl Application {
             match event {
                 TableEvent::SelectRow(index) => {
                     let delegate = table.read(cx).delegate();
-                    if let Some(selected_file) = delegate.files.get(*index).cloned() {
-                        this.selected_file.write(cx, Some(selected_file));
+                    if let Some(file) = delegate.files.get(*index).cloned() {
+                        // TODO: figure out why getting shared files is slow.
+                        let start = std::time::Instant::now();
+                        let shared_files = this
+                            .arc
+                            .read(cx)
+                            .as_ref()
+                            .map(|arc| file.shared_files(&arc.arc))
+                            .unwrap_or_default();
+                        println!("Load shared files: {:?}", start.elapsed());
+
+                        this.details_panel.update(cx, |this, cx| {
+                            this.file.write(cx, Some(file));
+                            this.shared_file_list.update(cx, |this, cx| {
+                                this.delegate_mut().items = shared_files;
+                                cx.notify();
+                            });
+                            cx.notify();
+                        });
+
                         cx.notify();
                     }
                 }
@@ -380,14 +429,15 @@ impl Application {
             )
         });
 
-        let current_path = cx.new(|cx| String::new());
-        let selected_file = cx.new(|cx| None);
+        let current_path = cx.new(|_cx| String::new());
+
+        let details_panel = cx.new(|cx| FileDetailsPanel::new(window, cx));
 
         Self {
             arc,
             preferences,
             current_path,
-            selected_file,
+            details_panel,
             table,
             region_select,
             path_input,
@@ -480,10 +530,33 @@ impl Application {
         .detach();
     }
 
+    fn on_action_connect_to_arc(
+        &mut self,
+        _: &ConnectToArc,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        // TODO: closing parent window should close this window too
+        let bounds = Bounds::centered(None, size(px(500.0), px(150.0)), cx);
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(bounds)),
+            titlebar: Some(TitlebarOptions {
+                title: Some("Connect to ARC".into()),
+                ..Default::default()
+            }),
+            kind: WindowKind::Dialog,
+            ..Default::default()
+        };
+        open_window(options, cx, |window, cx| {
+            cx.new(|cx| ConnectToArcWindow::new(window, cx))
+        })
+        .unwrap();
+    }
+
     fn on_action_open_preferences(
         &mut self,
         _: &OpenPreferences,
-        window: &mut Window,
+        _window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         // TODO: closing parent window should close this window too
@@ -498,7 +571,7 @@ impl Application {
         };
         // TODO: save preferences on close
         open_window(options, cx, |window, cx| {
-            cx.new(|cx| Preferences::new(window, cx, self.preferences.clone()))
+            cx.new(|cx| PreferencesWindow::new(window, cx, self.preferences.clone()))
         })
         .unwrap();
     }
@@ -531,7 +604,7 @@ impl Application {
     fn on_action_table_extract_file(
         &mut self,
         _: &TableExtractFile,
-        window: &mut Window,
+        _window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         let state = self.table.read(cx);
@@ -539,7 +612,7 @@ impl Application {
             && let Some(file) = state.delegate().files.get(index)
         {
             // TODO: don't enter into file paths
-            let clicked_path = file.path().to_string();
+            let _clicked_path = file.path().to_string();
             // self.change_folder(cx, window, clicked_path);
         }
     }
@@ -583,7 +656,7 @@ fn application_menu() -> impl IntoElement {
             Button::new("file")
                 .ghost()
                 .label("File")
-                .dropdown_menu(|menu, window, cx| {
+                .dropdown_menu(|menu, _window, _cx| {
                     menu.menu("Open Arc", Box::new(OpenArc))
                         .menu("Connect to Arc", Box::new(ConnectToArc))
                 }),
@@ -592,7 +665,7 @@ fn application_menu() -> impl IntoElement {
             Button::new("arc")
                 .ghost()
                 .label("Arc")
-                .dropdown_menu(|menu, window, cx| {
+                .dropdown_menu(|menu, _window, _cx| {
                     menu.menu("Extract Selected File/Folder", Box::new(Extract))
                         .menu("Extract All Files", Box::new(ExtractAll))
                 }),
@@ -601,59 +674,138 @@ fn application_menu() -> impl IntoElement {
             Button::new("settings")
                 .ghost()
                 .label("Settings")
-                .dropdown_menu(|menu, window, cx| {
+                .dropdown_menu(|menu, _window, _cx| {
                     menu.menu("Preferences", Box::new(OpenPreferences))
                 }),
         )
 }
 
-fn details_panel(file: Option<&FileNodeInfo>) -> impl IntoElement {
-    // TODO: avoid string cloning?
-    // TODO: use the appropriate icon or thumbnail based on file type
-    // TODO: This doesn't update when first entering a folder?
-    if let Some(file) = file {
-        v_flex()
-            .size_full()
-            .gap_5()
-            .p_5()
-            .child(
-                h_flex()
-                    .gap(px(10.0))
-                    .child(Icon::new(IconName::FolderClosed).large())
-                    .child(div().text_lg().child(file.name().to_string())),
-            )
-            .child(file.path().to_string())
-            .child(match file {
-                FileNodeInfo::Folder { .. } => div().into_any_element(),
-                FileNodeInfo::File {
-                    offset,
-                    description,
-                    is_compressed,
-                    compressed_size,
-                    decompressed_size,
-                    ..
-                } => h_form()
-                    .child(field().label("Description").child(description.clone()))
-                    .child(field().label("Offset").child(offset.to_string()))
-                    .child(field().label("Compressed").child(if *is_compressed {
-                        "True".to_string()
-                    } else {
-                        "False".to_string()
-                    }))
-                    .child(
-                        field()
-                            .label("Compressed Size")
-                            .child(compressed_size.clone()),
+#[derive(Default)]
+struct SharedFilesListDelegate {
+    items: Vec<String>,
+    selected_index: Option<IndexPath>,
+}
+
+impl ListDelegate for SharedFilesListDelegate {
+    type Item = ListItem;
+
+    fn items_count(&self, _section: usize, _cx: &App) -> usize {
+        self.items.len()
+    }
+
+    fn render_item(
+        &mut self,
+        ix: IndexPath,
+        _window: &mut Window,
+        _cx: &mut Context<ListState<Self>>,
+    ) -> Option<Self::Item> {
+        self.items.get(ix.row).map(|item| {
+            ListItem::new(ix)
+                .child(Label::new(item.clone()).text_sm().truncate())
+                .selected(Some(ix) == self.selected_index)
+        })
+    }
+
+    fn set_selected_index(
+        &mut self,
+        ix: Option<IndexPath>,
+        _window: &mut Window,
+        cx: &mut Context<ListState<Self>>,
+    ) {
+        self.selected_index = ix;
+        cx.notify();
+    }
+}
+
+struct FileDetailsPanel {
+    file: Entity<Option<FileNodeInfo>>,
+    shared_file_list: Entity<ListState<SharedFilesListDelegate>>,
+}
+
+impl FileDetailsPanel {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let file = cx.new(|_cx| None);
+
+        let shared_file_list =
+            cx.new(|cx| ListState::new(SharedFilesListDelegate::default(), window, cx));
+
+        Self {
+            file,
+            shared_file_list,
+        }
+    }
+}
+
+impl Render for FileDetailsPanel {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        // TODO: how often should this be rerendering?
+
+        // TODO: avoid string cloning?
+        // TODO: use the appropriate icon or thumbnail based on file type
+        // TODO: This doesn't update when first entering a folder?
+        if let Some(file) = self.file.read(cx) {
+            v_flex()
+                .size_full()
+                .gap_5()
+                .p_5()
+                .child(
+                    h_flex()
+                        .gap(px(10.0))
+                        .child(Icon::new(IconName::FolderClosed).large())
+                        .child(div().text_lg().child(file.name().to_string())),
+                )
+                .child(file.path().to_string())
+                .child(match file {
+                    FileNodeInfo::Folder { .. } => div().into_any_element(),
+                    FileNodeInfo::File {
+                        offset,
+                        description,
+                        is_compressed,
+                        is_regional,
+                        compressed_size,
+                        decompressed_size,
+                        ..
+                    } => div()
+                        .grid()
+                        .grid_cols(2)
+                        .child("Description")
+                        .child(description.clone())
+                        .child("Offset")
+                        .child(offset.to_string())
+                        .child("Compressed")
+                        .child(if *is_compressed {
+                            "True".to_string()
+                        } else {
+                            "False".to_string()
+                        })
+                        .child("Compressed Size")
+                        .child(compressed_size.clone())
+                        .child("Decompressed Size")
+                        .child(decompressed_size.clone())
+                        .when(*is_regional, |this| {
+                            this.child(
+                                h_flex()
+                                    .gap(px(10.0))
+                                    .child(Icon::new(IconName::Globe))
+                                    .child("Regional".to_string()),
+                            )
+                            .child("True".to_string())
+                        })
+                        .into_any_element(),
+                })
+                .when(file.is_shared(), |this| {
+                    let count = self.shared_file_list.read(cx).delegate().items.len();
+                    this.child(
+                        h_flex()
+                            .gap(px(10.0))
+                            .child(Icon::new(IconName::Link))
+                            .child(format!("Shared with the following {count} files")),
                     )
-                    .child(
-                        field()
-                            .label("Decompressed Size")
-                            .child(decompressed_size.clone()),
-                    )
-                    .into_any_element(),
-            })
-    } else {
-        div()
+                    .child(List::new(&self.shared_file_list).max_h(px(250.0)))
+                })
+        } else {
+            div()
+        }
     }
 }
 
@@ -688,6 +840,7 @@ impl Render for Application {
         v_flex()
             .size_full()
             .on_action(cx.listener(Self::on_action_open_arc))
+            .on_action(cx.listener(Self::on_action_connect_to_arc))
             .on_action(cx.listener(Self::on_action_open_preferences))
             .child(application_menu())
             .child(
@@ -786,7 +939,8 @@ impl Render for Application {
                     )
                     .child(
                         resizable_panel()
-                            .child(details_panel(self.selected_file.read(cx).as_ref())),
+                            .w(px(600.0))
+                            .child(self.details_panel.clone()),
                     ),
             )
             .child(
@@ -849,7 +1003,7 @@ fn update_table_column_sizes(
 
 // TODO: move to module
 // TODO: create actions for opening folder and file
-struct Preferences {
+struct PreferencesWindow {
     preferences: Entity<ApplicationPreferences>,
     application_theme_select: Entity<SelectState<Vec<String>>>,
     display_format_select: Entity<SelectState<Vec<String>>>,
@@ -857,7 +1011,7 @@ struct Preferences {
     arc_startup_input: Entity<InputBaseState<InputMode>>,
 }
 
-impl Preferences {
+impl PreferencesWindow {
     fn new(
         window: &mut Window,
         cx: &mut Context<Self>,
@@ -899,7 +1053,7 @@ impl Preferences {
     }
 }
 
-impl Render for Preferences {
+impl Render for PreferencesWindow {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         // TODO: align button sizes
         h_form()
@@ -966,6 +1120,56 @@ impl Render for Preferences {
     }
 }
 
+// TODO: move to module
+struct ConnectToArcWindow {
+    ip_input: Entity<InputBaseState<InputMode>>,
+}
+
+impl ConnectToArcWindow {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        // TODO: get/set preferences values
+        // TODO: validate IP addresses
+        // TODO: are both ipv4 and ipv6 supported?
+        let ip_input = cx.new(|cx| InputState::new(window, cx).default_value("000.000.000.000"));
+        Self { ip_input }
+    }
+}
+
+impl Render for ConnectToArcWindow {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .grid()
+            .grid_cols(2)
+            .p_5()
+            .gap_5()
+            .child("IP Address")
+            // TODO: better input for IP address?
+            // TODO: tooltip
+            .child(Input::new(&self.ip_input).bg(cx.theme().background))
+            .child(
+                div().col_span(2).child(
+                    Checkbox::new("remember-settings")
+                        .label("Remember these settings")
+                        .tooltip("The IP address will be saved after clicking connect if checked."),
+                ),
+            )
+            .child(
+                Button::new("cancel")
+                    .label("Cancel")
+                    .secondary()
+                    .on_click(|_, window, _| window.remove_window()),
+            )
+            .child(
+                Button::new("connect")
+                    .label("Connect")
+                    .secondary()
+                    .on_click(cx.listener(|_this, _, _window, _cx| {
+                        // TODO: connect to arc over network asynchronously
+                    })),
+            )
+    }
+}
+
 fn initialize_themes(cx: &mut App) {
     // TODO: match theme to existing application
     ThemeRegistry::watch_dir("src".into(), cx, move |cx| {
@@ -981,10 +1185,6 @@ fn initialize_themes(cx: &mut App) {
         });
     })
     .unwrap();
-
-    // These themes are both set as "light" themes.
-    // This avoids dark mode forcing transparency on colors in component theming.
-    // TODO:
 
     // TODO: create custom functions for some controls to handle setting borders on hover
     // TODO: transparency for datatable cells?
@@ -1003,7 +1203,7 @@ fn initialize_themes(cx: &mut App) {
 }
 
 fn main() {
-    application().with_assets(assets::Assets).run(|cx| {
+    application().with_assets(AppAssets).run(|cx| {
         init(cx);
 
         initialize_themes(cx);
