@@ -1,8 +1,40 @@
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
-use smash_arc::{ArcFile, ArcLookup, FileNode, GLOBAL_LABELS, Hash40, Region, SearchCache};
+use rayon::prelude::*;
+use smash_arc::{
+    ArcFile, ArcLookup, FileDataIdx, FileNode, GLOBAL_LABELS, Hash40, Region, SearchCache,
+};
 
 pub const ROOT_PATH: &str = "/";
+
+pub struct ArcData {
+    pub arc: ArcFile,
+    pub search_cache: SearchCache,
+    pub file_path: String,
+    pub shared_file_cache: HashMap<smash_arc::FileDataIdx, Vec<Hash40>>,
+}
+
+impl ArcData {
+    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Self {
+        // TODO: avoid unwrap.
+        let path = path.as_ref();
+        let arc = ArcFile::open(path).unwrap();
+        let start = std::time::Instant::now();
+        let search_cache = arc.generate_search_cache();
+        println!("Create search cache: {:?}", start.elapsed());
+
+        let start = std::time::Instant::now();
+        let shared_file_cache = generated_shared_file_cache(&arc);
+        println!("Create shared file cache: {:?}", start.elapsed());
+
+        Self {
+            arc,
+            search_cache,
+            file_path: path.to_string_lossy().to_string(),
+            shared_file_cache,
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum FileNodeInfo {
@@ -80,20 +112,61 @@ impl FileNodeInfo {
         }
     }
 
-    pub fn shared_files(&self, arc: &ArcFile) -> Vec<String> {
+    pub fn shared_files(&self, arc: &ArcData) -> Vec<String> {
         match self {
             FileNodeInfo::Folder { .. } => Vec::new(),
-            FileNodeInfo::File { hash, .. } => arc
-                .get_shared_files(*hash, Region::UsEnglish)
-                .map(|hashes| {
-                    files_from_hashes(arc, hashes)
+            FileNodeInfo::File { hash, .. } => {
+                if let Some(file_data_index) = file_data_index(&arc.arc, *hash) {
+                    // TODO: avoid clone
+                    let hashes = arc.shared_file_cache[&file_data_index].clone();
+                    files_from_hashes(&arc.arc, hashes)
                         .into_iter()
                         .map(|f| f.path().to_string())
                         .collect()
-                })
-                .unwrap_or_default(),
+                } else {
+                    Vec::new()
+                }
+            }
         }
     }
+}
+
+fn file_data_index(arc: &ArcFile, hash: Hash40) -> Option<FileDataIdx> {
+    if let Ok(file_info) = arc.get_file_info_from_hash(hash) {
+        let file_in_folder = arc.get_file_in_folder(file_info, smash_arc::Region::UsEnglish);
+        Some(file_in_folder.file_data_index)
+    } else {
+        None
+    }
+}
+
+fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx, Vec<Hash40>> {
+    // Use a parallel map-reduce to quickly group hashes with the same file data index.
+    // This speeds up finding the shared files later compared to doing a lookup for each file.
+    // https://github.com/jam1garner/smash-arc/blob/23418af7e58dba2c0bb2aafc1341e230643c3da9/src/lookups.rs#L206-L233
+    arc.get_file_hash_to_path_index()
+        .par_iter()
+        .fold(
+            || HashMap::new(),
+            |mut map: HashMap<_, Vec<_>>, hash_to_path| {
+                let hash = hash_to_path.hash40();
+                if let Some(file_data_index) = file_data_index(arc, hash) {
+                    map.entry(file_data_index).or_default().push(hash);
+                    map
+                } else {
+                    map
+                }
+            },
+        )
+        .reduce(
+            || HashMap::new(),
+            |mut map1, map2| {
+                for (key, values) in map2 {
+                    map1.entry(key).or_default().extend_from_slice(&values);
+                }
+                map1
+            },
+        )
 }
 
 pub fn load_files(

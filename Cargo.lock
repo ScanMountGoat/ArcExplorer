@@ -208,6 +208,7 @@ version = "1.4.5"
 dependencies = [
  "directories",
  "gpui-kit",
+ "rayon",
  "rfd",
  "serde",
  "serde_json",

@@ -52,14 +52,10 @@ Folders or individual files can be extracted by right clicking the folder or fil
 Various aspects of the program can be customized in the preferences window by selecting Settings > Preferences in the top menu. The preferences window allows toggling the dark theme, using hexedecimal or decimal for file properties, etc. 
 
 ## Building
-This project contains submodules, so clone with `git clone --recursive https://github.com/ScanMountGoat/ArcExplorer`.  
-Build in Visual Studio 2022 or later or using `dotnet build` from terminal.  
-This requires the .NET 8.0 SDK and a recent Rust toolchain.
+Run `cargo build --release` with a recent Rust toolchain installed.
 
 ## Credits
-[AvaloniaUI](https://github.com/AvaloniaUI/Avalonia) - cross platform UI Framework  
-[SmashArcNet](https://github.com/ScanMountGoat/SmashArcNet) - C# wrapper for smash-arc  
+[gpui-kit](https://github.com/longbridge/gpui-kit) - cross platform UI Framework  
 [smash-arc](https://github.com/jam1garner/smash-arc) - Rust lib for interacting with the data.arc  
 [ArcCross](https://github.com/Ploaj/ArcCross) - original .Net ARC file browser  
 [archive-hashes](https://github.com/ultimate-research/archive-hashes) - hashes for file and directory paths  
-Application icons except for the main application icon and some file format specific icons are from the [Visual Studio 2019 Image Library](https://www.microsoft.com/en-us/download/details.aspx?id=35825)

@@ -24,10 +24,10 @@ use gpui_kit::{
     *,
 };
 use rfd::AsyncFileDialog;
-use smash_arc::{ArcFile, Hash40, SearchCache};
+use smash_arc::Hash40;
 
 use crate::{
-    arc::{FileNodeInfo, arc_file_count, arc_version, load_files, search_arc},
+    arc::{ArcData, FileNodeInfo, arc_file_count, arc_version, load_files, search_arc},
     preferences::ApplicationPreferences,
 };
 
@@ -259,26 +259,6 @@ actions!(
     ]
 );
 
-struct ArcData {
-    arc: ArcFile,
-    search_cache: SearchCache,
-    file_path: String,
-}
-
-impl ArcData {
-    fn from_path<P: AsRef<std::path::Path>>(path: P) -> Self {
-        // TODO: avoid unwrap.
-        let path = path.as_ref();
-        let arc = ArcFile::open(path).unwrap();
-        let search_cache = arc.generate_search_cache();
-        Self {
-            arc,
-            search_cache,
-            file_path: path.to_string_lossy().to_string(),
-        }
-    }
-}
-
 struct Application {
     arc: Entity<Option<ArcData>>,
 
@@ -369,15 +349,13 @@ impl Application {
                 TableEvent::SelectRow(index) => {
                     let delegate = table.read(cx).delegate();
                     if let Some(file) = delegate.files.get(*index).cloned() {
-                        // TODO: figure out why getting shared files is slow.
-                        let start = std::time::Instant::now();
+                        // TODO: Just load this when loading the file itself?
                         let shared_files = this
                             .arc
                             .read(cx)
                             .as_ref()
-                            .map(|arc| file.shared_files(&arc.arc))
+                            .map(|arc| file.shared_files(&arc))
                             .unwrap_or_default();
-                        println!("Load shared files: {:?}", start.elapsed());
 
                         this.details_panel.update(cx, |this, cx| {
                             this.file.write(cx, Some(file));
@@ -801,6 +779,7 @@ impl Render for FileDetailsPanel {
                             .child(Icon::new(IconName::Link))
                             .child(format!("Shared with the following {count} files")),
                     )
+                    // TODO: always show scroll bars if needed and not just on hover
                     .child(List::new(&self.shared_file_list).max_h(px(250.0)))
                 })
         } else {
@@ -1170,36 +1149,23 @@ impl Render for ConnectToArcWindow {
     }
 }
 
+// TODO: hash update window using connect to arc as a reference.
+
 fn initialize_themes(cx: &mut App) {
     // TODO: match theme to existing application
-    ThemeRegistry::watch_dir("src".into(), cx, move |cx| {
-        let theme = ThemeRegistry::global(cx)
-            .themes()
-            .get(&SharedString::from("Arc Explorer Dark"))
-            .cloned()
-            .unwrap();
-        Theme::update(cx, |current| {
-            current.apply_config(&theme);
-            current.radius = px(0.0);
-            current.focus_ring = false;
-        });
-    })
-    .unwrap();
-
     // TODO: create custom functions for some controls to handle setting borders on hover
     // TODO: transparency for datatable cells?
 
-    // TODO: use this to load the theme from memory
-    // ThemeRegistry::global_mut(cx)
-    //     .load_themes_from_str(include_str!("themes.json"))
-    //     .unwrap();
+    ThemeRegistry::global_mut(cx)
+        .load_themes_from_str(include_str!("themes.json"))
+        .unwrap();
 
-    // let theme = ThemeRegistry::global(cx)
-    //     .themes()
-    //     .get(&SharedString::from("Arc Explorer Dark"))
-    //     .cloned()
-    //     .unwrap();
-    // Theme::update(cx, |current| current.apply_config(&theme));
+    let theme = ThemeRegistry::global(cx)
+        .themes()
+        .get(&SharedString::from("Arc Explorer Dark"))
+        .cloned()
+        .unwrap();
+    Theme::update(cx, |current| current.apply_config(&theme));
 }
 
 fn main() {
