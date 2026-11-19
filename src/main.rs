@@ -2,6 +2,9 @@ use std::{borrow::Cow, sync::LazyLock};
 
 use directories::ProjectDirs;
 use gpui_kit::{
+    App, AssetSource, Bounds, Entity, Focusable, KeyBinding, Pixels, Result, SharedString,
+    Subscription, TitlebarOptions, Window, WindowBounds, WindowKind, WindowOptions, actions,
+    application,
     assets::{Assets, IconName, icon_assets},
     base::{
         FocusableExt, IndexPath, h_flex, h_resizable, input::InputBaseState, resizable_panel,
@@ -15,23 +18,26 @@ use gpui_kit::{
         input::{Input, InputEvent, InputMode, InputState},
         label::Label,
         list::{List, ListDelegate, ListItem, ListState},
-        menu::DropdownMenu,
-        select::{Select, SelectItem, SelectState},
+        menu::{DropdownMenu, PopupMenu},
+        select::{Select, SelectEvent, SelectItem, SelectState},
         status_bar::StatusBar,
         table::{Column, ColumnSort, DataTable, TableDelegate, TableEvent, TableState},
     },
-    prelude::FluentBuilder,
-    *,
+    div, init, open_window,
+    prelude::*,
+    px, size,
 };
 use rfd::AsyncFileDialog;
 use smash_arc::Hash40;
 
 use crate::{
     arc::{ArcData, FileNodeInfo, arc_file_count, arc_version, load_files, search_arc},
+    path_bar::PathBar,
     preferences::ApplicationPreferences,
 };
 
 mod arc;
+mod path_bar;
 mod preferences;
 
 // Add any extra Lucide icons not included in the base icon set.
@@ -203,10 +209,10 @@ impl TableDelegate for ArcFilesTableDelegate {
     fn context_menu(
         &mut self,
         _row_ix: usize,
-        menu: component::menu::PopupMenu,
+        menu: PopupMenu,
         _window: &mut Window,
         _cx: &mut Context<TableState<Self>>,
-    ) -> component::menu::PopupMenu {
+    ) -> PopupMenu {
         // TODO: extract files if folder?
         menu.menu("Extract File", Box::new(TableExtractFile))
             .menu("Open Parent Folder", Box::new(TableOpenParentFolder))
@@ -264,13 +270,12 @@ struct Application {
 
     preferences: Entity<ApplicationPreferences>,
 
-    current_path: Entity<String>,
+    path_bar: Entity<PathBar>,
 
     details_panel: Entity<FileDetailsPanel>,
 
     table: Entity<TableState<ArcFilesTableDelegate>>,
     region_select: Entity<SelectState<Vec<ArcRegion>>>,
-    path_input: Entity<InputBaseState<InputMode>>,
     search_input: Entity<InputBaseState<InputMode>>,
 
     _subscriptions: Vec<Subscription>,
@@ -319,16 +324,7 @@ impl Application {
                 .col_selectable(false)
                 .cell_selectable(false)
         });
-        let path_input = cx.new(|cx| InputState::new(window, cx));
         let search_input = cx.new(|cx| InputState::new(window, cx).placeholder("Search ARC"));
-
-        let path_input_sub =
-            cx.subscribe_in(&path_input, window, |this, state, event, window, cx| {
-                if let InputEvent::Change = event {
-                    let value = state.read(cx).value();
-                    this.change_folder(cx, window, value.to_string(), true);
-                }
-            });
 
         let search_input_sub =
             cx.subscribe_in(&search_input, window, |this, state, event, window, cx| {
@@ -338,7 +334,7 @@ impl Application {
                         this.search_files(search_term.as_str(), cx);
                     } else {
                         // No search term should restore the files prior to searching.
-                        let folder_path = this.current_path.read(cx);
+                        let folder_path = this.path_bar.read(cx).current_path.to_string();
                         this.change_folder(cx, window, folder_path.clone(), true);
                     }
                 }
@@ -354,7 +350,7 @@ impl Application {
                             .arc
                             .read(cx)
                             .as_ref()
-                            .map(|arc| file.shared_files(&arc))
+                            .map(|arc| file.shared_files(arc))
                             .unwrap_or_default();
 
                         this.details_panel.update(cx, |this, cx| {
@@ -382,57 +378,69 @@ impl Application {
             }
         });
 
-        // TODO: Select the specified region from preferences.
-        let region_select = cx.new(|cx| {
-            SelectState::new(
-                vec![
-                    ArcRegion(smash_arc::Region::Japanese),
-                    ArcRegion(smash_arc::Region::UsEnglish),
-                    ArcRegion(smash_arc::Region::UsFrench),
-                    ArcRegion(smash_arc::Region::UsSpanish),
-                    ArcRegion(smash_arc::Region::EuEnglish),
-                    ArcRegion(smash_arc::Region::EuFrench),
-                    ArcRegion(smash_arc::Region::EuSpanish),
-                    ArcRegion(smash_arc::Region::EuGerman),
-                    ArcRegion(smash_arc::Region::EuDutch),
-                    ArcRegion(smash_arc::Region::EuItalian),
-                    ArcRegion(smash_arc::Region::EuRussian),
-                    ArcRegion(smash_arc::Region::Korean),
-                    ArcRegion(smash_arc::Region::ChinaChinese),
-                    ArcRegion(smash_arc::Region::TaiwanChinese),
-                ],
-                Some(IndexPath::new(1)),
-                window,
-                cx,
-            )
+        let region_select = cx.new(|cx| -> SelectState<Vec<ArcRegion>> {
+            let regions = vec![
+                ArcRegion(smash_arc::Region::Japanese),
+                ArcRegion(smash_arc::Region::UsEnglish),
+                ArcRegion(smash_arc::Region::UsFrench),
+                ArcRegion(smash_arc::Region::UsSpanish),
+                ArcRegion(smash_arc::Region::EuEnglish),
+                ArcRegion(smash_arc::Region::EuFrench),
+                ArcRegion(smash_arc::Region::EuSpanish),
+                ArcRegion(smash_arc::Region::EuGerman),
+                ArcRegion(smash_arc::Region::EuDutch),
+                ArcRegion(smash_arc::Region::EuItalian),
+                ArcRegion(smash_arc::Region::EuRussian),
+                ArcRegion(smash_arc::Region::Korean),
+                ArcRegion(smash_arc::Region::ChinaChinese),
+                ArcRegion(smash_arc::Region::TaiwanChinese),
+            ];
+            let selected = preferences.read(cx).arc_region;
+            let selected_index = regions.iter().position(|r| r.0 == selected).unwrap_or(1);
+            SelectState::new(regions, Some(IndexPath::new(selected_index)), window, cx)
         });
-
-        let current_path = cx.new(|_cx| String::new());
+        let region_select_sub = cx.subscribe_in(
+            &region_select,
+            window,
+            |this, _select, event, _window, cx| {
+                if let SelectEvent::Confirm(Some(value)) = event {
+                    this.preferences
+                        .update(cx, |state, _cx| state.arc_region = *value);
+                }
+            },
+        );
 
         let details_panel = cx.new(|cx| FileDetailsPanel::new(window, cx));
+
+        let path_bar = cx.new(|cx| PathBar::new(arc::ROOT_PATH.into(), window, cx));
+
+        let path_bar_sub = cx.observe_in(&path_bar, window, |this, target, window, cx| {
+            let value = target.read(cx).current_path.to_string();
+            this.change_folder(cx, window, value, true);
+        });
 
         Self {
             arc,
             preferences,
-            current_path,
+            path_bar,
             details_panel,
             table,
             region_select,
-            path_input,
             search_input,
-            _subscriptions: vec![table_sub, path_input_sub, search_input_sub],
+            _subscriptions: vec![table_sub, search_input_sub, region_select_sub, path_bar_sub],
         }
     }
 
     fn change_folder(
         &mut self,
         cx: &mut Context<Application>,
-        window: &mut Window,
+        _window: &mut Window,
         folder_path: String,
         merge_trailing_slash: bool,
     ) {
         // TODO: normalize paths (add to arc module with tests)
         // TODO: is loading no files on invalid paths the most reasonable behavior?
+        // TODO: remove leading slash?
         let cleaned_path = folder_path.replace("\\", "/").replace("//", "/");
 
         let new_files = self
@@ -442,13 +450,17 @@ impl Application {
             .and_then(|arc| load_files(&arc.arc, cleaned_path.as_str(), merge_trailing_slash))
             .unwrap_or_default();
 
-        self.path_input.update(cx, |state, cx| {
-            state.set_value(folder_path.clone(), window, cx)
+        self.path_bar.update(cx, |state, cx| {
+            // Track changes to prevent infinite loops.
+            if state.current_path != folder_path {
+                state.current_path = folder_path.clone().into();
+                cx.notify();
+            }
         });
 
         self.table.update(cx, |state, cx| {
-            self.current_path.write(cx, folder_path);
             state.delegate_mut().files = new_files;
+            cx.notify();
         });
 
         cx.notify();
@@ -470,8 +482,9 @@ impl Application {
     }
 
     fn exit_folder(&mut self, window: &mut Window, cx: &mut Context<'_, Application>) {
-        let current_path = self.current_path.read(cx);
-        if let Some(parent) = std::path::Path::new(current_path).parent()
+        // Change to the parent folder.
+        let current_path = self.path_bar.read(cx).current_path.to_string();
+        if let Some(parent) = std::path::Path::new(&current_path).parent()
             && !parent.is_empty()
         {
             let new_folder = parent.to_string_lossy().to_string();
@@ -479,6 +492,17 @@ impl Application {
         } else {
             self.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
         }
+
+        // Select the current file in the parent for easier navigation.
+        self.table.update(cx, |state, cx| {
+            for (i, row) in state.delegate().files.iter().enumerate() {
+                if row.path() == current_path {
+                    state.set_selected_row(i, cx);
+                    cx.notify();
+                    break;
+                }
+            }
+        });
     }
 
     fn on_action_open_arc(&mut self, _: &OpenArc, window: &mut Window, cx: &mut Context<Self>) {
@@ -564,9 +588,10 @@ impl Application {
         if let Some(index) = state.selected_row()
             && let Some(file) = state.delegate().files.get(index)
         {
-            // TODO: don't enter into file paths
-            let clicked_path = file.path().to_string();
-            self.change_folder(cx, window, clicked_path, true);
+            // Check the type to avoid trying to enter files.
+            if let FileNodeInfo::Folder { path, .. } = file {
+                self.change_folder(cx, window, path.to_string(), true);
+            }
         }
     }
 
@@ -624,43 +649,52 @@ fn initialize_keybindings(cx: &mut Context<'_, Application>) {
     cx.bind_keys([
         KeyBinding::new(if is_mac { "cmd-o" } else { "ctrl-o" }, OpenArc, None),
         KeyBinding::new("right", TableEnterFolder, None),
+        KeyBinding::new("enter", TableEnterFolder, None),
+        KeyBinding::new("cmd-down", TableEnterFolder, None),
         KeyBinding::new("left", TableExitFolder, None),
+        KeyBinding::new("alt-up", TableExitFolder, None),
+        KeyBinding::new("cmd-up", TableExitFolder, None),
     ]);
 }
 
-fn application_menu() -> impl IntoElement {
-    h_flex()
-        .child(
-            Button::new("file")
-                .ghost()
-                .label("File")
-                .dropdown_menu(|menu, _window, _cx| {
-                    menu.menu("Open Arc", Box::new(OpenArc))
-                        .menu("Connect to Arc", Box::new(ConnectToArc))
-                }),
-        )
-        .child(
-            Button::new("arc")
-                .ghost()
-                .label("Arc")
-                .dropdown_menu(|menu, _window, _cx| {
-                    menu.menu("Extract Selected File/Folder", Box::new(Extract))
-                        .menu("Extract All Files", Box::new(ExtractAll))
-                }),
-        )
-        .child(
-            Button::new("settings")
-                .ghost()
-                .label("Settings")
-                .dropdown_menu(|menu, _window, _cx| {
-                    menu.menu("Preferences", Box::new(OpenPreferences))
-                }),
-        )
+#[derive(IntoElement)]
+struct ApplicationMenu;
+
+impl RenderOnce for ApplicationMenu {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        h_flex()
+            .child(
+                Button::new("file")
+                    .ghost()
+                    .label("File")
+                    .dropdown_menu(|menu, _window, _cx| {
+                        menu.menu("Open Arc", Box::new(OpenArc))
+                            .menu("Connect to Arc", Box::new(ConnectToArc))
+                    }),
+            )
+            .child(
+                Button::new("arc")
+                    .ghost()
+                    .label("Arc")
+                    .dropdown_menu(|menu, _window, _cx| {
+                        menu.menu("Extract Selected File/Folder", Box::new(Extract))
+                            .menu("Extract All Files", Box::new(ExtractAll))
+                    }),
+            )
+            .child(
+                Button::new("settings")
+                    .ghost()
+                    .label("Settings")
+                    .dropdown_menu(|menu, _window, _cx| {
+                        menu.menu("Preferences", Box::new(OpenPreferences))
+                    }),
+            )
+    }
 }
 
 #[derive(Default)]
 struct SharedFilesListDelegate {
-    items: Vec<String>,
+    items: Vec<SharedString>,
     selected_index: Option<IndexPath>,
 }
 
@@ -679,7 +713,7 @@ impl ListDelegate for SharedFilesListDelegate {
     ) -> Option<Self::Item> {
         self.items.get(ix.row).map(|item| {
             ListItem::new(ix)
-                .child(Label::new(item.clone()).text_sm().truncate())
+                .child(Label::new(item).text_sm().truncate())
                 .selected(Some(ix) == self.selected_index)
         })
     }
@@ -715,7 +749,7 @@ impl FileDetailsPanel {
 }
 
 impl Render for FileDetailsPanel {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         // TODO: how often should this be rerendering?
 
         // TODO: avoid string cloning?
@@ -751,11 +785,7 @@ impl Render for FileDetailsPanel {
                         .child("Offset")
                         .child(offset.to_string())
                         .child("Compressed")
-                        .child(if *is_compressed {
-                            "True".to_string()
-                        } else {
-                            "False".to_string()
-                        })
+                        .child(if *is_compressed { "True" } else { "False" })
                         .child("Compressed Size")
                         .child(compressed_size.clone())
                         .child("Decompressed Size")
@@ -765,9 +795,9 @@ impl Render for FileDetailsPanel {
                                 h_flex()
                                     .gap(px(10.0))
                                     .child(Icon::new(IconName::Globe))
-                                    .child("Regional".to_string()),
+                                    .child("Regional"),
                             )
-                            .child("True".to_string())
+                            .child("True")
                         })
                         .into_any_element(),
                 })
@@ -812,7 +842,7 @@ fn styled_input<T>(
 
 // TODO: recreate arcexplorer theme, fonts, icons
 impl Render for Application {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         // TODO: match size and layout from original ArcExplorer as closely as possible
         // TODO: Add additional window for settings
 
@@ -821,7 +851,7 @@ impl Render for Application {
             .on_action(cx.listener(Self::on_action_open_arc))
             .on_action(cx.listener(Self::on_action_connect_to_arc))
             .on_action(cx.listener(Self::on_action_open_preferences))
-            .child(application_menu())
+            .child(ApplicationMenu)
             .child(
                 h_resizable("main-layout")
                     .child(
@@ -854,40 +884,7 @@ impl Render for Application {
                                     h_flex()
                                         .w_full()
                                         .gap_5()
-                                        // .child(
-                                        //     // TODO Implement this manually using file explorer as a reference
-                                        //     // TODO: create a component that stores state for path components?
-                                        //     h_flex()
-                                        //         .child(Button::new("a").label("A"))
-                                        //         .child(
-                                        //             // TODO: animate rotation and show popup menu with child folders
-                                        //             // TODO: convert to path input on click and bread crumbs on enter
-                                        //             Button::new("a2")
-                                        //                 .ghost()
-                                        //                 .icon(IconName::ChevronRight)
-                                        //                 .dropdown_menu(|menu, window, cx| {
-                                        //                     // TODO: populate with all the child folders
-                                        //                     // TODO: action that stores the path or hash to open?
-                                        //                     menu.menu(
-                                        //                         "B",
-                                        //                         Box::new(TableEnterFolder),
-                                        //                     )
-                                        //                 }),
-                                        //         )
-                                        //         .child(Button::new("b").label("B"))
-                                        //         .child(
-                                        //             Button::new("b2")
-                                        //                 .ghost()
-                                        //                 .icon(IconName::ChevronRight),
-                                        //         )
-                                        //         .child(Button::new("c").label("C")),
-                                        // )
-                                        .child(styled_input(
-                                            "path-input",
-                                            &self.path_input,
-                                            window,
-                                            cx,
-                                        ))
+                                        .child(self.path_bar.clone())
                                         .child(
                                             Button::new("Exit Folder")
                                                 .label("Exit Folder")

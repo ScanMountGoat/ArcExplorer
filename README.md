@@ -24,10 +24,10 @@ The textbox above the file list shows the current folder. Modify the path in the
 Keyboard shortcuts are listed below. 
 | Action | Keys |
 | --- | --- |
-| Enter Selected Folder | Enter, Right Arrow |
+| Enter Selected Folder | Enter, Right Arrow, Cmd + Down Arrow |
 | Move Selection Up | Up Arrow | 
 | Move Selection Down | Down Arrow |
-| Exit Selected Folder | Left Arrow, Alt + Up Arrow |
+| Exit Selected Folder | Left Arrow, Alt + Up Arrow, Cmd + Up Arrow |
 
 ## Searching
 Type paths or parts of a path into the search box to search the entire ARC. This works if the ARC is opened from a file or when connecting over the network. The search is "fuzzy", so small inaccuracies in spelling don' t matter like "mrio" instead of "mario". To clear the search results and return to the ARC root, delete the text in the search bar.

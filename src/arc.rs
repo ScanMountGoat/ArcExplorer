@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::Path};
 
+use gpui_kit::SharedString;
 use rayon::prelude::*;
 use smash_arc::{
     ArcFile, ArcLookup, FileDataIdx, FileNode, GLOBAL_LABELS, Hash40, Region, SearchCache,
@@ -40,21 +41,21 @@ impl ArcData {
 pub enum FileNodeInfo {
     Folder {
         hash: Hash40,
-        name: String,
-        path: String,
+        name: SharedString,
+        path: SharedString,
     },
     File {
         hash: Hash40,
-        name: String,
-        path: String,
+        name: SharedString,
+        path: SharedString,
         offset: u64,
-        description: String,
+        description: SharedString,
         is_compressed: bool,
         is_regional: bool,
         is_shared: bool,
         // TODO: usize for bytes and add formatting logic with tests
-        compressed_size: String,
-        decompressed_size: String,
+        compressed_size: SharedString,
+        decompressed_size: SharedString,
     },
 }
 
@@ -112,7 +113,7 @@ impl FileNodeInfo {
         }
     }
 
-    pub fn shared_files(&self, arc: &ArcData) -> Vec<String> {
+    pub fn shared_files(&self, arc: &ArcData) -> Vec<SharedString> {
         match self {
             FileNodeInfo::Folder { .. } => Vec::new(),
             FileNodeInfo::File { hash, .. } => {
@@ -121,7 +122,7 @@ impl FileNodeInfo {
                     let hashes = arc.shared_file_cache[&file_data_index].clone();
                     files_from_hashes(&arc.arc, hashes)
                         .into_iter()
-                        .map(|f| f.path().to_string())
+                        .map(|f| f.path().into())
                         .collect()
                 } else {
                     Vec::new()
@@ -147,7 +148,7 @@ fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx,
     arc.get_file_hash_to_path_index()
         .par_iter()
         .fold(
-            || HashMap::new(),
+            HashMap::new,
             |mut map: HashMap<_, Vec<_>>, hash_to_path| {
                 let hash = hash_to_path.hash40();
                 if let Some(file_data_index) = file_data_index(arc, hash) {
@@ -159,7 +160,7 @@ fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx,
             },
         )
         .reduce(
-            || HashMap::new(),
+            HashMap::new,
             |mut map1, map2| {
                 for (key, values) in map2 {
                     map1.entry(key).or_default().extend_from_slice(&values);
@@ -228,40 +229,40 @@ fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
 
         FileNodeInfo::File {
             hash,
-            name,
-            path,
+            name: name.into(),
+            path: path.into(),
             offset: info.offset,
-            description: ext_description(&extension).to_string(),
+            description: ext_description(&extension).into(),
             is_compressed: info.is_compressed,
             is_regional: info.is_regional,
             is_shared: info.is_shared,
-            compressed_size: info.comp_size.to_string(),
-            decompressed_size: info.decomp_size.to_string(),
+            compressed_size: info.comp_size.to_string().into(),
+            decompressed_size: info.decomp_size.to_string().into(),
         }
     } else {
         // TODO: How to handle missing data.
         FileNodeInfo::File {
             hash,
-            name: hash_name(hash),
-            path: hash_name(hash),
+            name: hash_name(hash).into(),
+            path: hash_name(hash).into(),
             offset: 0,
-            description: "File".to_string(),
+            description: "File".into(),
             is_compressed: false,
             is_regional: false,
             is_shared: false,
-            compressed_size: String::new(),
-            decompressed_size: String::new(),
+            compressed_size: Default::default(),
+            decompressed_size: Default::default(),
         }
     }
 }
 
 fn folder_info(hash: Hash40) -> FileNodeInfo {
-    let path = hash_name(hash);
-    let name = Path::new(&path)
+    let path: SharedString = hash_name(hash).into();
+    let name = Path::new(path.as_str())
         .file_name()
         .unwrap_or_default()
         .to_string_lossy()
-        .to_string();
+        .into();
     FileNodeInfo::Folder { hash, name, path }
 }
 
