@@ -71,28 +71,38 @@ impl Render for PathBar {
                 .child(Input::new(&self.input).bg(cx.theme().background))
                 .into_any_element()
         } else {
-            let segments = std::path::Path::new(self.current_path.as_str())
-                .components()
-                .with_position();
+            let path = std::path::Path::new(self.current_path.as_str());
+            let segments = path.components().with_position();
 
             let mut children = h_flex();
-            for (pos, s) in segments {
+            for (i, (pos, s)) in segments.enumerate() {
                 // TODO: avoid clone?
                 let name = s.as_os_str().to_string_lossy().to_string();
                 children = children.child(
                     Button::new(name.clone())
                         .ghost()
                         .label(name.clone())
-                        .on_click(cx.listener(|_this, _, _window, cx| {
-                            // TODO: enter folder by changing the path and calling cx.notify()
-                            // TODO: should the main app just observe this entity's path?
-                            cx.stop_propagation();
+                        .on_click(cx.listener(move |this, _, _window, cx| {
+                            // Calculate the path up to and including the current component.
+                            let path = std::path::Path::new(this.current_path.as_str());
+                            let new_path: std::path::PathBuf =
+                                path.components().take(i + 1).collect();
+                            this.current_path = new_path.to_string_lossy().into();
+                            cx.stop_propagation(); // don't enter edit mode
+                            cx.notify();
                         })),
                 );
                 if !pos.is_last() {
-                    // TODO: dropdown_menu with child folders
-                    children =
-                        children.child(Button::new(name).ghost().icon(IconName::ChevronRight));
+                    children = children.child(
+                        Button::new(format!("{name}.right"))
+                            .ghost()
+                            .icon(IconName::ChevronRight)
+                            .on_click(cx.listener(|this, _, _window, cx| {
+                                // TODO: dropdown_menu with entries to navigate to child folders
+                                cx.stop_propagation(); // don't enter edit mode      
+                                cx.notify();
+                            })),
+                    );
                 }
             }
 
