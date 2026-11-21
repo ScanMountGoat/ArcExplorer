@@ -2,9 +2,9 @@ use std::{borrow::Cow, sync::LazyLock};
 
 use directories::ProjectDirs;
 use gpui_kit::{
-    App, AssetSource, Bounds, Entity, Focusable, KeyBinding, Pixels, Result, SharedString,
-    Subscription, TitlebarOptions, Window, WindowBounds, WindowKind, WindowOptions, actions,
-    application,
+    App, AssetSource, Bounds, Entity, Focusable, KeyBinding, MouseButton, NavigationDirection,
+    Pixels, Result, SharedString, Subscription, TitlebarOptions, Window, WindowBounds, WindowKind,
+    WindowOptions, actions, application,
     assets::{Assets, IconName, icon_assets},
     base::{
         FocusableExt, IndexPath, h_flex, h_resizable, input::InputBaseState, resizable_panel,
@@ -87,7 +87,7 @@ impl ArcFilesTableDelegate {
         Self {
             files,
             columns: vec![
-                Column::new("name", "Name").sortable(),
+                Column::new("name", "Name").sortable().ascending(),
                 Column::new("description", "Description")
                     .width(px(200.0))
                     .sortable(),
@@ -140,6 +140,7 @@ impl TableDelegate for ArcFilesTableDelegate {
                 .into_any_element(),
             "description" => row.description().to_string().into_any_element(),
             // TODO: where to handle size formatting?
+            // TODO: port formatting from arcexplorer with tests
             "compressed_size" => row.compressed_size().to_string().into_any_element(),
             "decompressed_size" => row.decompressed_size().to_string().into_any_element(),
             _ => div().into_any_element(),
@@ -152,7 +153,7 @@ impl TableDelegate for ArcFilesTableDelegate {
         col_ix: usize,
         sort: ColumnSort,
         _window: &mut Window,
-        _cx: &mut Context<TableState<Self>>,
+        cx: &mut Context<TableState<Self>>,
     ) {
         // TODO: sorting function
         // TODO: avoid clone
@@ -161,7 +162,10 @@ impl TableDelegate for ArcFilesTableDelegate {
         match self.columns[col_ix].key.as_ref() {
             "name" => match sort {
                 // TODO: should the default order by alphabetical to match ArcExplorer?
-                ColumnSort::Default => (),
+                ColumnSort::Default => {
+                    // TODO: Restore default order to not break search
+                    self.files.sort_by_key(|f| f.name().to_string());
+                }
                 ColumnSort::Ascending => {
                     self.files.sort_by_key(|f| f.name().to_string());
                 }
@@ -204,6 +208,7 @@ impl TableDelegate for ArcFilesTableDelegate {
             },
             _ => (),
         }
+        cx.notify();
     }
 
     fn context_menu(
@@ -319,6 +324,8 @@ impl Application {
         let delegate = ArcFilesTableDelegate::new(files);
         let table = cx.new(|cx| {
             TableState::new(delegate, window, cx)
+                .sortable(true)
+                .col_movable(false)
                 .col_resizable(false)
                 .row_selectable(true)
                 .col_selectable(false)
@@ -370,8 +377,11 @@ impl Application {
                     // TODO: make this async?
                     let delegate = table.read(cx).delegate();
                     if let Some(file) = delegate.files.get(*index) {
-                        let clicked_path = file.path().to_string();
-                        this.change_folder(cx, window, clicked_path, true);
+                        // Check the type to avoid trying to enter files.
+                        if let FileNodeInfo::Folder { path, .. } = file {
+                            let clicked_path = path.to_string();
+                            this.change_folder(cx, window, clicked_path, true);
+                        }
                     }
                 }
                 _ => (),
@@ -441,6 +451,7 @@ impl Application {
         // TODO: normalize paths (add to arc module with tests)
         // TODO: is loading no files on invalid paths the most reasonable behavior?
         // TODO: remove leading slash?
+        // TODO: visual error indication if no entry for path?
         let cleaned_path = folder_path.replace("\\", "/").replace("//", "/");
 
         let new_files = self
@@ -460,6 +471,8 @@ impl Application {
 
         self.table.update(cx, |state, cx| {
             state.delegate_mut().files = new_files;
+            // Always select the first row since the previous folder selection may not be valid.
+            state.set_selected_row(0, cx);
             cx.notify();
         });
 
@@ -851,6 +864,18 @@ impl Render for Application {
             .on_action(cx.listener(Self::on_action_open_arc))
             .on_action(cx.listener(Self::on_action_connect_to_arc))
             .on_action(cx.listener(Self::on_action_open_preferences))
+            .on_mouse_down(
+                MouseButton::Navigate(NavigationDirection::Back),
+                cx.listener(|this, _, window, cx| {
+                    this.exit_folder(window, cx);
+                }),
+            )
+            .on_mouse_down(
+                MouseButton::Navigate(NavigationDirection::Forward),
+                cx.listener(|this, _, window, cx| {
+                    // TODO: store history for paths?
+                }),
+            )
             .child(ApplicationMenu)
             .child(
                 h_resizable("main-layout")
@@ -920,34 +945,37 @@ impl Render for Application {
                     ),
             )
             .child(
-                StatusBar::new().text_color(cx.theme().foreground).left(
-                    h_flex()
-                        .gap_5()
-                        .child(format!(
-                            "Path: {:?}",
-                            self.arc
-                                .read(cx)
-                                .as_ref()
-                                .map(|arc| arc.file_path.clone())
-                                .unwrap_or_default()
-                        ))
-                        .child(format!(
-                            "Version: {:?}",
-                            self.arc
-                                .read(cx)
-                                .as_ref()
-                                .map(|arc| arc_version(&arc.arc))
-                                .unwrap_or_default()
-                        ))
-                        .child(format!(
-                            "File Count: {:?}",
-                            self.arc
-                                .read(cx)
-                                .as_ref()
-                                .map(|arc| arc_file_count(&arc.arc))
-                                .unwrap_or_default()
-                        )),
-                ),
+                StatusBar::new()
+                    .text_base()
+                    .text_color(cx.theme().foreground)
+                    .left(
+                        h_flex()
+                            .gap_5()
+                            .child(format!(
+                                "Path: {:?}",
+                                self.arc
+                                    .read(cx)
+                                    .as_ref()
+                                    .map(|arc| arc.file_path.clone())
+                                    .unwrap_or_default()
+                            ))
+                            .child(format!(
+                                "Version: {:?}",
+                                self.arc
+                                    .read(cx)
+                                    .as_ref()
+                                    .map(|arc| arc_version(&arc.arc))
+                                    .unwrap_or_default()
+                            ))
+                            .child(format!(
+                                "File Count: {:?}",
+                                self.arc
+                                    .read(cx)
+                                    .as_ref()
+                                    .map(|arc| arc_file_count(&arc.arc))
+                                    .unwrap_or_default()
+                            )),
+                    ),
             )
     }
 }
@@ -972,6 +1000,7 @@ fn update_table_column_sizes(
     this.table.update(cx, |state, cx| {
         if let Some(last_col) = state.delegate_mut().columns.first_mut() {
             last_col.width = remaining;
+            // TODO: this breaks column sorting
             state.refresh(cx);
         }
     })
@@ -1162,7 +1191,12 @@ fn initialize_themes(cx: &mut App) {
         .get(&SharedString::from("Arc Explorer Dark"))
         .cloned()
         .unwrap();
-    Theme::update(cx, |current| current.apply_config(&theme));
+    Theme::update(cx, |current| {
+        current.apply_config(&theme);
+        // The original Avalonia theme has no rounding.
+        current.radius = px(0.0);
+        current.font_size = px(14.0);
+    });
 }
 
 fn main() {
