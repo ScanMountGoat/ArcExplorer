@@ -16,3 +16,7 @@ smash-arc = { git = "https://github.com/jam1garner/smash-arc", features = ["libz
 # Make ARC loading faster in debug mode.
 [profile.dev]
 opt-level = 1
+
+[package.metadata.bundle]
+identifier = "arc_explorer"
+icon = ["src/icons/ArcExplorer.icns"]

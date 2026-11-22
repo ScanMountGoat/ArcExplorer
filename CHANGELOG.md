@@ -1,4 +1,8 @@
 # Change Log
+## unreleased
+* Updated the folder path bar to support navigating directly to parent folders by clicking on them. Click on an empty area in the path bar to edit the path as text and confirm the edit to change back to folder buttons.
+* Updated the application logo for MacOS to use the "squircle" design to match design guidelines.
+
 ## v1.4.5 - 2024-01-21
 * Upgraded to .NET 8.0.
 * Added an option to open the parent folder for files in search results.
