@@ -2,9 +2,9 @@ use std::{borrow::Cow, sync::LazyLock};
 
 use directories::ProjectDirs;
 use gpui_kit::{
-    App, AssetSource, Bounds, Entity, Focusable, KeyBinding, MouseButton, NavigationDirection,
-    Pixels, Result, SharedString, Subscription, TitlebarOptions, Window, WindowBounds, WindowKind,
-    WindowOptions, actions, application,
+    App, AssetSource, Bounds, Entity, EventEmitter, Focusable, KeyBinding, MouseButton,
+    NavigationDirection, Pixels, Result, SharedString, Subscription, TitlebarOptions, Window,
+    WindowBounds, WindowKind, WindowOptions, actions, application,
     assets::{Assets, IconName, icon_assets},
     base::{
         FocusableExt, IndexPath, h_flex, h_resizable, input::InputBaseState, resizable_panel,
@@ -549,7 +549,7 @@ impl Application {
     fn on_action_connect_to_arc(
         &mut self,
         _: &ConnectToArc,
-        _window: &mut Window,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         // TODO: closing parent window should close this window too
@@ -563,10 +563,26 @@ impl Application {
             kind: WindowKind::Dialog,
             ..Default::default()
         };
-        open_window(options, cx, |window, cx| {
+        let (_, child_window) = open_window(options, cx, |window, cx| {
             cx.new(|cx| ConnectToArcWindow::new(window, cx))
         })
         .unwrap();
+
+        cx.subscribe_in(
+            &child_window,
+            window,
+            |this, _, event: &ConnectToArcInfo, window, cx| {
+                // TODO: make this async
+                // Update view state back on the UI context and notify for re-render
+                // TODO: report errors.
+                let new_arc = ArcData::from_ip_address(event.ip_address.as_str());
+
+                this.arc.write(cx, Some(new_arc));
+                this.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+                cx.notify();
+            },
+        )
+        .detach();
     }
 
     fn on_action_open_preferences(
@@ -1127,9 +1143,15 @@ impl Render for PreferencesWindow {
 }
 
 // TODO: move to module
+pub struct ConnectToArcInfo {
+    pub ip_address: SharedString,
+}
+
 struct ConnectToArcWindow {
     ip_input: Entity<InputBaseState<InputMode>>,
 }
+
+impl EventEmitter<ConnectToArcInfo> for ConnectToArcWindow {}
 
 impl ConnectToArcWindow {
     fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
@@ -1169,8 +1191,15 @@ impl Render for ConnectToArcWindow {
                 Button::new("connect")
                     .label("Connect")
                     .secondary()
-                    .on_click(cx.listener(|_this, _, _window, _cx| {
-                        // TODO: connect to arc over network asynchronously
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        cx.emit(ConnectToArcInfo {
+                            ip_address: this.ip_input.read(cx).value().clone(),
+                        });
+                        // Make sure the event is emitted before the window actually closes.
+                        // TODO: Is there a better way to have the parent respond to submitting an address?
+                        cx.defer_in(window, |_, window, _| {
+                            window.remove_window();
+                        });
                     })),
             )
     }
@@ -1196,6 +1225,7 @@ fn initialize_themes(cx: &mut App) {
         current.apply_config(&theme);
         // The original Avalonia theme has no rounding.
         current.radius = px(0.0);
+        // TODO: set this on the div instead to support titlebar
         current.font_size = px(14.0);
     });
 }

@@ -19,7 +19,25 @@ impl ArcData {
     pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Self {
         // TODO: avoid unwrap.
         let path = path.as_ref();
+        let start = std::time::Instant::now();
         let arc = ArcFile::open(path).unwrap();
+        println!("Open ARC: {:?}", start.elapsed());
+
+        Self::from_arc(path.to_string_lossy().to_string(), arc)
+    }
+
+    pub fn from_ip_address(ip: &str) -> Self {
+        // TODO: avoid unwrap.
+        // The port is set by the skyline plugin:
+        // https://github.com/jam1garner/arc-network/blob/41e5fbeb440cff2a836967b2073ec59dc1bb17d5/src/lib.rs#L6
+        let start = std::time::Instant::now();
+        let arc = ArcFile::open_over_network((ip, 43022)).unwrap();
+        println!("Connect to ARC: {:?}", start.elapsed());
+
+        Self::from_arc(ip.to_string(), arc)
+    }
+
+    fn from_arc(file_path: String, arc: ArcFile) -> Self {
         let start = std::time::Instant::now();
         let search_cache = arc.generate_search_cache();
         println!("Create search cache: {:?}", start.elapsed());
@@ -31,7 +49,7 @@ impl ArcData {
         Self {
             arc,
             search_cache,
-            file_path: path.to_string_lossy().to_string(),
+            file_path,
             shared_file_cache,
         }
     }
@@ -147,27 +165,21 @@ fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx,
     // https://github.com/jam1garner/smash-arc/blob/23418af7e58dba2c0bb2aafc1341e230643c3da9/src/lookups.rs#L206-L233
     arc.get_file_hash_to_path_index()
         .par_iter()
-        .fold(
-            HashMap::new,
-            |mut map: HashMap<_, Vec<_>>, hash_to_path| {
-                let hash = hash_to_path.hash40();
-                if let Some(file_data_index) = file_data_index(arc, hash) {
-                    map.entry(file_data_index).or_default().push(hash);
-                    map
-                } else {
-                    map
-                }
-            },
-        )
-        .reduce(
-            HashMap::new,
-            |mut map1, map2| {
-                for (key, values) in map2 {
-                    map1.entry(key).or_default().extend_from_slice(&values);
-                }
-                map1
-            },
-        )
+        .fold(HashMap::new, |mut map: HashMap<_, Vec<_>>, hash_to_path| {
+            let hash = hash_to_path.hash40();
+            if let Some(file_data_index) = file_data_index(arc, hash) {
+                map.entry(file_data_index).or_default().push(hash);
+                map
+            } else {
+                map
+            }
+        })
+        .reduce(HashMap::new, |mut map1, map2| {
+            for (key, values) in map2 {
+                map1.entry(key).or_default().extend_from_slice(&values);
+            }
+            map1
+        })
 }
 
 pub fn load_files(
