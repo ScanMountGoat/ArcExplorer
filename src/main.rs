@@ -266,7 +266,8 @@ actions!(
         TableEnterFolder,
         TableExitFolder,
         TableExtractFile,
-        TableOpenParentFolder
+        TableOpenParentFolder,
+        Quit
     ]
 );
 
@@ -1202,6 +1203,11 @@ fn initialize_themes(cx: &mut App) {
 fn main() {
     application().with_assets(AppAssets).run(|cx| {
         init(cx);
+
+        cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
+        cx.on_action(|_: &Quit, cx| {
+            cx.quit();
+        });
 
         initialize_themes(cx);
 
