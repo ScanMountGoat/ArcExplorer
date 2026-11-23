@@ -16,17 +16,17 @@ pub struct ArcData {
 }
 
 impl ArcData {
-    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Self {
+    pub fn from_path<P: AsRef<std::path::Path>>(path: P, region: Region) -> Self {
         // TODO: avoid unwrap.
         let path = path.as_ref();
         let start = std::time::Instant::now();
         let arc = ArcFile::open(path).unwrap();
         println!("Open ARC: {:?}", start.elapsed());
 
-        Self::from_arc(path.to_string_lossy().to_string(), arc)
+        Self::from_arc(path.to_string_lossy().to_string(), arc, region)
     }
 
-    pub fn from_ip_address(ip: &str) -> Self {
+    pub fn from_ip_address(ip: &str, region: Region) -> Self {
         // TODO: avoid unwrap.
         // The port is set by the skyline plugin:
         // https://github.com/jam1garner/arc-network/blob/41e5fbeb440cff2a836967b2073ec59dc1bb17d5/src/lib.rs#L6
@@ -34,16 +34,16 @@ impl ArcData {
         let arc = ArcFile::open_over_network((ip, 43022)).unwrap();
         println!("Connect to ARC: {:?}", start.elapsed());
 
-        Self::from_arc(ip.to_string(), arc)
+        Self::from_arc(ip.to_string(), arc, region)
     }
 
-    fn from_arc(file_path: String, arc: ArcFile) -> Self {
+    fn from_arc(file_path: String, arc: ArcFile, region: Region) -> Self {
         let start = std::time::Instant::now();
         let search_cache = arc.generate_search_cache();
         println!("Create search cache: {:?}", start.elapsed());
 
         let start = std::time::Instant::now();
-        let shared_file_cache = generated_shared_file_cache(&arc);
+        let shared_file_cache = generated_shared_file_cache(&arc, region);
         println!("Create shared file cache: {:?}", start.elapsed());
 
         Self {
@@ -131,14 +131,14 @@ impl FileNodeInfo {
         }
     }
 
-    pub fn shared_files(&self, arc: &ArcData) -> Vec<SharedString> {
+    pub fn shared_files(&self, arc: &ArcData, region: Region) -> Vec<SharedString> {
         match self {
             FileNodeInfo::Folder { .. } => Vec::new(),
             FileNodeInfo::File { hash, .. } => {
-                if let Some(file_data_index) = file_data_index(&arc.arc, *hash) {
+                if let Some(file_data_index) = file_data_index(&arc.arc, *hash, region) {
                     // TODO: avoid clone
                     let hashes = arc.shared_file_cache[&file_data_index].clone();
-                    files_from_hashes(&arc.arc, hashes)
+                    files_from_hashes(&arc.arc, hashes, region)
                         .into_iter()
                         .map(|f| f.path().into())
                         .collect()
@@ -150,16 +150,19 @@ impl FileNodeInfo {
     }
 }
 
-fn file_data_index(arc: &ArcFile, hash: Hash40) -> Option<FileDataIdx> {
+fn file_data_index(arc: &ArcFile, hash: Hash40, region: Region) -> Option<FileDataIdx> {
     if let Ok(file_info) = arc.get_file_info_from_hash(hash) {
-        let file_in_folder = arc.get_file_in_folder(file_info, smash_arc::Region::UsEnglish);
+        let file_in_folder = arc.get_file_in_folder(file_info, region);
         Some(file_in_folder.file_data_index)
     } else {
         None
     }
 }
 
-fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx, Vec<Hash40>> {
+fn generated_shared_file_cache(
+    arc: &ArcFile,
+    region: Region,
+) -> HashMap<smash_arc::FileDataIdx, Vec<Hash40>> {
     // Use a parallel map-reduce to quickly group hashes with the same file data index.
     // This speeds up finding the shared files later compared to doing a lookup for each file.
     // https://github.com/jam1garner/smash-arc/blob/23418af7e58dba2c0bb2aafc1341e230643c3da9/src/lookups.rs#L206-L233
@@ -167,7 +170,7 @@ fn generated_shared_file_cache(arc: &ArcFile) -> HashMap<smash_arc::FileDataIdx,
         .par_iter()
         .fold(HashMap::new, |mut map: HashMap<_, Vec<_>>, hash_to_path| {
             let hash = hash_to_path.hash40();
-            if let Some(file_data_index) = file_data_index(arc, hash) {
+            if let Some(file_data_index) = file_data_index(arc, hash, region) {
                 map.entry(file_data_index).or_default().push(hash);
                 map
             } else {
@@ -186,6 +189,7 @@ pub fn load_files(
     arc: &ArcFile,
     hash: impl Into<Hash40>,
     merge_trailing_slash: bool,
+    region: Region,
 ) -> Option<Vec<FileNodeInfo>> {
     if merge_trailing_slash {
         // TODO: load with and without trailing slash and merge?
@@ -194,22 +198,22 @@ pub fn load_files(
     let dir = arc.get_dir_listing(hash)?;
 
     // TODO: merge by trailing slash if enabled in preferences
-    let files = load_file_nodes(arc, dir);
+    let files = load_file_nodes(arc, dir, region);
     Some(files)
 }
 
-fn load_file_nodes(arc: &ArcFile, dir: &[FileNode]) -> Vec<FileNodeInfo> {
+fn load_file_nodes(arc: &ArcFile, dir: &[FileNode], region: Region) -> Vec<FileNodeInfo> {
     dir.iter()
         .map(|f| match f {
             FileNode::Dir(hash) => folder_info(*hash),
-            FileNode::File(hash) => file_info(arc, *hash),
+            FileNode::File(hash) => file_info(arc, *hash, region),
         })
         .collect()
 }
 
-fn file_info(arc: &ArcFile, hash: Hash40) -> FileNodeInfo {
+fn file_info(arc: &ArcFile, hash: Hash40, region: Region) -> FileNodeInfo {
     // TODO: use the current region.
-    if let Ok(info) = arc.get_file_metadata(hash, Region::UsEnglish) {
+    if let Ok(info) = arc.get_file_metadata(hash, region) {
         let (path, name, extension) = if info.is_stream {
             let stream_file_path = hash_name(info.path_hash);
             let stream_file_name = Path::new(&stream_file_path)
@@ -328,13 +332,14 @@ pub fn search_arc(
     arc: &ArcFile,
     search_cache: &SearchCache,
     search_term: &str,
+    region: Region,
 ) -> Vec<FileNodeInfo> {
     let matches = search_cache.search(search_term, &GLOBAL_LABELS.read(), 2000);
 
-    files_from_hashes(arc, matches)
+    files_from_hashes(arc, matches, region)
 }
 
-fn files_from_hashes(arc: &ArcFile, hashes: Vec<Hash40>) -> Vec<FileNodeInfo> {
+fn files_from_hashes(arc: &ArcFile, hashes: Vec<Hash40>, region: Region) -> Vec<FileNodeInfo> {
     hashes
         .into_iter()
         .map(|hash| {
@@ -342,7 +347,7 @@ fn files_from_hashes(arc: &ArcFile, hashes: Vec<Hash40>) -> Vec<FileNodeInfo> {
             if arc.get_dir_info_from_hash(hash).is_ok() {
                 folder_info(hash)
             } else {
-                file_info(arc, hash)
+                file_info(arc, hash, region)
             }
         })
         .collect()

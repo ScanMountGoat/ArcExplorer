@@ -308,7 +308,7 @@ impl Application {
             preferences
                 .arc_startup_location
                 .as_ref()
-                .map(ArcData::from_path)
+                .map(|path| ArcData::from_path(path, preferences.arc_region))
         });
         println!("Load ARC: {:?}", start.elapsed());
 
@@ -319,7 +319,14 @@ impl Application {
         let files = arc
             .read(cx)
             .as_ref()
-            .and_then(|arc| load_files(&arc.arc, arc::ROOT_PATH, true))
+            .and_then(|arc| {
+                load_files(
+                    &arc.arc,
+                    arc::ROOT_PATH,
+                    true,
+                    preferences.read(cx).arc_region,
+                )
+            })
             .unwrap_or_default();
 
         let delegate = ArcFilesTableDelegate::new(files);
@@ -343,7 +350,7 @@ impl Application {
                     } else {
                         // No search term should restore the files prior to searching.
                         let folder_path = this.path_bar.read(cx).current_path.to_string();
-                        this.change_folder(cx, window, folder_path.clone(), true);
+                        this.change_folder(cx, window, folder_path.clone());
                     }
                 }
             });
@@ -358,7 +365,7 @@ impl Application {
                             .arc
                             .read(cx)
                             .as_ref()
-                            .map(|arc| file.shared_files(arc))
+                            .map(|arc| file.shared_files(arc, this.preferences.read(cx).arc_region))
                             .unwrap_or_default();
 
                         this.details_panel.update(cx, |this, cx| {
@@ -381,7 +388,7 @@ impl Application {
                         // Check the type to avoid trying to enter files.
                         if let FileNodeInfo::Folder { path, .. } = file {
                             let clicked_path = path.to_string();
-                            this.change_folder(cx, window, clicked_path, true);
+                            this.change_folder(cx, window, clicked_path);
                         }
                     }
                 }
@@ -427,7 +434,7 @@ impl Application {
 
         let path_bar_sub = cx.observe_in(&path_bar, window, |this, target, window, cx| {
             let value = target.read(cx).current_path.to_string();
-            this.change_folder(cx, window, value, true);
+            this.change_folder(cx, window, value);
         });
 
         Self {
@@ -447,7 +454,6 @@ impl Application {
         cx: &mut Context<Application>,
         _window: &mut Window,
         folder_path: String,
-        merge_trailing_slash: bool,
     ) {
         // TODO: normalize paths (add to arc module with tests)
         // TODO: is loading no files on invalid paths the most reasonable behavior?
@@ -459,7 +465,14 @@ impl Application {
             .arc
             .read(cx)
             .as_ref()
-            .and_then(|arc| load_files(&arc.arc, cleaned_path.as_str(), merge_trailing_slash))
+            .and_then(|arc| {
+                load_files(
+                    &arc.arc,
+                    cleaned_path.as_str(),
+                    self.preferences.read(cx).merge_trailing_slash,
+                    self.preferences.read(cx).arc_region,
+                )
+            })
             .unwrap_or_default();
 
         self.path_bar.update(cx, |state, cx| {
@@ -484,7 +497,12 @@ impl Application {
         // TODO: does this need to be debounced and/or made async?
         if let Some(arc) = self.arc.read(cx).as_ref() {
             let start = std::time::Instant::now();
-            let new_files = search_arc(&arc.arc, &arc.search_cache, search_term);
+            let new_files = search_arc(
+                &arc.arc,
+                &arc.search_cache,
+                search_term,
+                self.preferences.read(cx).arc_region,
+            );
             println!("Search: {:?}", start.elapsed());
 
             self.table.update(cx, |state, _cx| {
@@ -502,9 +520,9 @@ impl Application {
             && !parent.is_empty()
         {
             let new_folder = parent.to_string_lossy().to_string();
-            self.change_folder(cx, window, new_folder, true);
+            self.change_folder(cx, window, new_folder);
         } else {
-            self.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+            self.change_folder(cx, window, arc::ROOT_PATH.to_string());
         }
 
         // Select the current file in the parent for easier navigation.
@@ -534,10 +552,10 @@ impl Application {
                 // Update view state back on the UI context and notify for re-render
                 this.update_in(cx, |view, window, cx| {
                     // TODO: report errors.
-                    let new_arc = ArcData::from_path(path);
+                    let new_arc = ArcData::from_path(path, view.preferences.read(cx).arc_region);
 
                     view.arc.write(cx, Some(new_arc));
-                    view.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+                    view.change_folder(cx, window, arc::ROOT_PATH.to_string());
                     cx.notify();
                 })
                 .ok();
@@ -575,10 +593,13 @@ impl Application {
                 // TODO: make this async
                 // Update view state back on the UI context and notify for re-render
                 // TODO: report errors.
-                let new_arc = ArcData::from_ip_address(event.ip_address.as_str());
+                let new_arc = ArcData::from_ip_address(
+                    event.ip_address.as_str(),
+                    this.preferences.read(cx).arc_region,
+                );
 
                 this.arc.write(cx, Some(new_arc));
-                this.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+                this.change_folder(cx, window, arc::ROOT_PATH.to_string());
                 cx.notify();
             },
         )
@@ -620,7 +641,7 @@ impl Application {
         {
             // Check the type to avoid trying to enter files.
             if let FileNodeInfo::Folder { path, .. } = file {
-                self.change_folder(cx, window, path.to_string(), true);
+                self.change_folder(cx, window, path.to_string());
             }
         }
     }
@@ -665,9 +686,9 @@ impl Application {
                 && !parent.is_empty()
             {
                 let new_folder = parent.to_string_lossy().to_string();
-                self.change_folder(cx, window, new_folder, true);
+                self.change_folder(cx, window, new_folder);
             } else {
-                self.change_folder(cx, window, arc::ROOT_PATH.to_string(), true);
+                self.change_folder(cx, window, arc::ROOT_PATH.to_string());
             }
         }
     }
@@ -965,34 +986,32 @@ impl Render for Application {
                 StatusBar::new()
                     .text_base()
                     .text_color(cx.theme().foreground)
-                    .left(
-                        h_flex()
-                            .gap_5()
-                            .child(format!(
-                                "Path: {:?}",
-                                self.arc
-                                    .read(cx)
-                                    .as_ref()
-                                    .map(|arc| arc.file_path.clone())
-                                    .unwrap_or_default()
-                            ))
-                            .child(format!(
-                                "Version: {:?}",
-                                self.arc
-                                    .read(cx)
-                                    .as_ref()
-                                    .map(|arc| arc_version(&arc.arc))
-                                    .unwrap_or_default()
-                            ))
-                            .child(format!(
-                                "File Count: {:?}",
-                                self.arc
-                                    .read(cx)
-                                    .as_ref()
-                                    .map(|arc| arc_file_count(&arc.arc))
-                                    .unwrap_or_default()
-                            )),
-                    ),
+                    .left(h_flex().gap_5().when(self.arc.read(cx).is_some(), |this| {
+                        this.child(format!(
+                            "Path: {:?}",
+                            self.arc
+                                .read(cx)
+                                .as_ref()
+                                .map(|arc| arc.file_path.clone())
+                                .unwrap_or_default()
+                        ))
+                        .child(format!(
+                            "Version: {:?}",
+                            self.arc
+                                .read(cx)
+                                .as_ref()
+                                .map(|arc| arc_version(&arc.arc))
+                                .unwrap_or_default()
+                        ))
+                        .child(format!(
+                            "File Count: {:?}",
+                            self.arc
+                                .read(cx)
+                                .as_ref()
+                                .map(|arc| arc_file_count(&arc.arc))
+                                .unwrap_or_default()
+                        ))
+                    })),
             )
     }
 }
