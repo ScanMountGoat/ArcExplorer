@@ -147,6 +147,14 @@ impl TableDelegate for ArcFilesTableDelegate {
         }
     }
 
+    fn render_empty(
+        &mut self,
+        _window: &mut Window,
+        _cx: &mut Context<TableState<Self>>,
+    ) -> impl IntoElement {
+        div()
+    }
+
     // TODO: test sorting for all sortable columns
     fn perform_sort(
         &mut self,
@@ -1281,10 +1289,23 @@ fn main() {
             }),
             ..Default::default()
         };
-        // TODO: save preferences on close
-        open_window(options, cx, |window, cx| {
+
+        let (main_window, _) = open_window(options, cx, |window, cx| {
             cx.new(|cx| Application::new(window, cx, preferences))
         })
         .unwrap();
+
+        let main_window_id = main_window.window_id();
+
+        cx.on_window_closed(move |cx, closed_id| {
+            if closed_id == main_window_id {
+                // TODO: save preferences on close
+
+                // Quit the application if the main window closes.
+                // This isn't standard for MacOS but matches the original ArcExplorer's behavior.
+                cx.quit();
+            }
+        })
+        .detach();
     });
 }
