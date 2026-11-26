@@ -1,6 +1,6 @@
 name: Compile Release
 
-on: 
+on:
   release:
     types: [created]
   workflow_dispatch:
@@ -8,94 +8,97 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-jobs: 
+jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-    - name: Publish
-      run: |
-        dotnet publish ArcExplorer -c Release -r win-x64
-        copy ArcExplorer\bin\Release\net8.0\win-x64\smash_arc.dll ArcExplorer\bin\Release\net8.0\win-x64\publish\smash_arc.dll
-    - name: Create Release Zip
-      run: Compress-Archive -path "ArcExplorer\bin\Release\net8.0\win-x64\publish\*" -destinationPath ArcExplorer_win_x64.zip
-    - name: Upload Zip
-      uses: actions/upload-artifact@v3
-      with:
-        name: ArcExplorer_win_x64
-        path: ArcExplorer_win_x64.zip
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: ArcExplorer_win_x64.zip
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v6
+      - name: Build
+        run: cargo build --release
+      - name: Set Icon
+        run: |
+          curl.exe -sSL "https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe" -o rcedit.exe
+          .\rcedit.exe target/release/arc_explorer.exe --set-icon src/icons/icon.ico
+      - name: Create Zip
+        run: Compress-Archive -path target/release/arc_explorer.exe -destinationPath arc_explorer_win_x64.zip
+      - name: Upload Zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc_explorer_win_x64
+          path: arc_explorer_win_x64.zip
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: arc_explorer_win_x64.zip
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   build-macos:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [x86_64-apple-darwin]
+        desc: [intel]
+        include:
+          - target: aarch64-apple-darwin
+            desc: apple_silicon
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-    - name: Publish
-      run: |
-        cd ArcExplorer
-        dotnet build -t:BundleApp -p:RuntimeIdentifier=osx-x64 -property:Configuration=Release -p:UseAppHost=true -p:SelfContained=true
-        cp bin/Release/net8.0/osx-x64/libsmash_arc.dylib bin/Release/net8.0/osx-x64/publish/ArcExplorer.app/Contents/MacOS/libsmash_arc.dylib
-        cd ..
-    - name: Sign Binaries
-      run: codesign -s - --force --deep ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app
-    - name: Create Release Zip
-      run: |
-        # Ignore folders
-        cp -r ArcExplorer/bin/Release/net8.0/osx-x64/publish/ArcExplorer.app ArcExplorer.app
-        zip -r ArcExplorer_macos_x64.zip ArcExplorer.app
-    - name: Upload Zip
-      uses: actions/upload-artifact@v3
-      with:
-        name: ArcExplorer_macos_x64
-        path: ArcExplorer_macos_x64.zip
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: ArcExplorer_macos_x64.zip
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v6
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{matrix.target}}
+      - uses: cargo-bins/cargo-binstall@main
+      - name: Install cargo-bundle
+        run: cargo binstall cargo-bundle --version 0.12.0
+      - name: Bundle
+        run: cargo bundle --release --format osx --target ${{matrix.target}}
+      - name: Sign Binaries
+        run: codesign -s - target/${{matrix.target}}/release/bundle/osx/arc_explorer.app
+      - name: Create Zip
+        run: |
+          cp -r target/${{matrix.target}}/release/bundle/osx/arc_explorer.app arc_explorer.app
+          zip -r arc_explorer_macos_${{matrix.desc}}.zip arc_explorer.app
+      - name: Upload Zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc_explorer_macos_${{matrix.desc}}
+          path: arc_explorer_macos_${{matrix.desc}}.zip
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: arc_explorer_macos_${{matrix.desc}}.zip
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-    - name: Publish
-      run: |
-        dotnet publish ArcExplorer -c Release -r linux-x64
-        cp ArcExplorer/bin/Release/net8.0/linux-x64/libsmash_arc.so ArcExplorer/bin/Release/net8.0/linux-x64/publish/libsmash_arc.so
-    - name: Create Release Zip
-      run: zip -rj ArcExplorer_linux_x64.zip ArcExplorer/bin/Release/net8.0/linux-x64/publish
-    - name: Upload Zip
-      uses: actions/upload-artifact@v3
-      with:
-        name: ArcExplorer_linux_x64
-        path: ArcExplorer_linux_x64.zip
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: ArcExplorer_linux_x64.zip
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v6
+      - uses: cargo-bins/cargo-binstall@main
+      - name: Install cargo-bundle
+        run: cargo binstall cargo-bundle --version 0.12.0
+      - name: Install Ubuntu Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libfontconfig-dev \
+          libxkbcommon-x11-dev
+      - name: Bundle
+        run: cargo bundle --release --format appimage
+      - name: Create Zip
+        run: zip -j arc_explorer_linux_x64.zip target/release/bundle/appimage/*.AppImage
+      - name: Upload Zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc_explorer_linux_x64
+          path: arc_explorer_linux_x64.zip
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: arc_explorer_linux_x64.zip
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
